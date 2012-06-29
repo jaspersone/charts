@@ -1,0 +1,76 @@
+/*
+Title:   Custom CSS for Demo Page
+Author:  Jasper Sone, Eric Meyer (for reset)
+License: Unlimited use, reuse, modifications. Please just credit original authors.
+Updated: June 28, 2012
+Version: 0.0
+*/
+
+/************************************/
+/* Eric Meyer Reset                 */
+/************************************/
+
+div.lotus-charts, .lotus-charts div, .lotus-charts span, .lotus-charts iframe,
+.lotus-charts h1, .lotus-charts h2, .lotus-charts h3, .lotus-charts h4, .lotus-charts h5, .lotus-charts h6, .lotus-charts p, .lotus-charts blockquote, .lotus-charts pre,
+.lotus-charts a, .lotus-charts abbr, .lotus-charts acronym, .lotus-charts address, .lotus-charts big, .lotus-charts cite, .lotus-charts code,
+.lotus-charts del, .lotus-charts dfn, .lotus-charts em, .lotus-charts img, .lotus-charts .lotus-charts ins, .lotus-charts kbd, .lotus-charts q, .lotus-charts s, .lotus-charts samp,
+.lotus-charts small, .lotus-charts strike, .lotus-charts strong, .lotus-charts sub, .lotus-charts sup, .lotus-charts tt, .lotus-charts var,
+.lotus-charts b, .lotus-charts u, .lotus-charts i, .lotus-charts center,
+.lotus-charts dl, .lotus-charts dt, .lotus-charts dd, .lotus-charts ol, .lotus-charts ul, .lotus-charts li,
+.lotus-charts fieldset, .lotus-charts form, .lotus-charts label, .lotus-charts legend,
+.lotus-charts table, .lotus-charts caption, .lotus-charts tbody, .lotus-charts tfoot, .lotus-charts thead, .lotus-charts tr, .lotus-charts th, .lotus-charts td,
+.lotus-charts article, .lotus-charts aside, .lotus-charts canvas, .lotus-charts details, .lotus-charts figcaption, .lotus-charts figure, 
+.lotus-charts footer, .lotus-charts header, .lotus-charts hgroup, .lotus-charts menu, .lotus-charts nav, .lotus-charts section, .lotus-charts summary,
+.lotus-charts time, .lotus-charts mark, .lotus-charts audio, .lotus-charts video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+.lotus-charts article, .lotus-charts aside, .lotus-charts details, .lotus-charts figcaption, .lotus-charts figure, 
+.lotus-charts footer, .lotus-charts header, .lotus-charts hgroup, .lotus-charts menu, .lotus-charts nav, .lotus-charts section {
+        display: block;
+}
+div.lotus-charts {
+    line-height: 1;
+}
+.lotus-charts ol, .lotus-charts ul {
+    list-style: none;
+}
+.lotus-charts blockquote, .lotus-charts q {
+    quotes: none;
+}
+.lotus-charts blockquote:before, .lotus-charts blockquote:after,
+.lotus-charts q:before, .lotus-charts q:after {
+    content: '';
+    content: none;
+}
+
+/* remember to define visible focus styles! 
+:focus {
+    outline: ?????;
+} */
+
+/* remember to highlight inserts somehow! */
+.lotus-charts ins {
+    text-decoration: none;
+}
+.lotus-charts del {
+    text-decoration: line-through;
+}
+
+.lotus-charts table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+
+/************************************/
+/* Primary Element Styles           */
+/************************************/
+
+
