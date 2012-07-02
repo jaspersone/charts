@@ -72,5 +72,44 @@ div.lotus-charts {
 /************************************/
 /* Primary Element Styles           */
 /************************************/
+.lotus-charts {
+    background: #eee;
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
 
+.lotus-charts .lotus-padding {
+    padding: 8px;
+}
+/************************************/
+/* Bar Fill Chart                   */
+/************************************/
+.lotus-charts.horizontal-bar-chart {
+    padding: 16px 0;
+}
+
+.lotus-charts.horizontal-bar-chart .lotus-chart-label-box {
+    background: #fcc;
+    float: left;
+    width: 20%;
+}
+
+.lotus-charts.horizontal-bar-chart .lotus-charts-bar-chart {
+    background: #cfc;
+    float: left;
+    width: 70%;
+}
+.lotus-charts.horizontal-bar-chart .lotus-cahrts-bar-chart .fill-container {
+    background: #333;
+    width: 100%;
+    height: 30px;
+    display: block;
+}
+
+.lotus-charts.horizontal-bar-chart .lotus-charts-alerts {
+    background: #ccf;
+    float: left;
+    width: 10%;
+}
 

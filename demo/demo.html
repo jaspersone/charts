@@ -5,11 +5,12 @@
     <!-- Style sheets for this demo page -->
     <link rel="stylesheet" type="text/css" href="../css/reset.css" />
     <link rel="stylesheet" type="text/css" href="../css/demo.css" />
+    <link rel="stylesheet" type="text/css" href="../css/chart_style.css" />
     <!-- End demo page style sheets -->
 
     <!-- Copy and paste below into your header -->
     <link rel="stylesheet" type="text/css" href="../css/chart_style.css" />
-    <script src="../js/jquery-1.7.2.min.js"></scri`pt>  
+    <script src="../js/jquery-1.7.2.min.js"></script>  
     <script src="../js/lotus_charts.js"></script>
     <!-- End copy and paste into your header -->
 </head>
@@ -27,12 +28,45 @@
     <div>
         <h2>Bar Fill Chart</h2>
         <p>The chart description goes here</p>
-        <div class="lotus-charts bar-fill-chart" vars="(0,100,47)"><!--vars="(min_val,max_val,value)" --></div>
+        <div class="lotus-charts horizontal-bar-chart" vars="(bar-fill-chart), (0,100,47)">
+            <!-- This is code should be automatically generated -->
+            <div class="lotus-chart-label-box">
+                <div class="lotus-padding">
+                    <div class="lotus-chart-label-title">
+                        Total Budget
+                    </div>
+                    <div class="lotus-chart-label-value">
+                        <span class="currency-symbol">$</span><span class="number">55<span class="scale">k</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lotus-charts-bar-chart">
+                <div class="lotus-padding">
+                    <div class="fill-container">
+                        <div class="fill"></div>
+                    </div>
+                    <div class="chart-marker">
+                        <div class="marker-flag"></div>
+                        <div class="marker-label">
+                            <span class="currency-symbol">$</span><span class="number">45.5<span class="scale">k</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lotus-charts-alerts">
+                <div class="lotus-padding">
+                    this is where alerts would go
+                </div>
+            </div>
+            <!-- End automatically generated code -->
+        </div>
     </div>
     <div>
         <h2>Line Charts</h2>
         <p>The chart description goes here</p>
-        <div class="lotus-charts line-chart" vars="">
+        <div class="lotus-charts" vars="">
             <!-- Vars example
             (width <px, em, or %>, height <px, em, or %>),
             (graph x-min, graph x-max, graph y-min, graph y-max),
