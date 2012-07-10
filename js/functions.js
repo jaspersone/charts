@@ -77,18 +77,6 @@ function delCookie(name) {
 }
 
 /************************************
-* Image Preloading                  *
-************************************/
-
-// Array of images:
-var imageArray = ['/media/search-spinner.gif', '/media/hr-search.png'];
- 
-// Loop through and declare an element that will not actually be used.
-$.each(imageArray, function (i, val) {
-  $('<img/>').attr('src', val);
-});
-
-/************************************
 * Main                              *
 ************************************/
 
