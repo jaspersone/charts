@@ -7,6 +7,31 @@ Version: 0.0
 */
 
 /************************************/
+/* Less Variables	                */
+/* 	Change these variables to		*/
+/*	alter primary chart colors		*/
+/************************************/
+@primary-font-color: #333;
+@heading-font-color: #333;
+
+@h1-size: 2.5em;
+@h2-size: 2em;
+@h3-size: 1.5em;
+@h4-size: 1.2em;
+@h5-size: 1em;
+@h6-size: .8em;
+
+@default-padding: 8px;
+
+@bar-bg-color: #eee;
+@bar-primary-color: #999;
+@bar-warning-color: #ce3166; 
+
+@bar-label-box-width: 20%;
+@bar-chart-box-width: 70%;
+@bar-alert-box-width: 10%;
+@bar-fill-margin: 4px;
+/************************************/
 /* Eric Meyer Reset                 */
 /************************************/
 
@@ -31,9 +56,11 @@ div.lotus-charts, .lotus-charts div, .lotus-charts span, .lotus-charts iframe,
     vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
-.lotus-charts article, .lotus-charts aside, .lotus-charts details, .lotus-charts figcaption, .lotus-charts figure, 
-.lotus-charts footer, .lotus-charts header, .lotus-charts hgroup, .lotus-charts menu, .lotus-charts nav, .lotus-charts section {
-        display: block;
+.lotus-charts {
+	article, aside, details, figcaption, figure, footer,
+	header, hgroup, menu, nav, section {
+    	display: block;
+	}
 }
 div.lotus-charts {
     line-height: 1;
@@ -86,6 +113,18 @@ div.lotus-charts, .lotus-charts div, .lotus-charts span, .lotus-charts iframe,
     font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
 }
 
+.lotus-charts {
+	h1, h2, h3, h4, h5, h6 {
+		color: @heading-font-color;
+	}
+	h1 { font-size: @h1-size;}
+	h2 { font-size: @h2-size;}
+	h3 { font-size: @h3-size;}
+	h4 { font-size: @h4-size;}
+	h5 { font-size: @h5-size;}
+	h6 { font-size: @h6-size;}
+}
+
 /************************************/
 /* Primary Element Styles           */
 /************************************/
@@ -97,19 +136,21 @@ div.lotus-charts, .lotus-charts div, .lotus-charts span, .lotus-charts iframe,
 }
 
 .lotus-charts .lotus-padding {
-    padding: 8px;
+    padding: @default-padding;
 }
 /************************************/
 /* Bar Fill Chart                   */
 /************************************/
 .lotus-charts.horizontal-bar-chart {
-    padding: 16px 0;
+    padding: @default-padding 0;
 }
 
 .lotus-charts.horizontal-bar-chart .chart-marker-box {
     background: #eee;
+	margin-left: @default-padding + @bar-fill-margin;
     position: relative;
-    left: 20%;
+    left: @bar-label-box-width;
+	top: @h5-size;
     width: 79%;
 }
 .lotus-charts.horizontal-bar-chart .chart-marker {
@@ -132,17 +173,28 @@ div.lotus-charts, .lotus-charts div, .lotus-charts span, .lotus-charts iframe,
     left: -11px;
 }
 .lotus-charts.horizontal-bar-chart .lotus-chart-label-box {
-    background: #fcc;
     float: left;
-    width: 20%;
+    width: @bar-label-box-width;
+}
+
+.lotus-charts.horizontal-bar-chart .lotus-chart-label-title {
+	color: @heading-font-color;
+	font-size: 1em;
+}
+
+.lotus-charts.horizontal-bar-chart .lotus-chart-label-value {
+	color: @primary-font-color;
+	font-size: 2em;
+	font-weight: 600;
 }
 
 .lotus-charts.horizontal-bar-chart .lotus-charts-bar-chart {
     float: left;
-    width: 70%;
+	margin-top: @h5-size;
+    width: @bar-chart-box-width;
 }
 .lotus-charts.horizontal-bar-chart .lotus-charts-bar-chart .fill-container {
-    background: #ccc url(../images/noise.png) repeat left top;
+    background: @bar-bg-color url(../images/noise.png) repeat left top;
     display: block;
     overflow: hidden;
     width: 100%;
@@ -155,9 +207,9 @@ div.lotus-charts, .lotus-charts div, .lotus-charts span, .lotus-charts iframe,
     z-index: 800;
 }
 .lotus-charts.horizontal-bar-chart .lotus-charts-bar-chart .fill-container .fill {
-    background: #5BBC19 url(../images/stripes.png) repeat left top;
+    background: @bar-primary-color url(../images/stripes-light.png) repeat left top;
     height: 26px;
-    margin: 4px;
+    margin: @bar-fill-margin;
     border-radius: 3px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
@@ -167,7 +219,8 @@ div.lotus-charts, .lotus-charts div, .lotus-charts span, .lotus-charts iframe,
 .lotus-charts.horizontal-bar-chart .lotus-charts-alerts {
     background: #ccf;
     float: left;
-    width: 10%;
+	margin-top: @h5-size;
+    width: @bar-alert-box-width;
     z-index: 800;
 }
 
