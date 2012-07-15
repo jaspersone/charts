@@ -11,8 +11,13 @@ Version: 0.0
 /* 	Change these variables to		*/
 /*	alter primary chart colors		*/
 /************************************/
+@pink:      #cc194b;
+@purple:    #992670;
+@blue:      #6dafe1;
+@green:     #5bbc19;
+
 @primary-font-color: #333;
-@heading-font-color: #333;
+@heading-font-color: #222;
 
 @h1-size: 2.5em;
 @h2-size: 2em;
@@ -31,6 +36,11 @@ Version: 0.0
 @bar-chart-box-width: 70%;
 @bar-alert-box-width: 10%;
 @bar-fill-margin: 4px;
+
+@vertical-bar-max-height: 300px;
+@vertical-bar-width: 112px;
+@vertical-bar-chart-line-color: #e5e5e5;
+
 /************************************/
 /* Eric Meyer Reset                 */
 /************************************/
@@ -139,6 +149,7 @@ div.lotus-charts, .lotus-charts div, .lotus-charts span, .lotus-charts iframe,
 .lotus-charts .lotus-padding {
     padding: @default-padding;
 }
+
 /************************************/
 /* Bar Fill Chart                   */
 /************************************/
@@ -168,7 +179,7 @@ div.lotus-charts, .lotus-charts div, .lotus-charts span, .lotus-charts iframe,
     height: 0px;
     border-style: solid;
     border-width: 0 10px 14px 0;
-    border-color: transparent #444444 transparent transparent;
+    border-color: transparent #444 transparent transparent;
     position: relative;
     top: 14px;
     left: -11px;
@@ -225,3 +236,84 @@ div.lotus-charts, .lotus-charts div, .lotus-charts span, .lotus-charts iframe,
     z-index: 800;
 }
 
+/************************************/
+/* Vertical Bar Chart               */
+/************************************/
+.lotus-charts.vertical-bar-chart {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.lotus-charts.vertical-bar-chart .chart-slice-window {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    height: @vertical-bar-max-height;
+    padding: 60px 0;
+}
+
+.lotus-charts.vertical-bar-chart .chart-slice {
+    border-top: 1px solid @vertical-bar-chart-line-color;
+    border-bottom: 1px solid @vertical-bar-chart-line-color;
+    float: left;
+    height: @vertical-bar-max-height;
+    width: @vertical-bar-width;
+    position: relative;
+    padding: 0 8px;
+}
+
+.lotus-charts.vertical-bar-chart .chart-slice .slider-rail {
+    height: @vertical-bar-max-height;
+    position: relative;
+    left: 50%;
+    border-left: 1px solid @vertical-bar-chart-line-color;
+}
+
+.lotus-charts.vertical-bar-chart .chart-slice .bar {
+    background: hsla(hue(@blue), saturation(@blue), lightness(@blue), 0.6);
+    border-top: 1px solid @blue;
+    position: absolute;
+    bottom: 0;
+    overflow: visible;
+    width: @vertical-bar-width;
+    -webkit-border-top-left-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    filter:alpha(opacity=60); /* For IE8 and earlier */
+}
+
+.lotus-charts.vertical-bar-chart .chart-slice .bar.saved {
+    border-top: 0;
+ }
+
+.lotus-charts.vertical-bar-chart .chart-slice .bar .pull-tab {
+    background: #fff;
+    border: 3px solid @blue;
+    margin: 0 auto;
+    position: relative;
+    top: -13px;
+    width: 20px;
+    height: 20px;
+    -webkit-border-radius: 13px;
+    -moz-border-radius: 13px;
+    border-radius: 13px;
+}
+
+.lotus-charts.vertical-bar-chart .chart-slice .bar.saved .pull-tab {
+    border: 3px solid #fff;
+    background: @blue;
+}
+
+.lotus-charts.vertical-bar-chart .chart-slice .slice-label {
+    border-top: 6px solid @vertical-bar-chart-line-color;
+    color: @primary-font-color + #555;
+    font-size: .8em;
+    text-align: center;
+    text-transform: uppercase;
+    margin-top: 20px;
+    padding-top: 6px;
+}

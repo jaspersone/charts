@@ -21,8 +21,8 @@
     </header>
     <nav>
         <ul>
-            <li>Chart type 1</li>
-            <li>Chart type 2</li>
+            <li>Bar Fill Chart</li>
+            <li>Vertical Bar Chart</li>
             <li>Chart type 3</li>
         </ul>
     </nav>
@@ -70,13 +70,82 @@
         </div>
     </div>
     <div>
-        <h2>Line Charts</h2>
+        <h2>Vertical Bar Charts</h2>
         <p>The chart description goes here</p>
-        <div class="lotus-charts" vars="">
-            <!-- Vars example
-            (width <px, em, or %>, height <px, em, or %>),
-            (graph x-min, graph x-max, graph y-min, graph y-max),
+        <!-- Vars example
+        (width <px, em, or %>, height <px, em, or %>),
+        (graph x-min, graph x-max, graph y-min, graph y-max),
+        -->
+        <div class="lotus-charts vertical-bar-chart" vars="">
+            <!-- This slider resides inside vertical-bar-chart and has width of its
+                 contained items. This should be reset via javascript to appropriately
+                 fit all of its contents.
             -->
+            <div class="chart-slice-window">
+                <div class="chart-slice">
+                    <div class="slider-rail"><!-- Single Line --></div>
+                    <div class="bar" style="height: 0px;">
+                        <div class="pull-tab">
+                            <!-- This is the circle that the user can grab -->
+                        </div>
+                    </div>
+                    <div class="slice-label">Q1</div>
+                </div>
+                <div class="chart-slice">
+                    <div class="slider-rail"><!-- Single Line --></div>
+                    <div class="bar saved" style="height: 250px;">
+                        <div class="pull-tab">
+                            <!-- This is the circle that the user can grab -->
+                        </div>
+                    </div>
+                    <div class="slice-label">Q2</div>
+                </div>
+                <div class="chart-slice">
+                    <div class="slider-rail"><!-- Single Line --></div>
+                    <div class="bar saved" style="height: 140px;">
+                        <div class="pull-tab">
+                            <!-- This is the circle that the user can grab -->
+                        </div>
+                    </div>
+                    <div class="slice-label">Q3</div>
+                </div>
+                <div class="chart-slice">
+                    <div class="slider-rail"><!-- Single Line --></div>
+                    <div class="bar saved" style="height: 150px;">
+                        <div class="pull-tab">
+                            <!-- This is the circle that the user can grab -->
+                        </div>
+                    </div>
+                    <div class="slice-label">Q4</div>
+                </div>
+                <div class="chart-slice">
+                    <div class="slider-rail"><!-- Single Line --></div>
+                    <div class="bar saved" style="height: 10px;">
+                        <div class="pull-tab">
+                            <!-- This is the circle that the user can grab -->
+                        </div>
+                    </div>
+                    <div class="slice-label">Q1</div>
+               </div>
+                <div class="chart-slice">
+                    <div class="slider-rail"><!-- Single Line --></div>
+                    <div class="bar saved" style="height: 270px;">
+                        <div class="pull-tab">
+                            <!-- This is the circle that the user can grab -->
+                        </div>
+                    </div>
+                    <div class="slice-label">Q2</div>
+                </div>
+                <div class="chart-slice">
+                    <div class="slider-rail"><!-- Single Line --></div>
+                    <div class="bar saved" style="height: 74px;">
+                        <div class="pull-tab">
+                            <!-- This is the circle that the user can grab -->
+                        </div>
+                    </div>
+                    <div class="slice-label">Q3</div>
+                </div>
+            </div>
         </div>
     </div>
     <footer>
