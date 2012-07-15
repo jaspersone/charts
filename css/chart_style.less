@@ -264,10 +264,12 @@ div.lotus-charts, .lotus-charts div, .lotus-charts span, .lotus-charts iframe,
 }
 
 .lotus-charts.vertical-bar-chart .chart-slice .slider-rail {
+    border-left: 1px solid @vertical-bar-chart-line-color;
     height: @vertical-bar-max-height;
+    margin: 0;
     position: relative;
     left: 50%;
-    border-left: 1px solid @vertical-bar-chart-line-color;
+    width: 50%;
 }
 
 .lotus-charts.vertical-bar-chart .chart-slice .bar {
