@@ -18,6 +18,7 @@ Version: 0.0
 
 @primary-font-color: #333;
 @heading-font-color: #222;
+@label-color-light: @primary-font-color + #555;
 
 @h1-size: 2.5em;
 @h2-size: 2em;
@@ -243,6 +244,7 @@ div.lotus-charts, .lotus-charts {
 /************************************/
 /* Chart slice less vars */
 @slice-padding: 8px;
+@label-padding: 60px;
 @slice-width: @vertical-bar-width + (@slice-padding * 2);
 
 .lotus-charts.vertical-bar-chart {
@@ -256,18 +258,24 @@ div.lotus-charts, .lotus-charts {
     position: relative;
     width: 100%;
     height: @vertical-bar-max-height;
-    padding: 60px 0;
+    padding: @label-padding 0 (@label-padding * 2);
 }
 
 .lotus-charts.vertical-bar-chart .period {
     background: #fef;
     float: left;
-    padding: 0 0 60px;
+    height: @vertical-bar-max-height;
+    padding: 0;
     position: relative;
-    overflow: hidden;
-    /* height is assigned by adding sibling class ".slice_X"
+    /* width is assigned by adding sibling class ".slice_X"
         where X = the number of slices that this period will 
         contain */
+}
+.lotus-charts.vertical-bar-chart .period-label {
+    border-top: 1px solid @vertical-bar-chart-line-color;
+    position: absolute;
+    top: @vertical-bar-max-height + @label-padding;
+    padding: 0 @slice-padding;
 }
 
 .lotus-charts.vertical-bar-chart .chart-slice {
@@ -280,85 +288,11 @@ div.lotus-charts, .lotus-charts {
     padding: 0 @slice-padding;
 }
 
-/* Chart slice grids */
 .lotus-charts.vertical-bar-chart {
-    .period.slice_half {
-        width: @vertical-bar-width / 2;
-    }
-    .period.slice_1 {
-        width: @vertical-bar-width;
-    }
-    .period.slice_2 {
-        width: (@slice-width * 2) - (@slice-padding * 2);
-    }
-    .period.slice_3 {
-        width: (@slice-width * 3) - (@slice-padding * 2);
-    }
-    .period.slice_4 {
-        width: (@slice-width * 4) - (@slice-padding * 2);
-    }
-    .period.slice_5 {
-        width: (@slice-width * 5) - (@slice-padding * 2);
-    }
-    .period.slice_6 {
-        width: (@slice-width * 6) - (@slice-padding * 2);
-    }
-    .period.slice_7 {
-        width: (@slice-width * 7) - (@slice-padding * 2);
-    }
-    .period.slice_8 {
-        width: (@slice-width * 8) - (@slice-padding * 2);
-    }
-    .period.slice_9 {
-        width: (@slice-width * 9) - (@slice-padding * 2);
-    }
-    .period.slice_10 {
-        width: (@slice-width * 10) - (@slice-padding * 2);
-    }
-    .period.slice_11 {
-        width: (@slice-width * 11) - (@slice-padding * 2);
-    }
-    .period.slice_12 {
-        width: (@slice-width * 12) - (@slice-padding * 2);
-    }
-    .period.slice_13 {
-        width: (@slice-width * 13) - (@slice-padding * 2);
-    }
-    .period.slice_14 {
-        width: (@slice-width * 14) - (@slice-padding * 2);
-    }
-    .period.slice_15 {
-        width: (@slice-width * 15) - (@slice-padding * 2);
-    }
-    .period.slice_16 {
-        width: (@slice-width * 16) - (@slice-padding * 2);
-    }
-    .period.slice_17 {
-        width: (@slice-width * 17) - (@slice-padding * 2);
-    }
-    .period.slice_18 {
-        width: (@slice-width * 18) - (@slice-padding * 2);
-    }
-    .period.slice_19 {
-        width: (@slice-width * 19) - (@slice-padding * 2);
-    }
-    .period.slice_20 {
-        width: (@slice-width * 20) - (@slice-padding * 2);
-    }
-    .period.slice_21 {
-        width: (@slice-width * 21) - (@slice-padding * 2);
-    }
-    .period.slice_22 {
-        width: (@slice-width * 22) - (@slice-padding * 2);
-    }
-    .period.slice_23 {
-        width: (@slice-width * 23) - (@slice-padding * 2);
-    }
-    .period.slice_24 {
-        width: (@slice-width * 24) - (@slice-padding * 2);
+    .period-label, .slice-label {
+        color: @label-color-light;
     }
 }
-
 
 .lotus-charts.vertical-bar-chart .chart-slice .slider-rail {
     border-left: 1px solid @vertical-bar-chart-line-color;
@@ -387,7 +321,7 @@ div.lotus-charts, .lotus-charts {
 
 .lotus-charts.vertical-bar-chart .chart-slice .bar.saved {
     border-top: 0;
- }
+}
 
 .lotus-charts.vertical-bar-chart .chart-slice .bar .pull-tab {
     background: #fff;
@@ -409,10 +343,90 @@ div.lotus-charts, .lotus-charts {
 
 .lotus-charts.vertical-bar-chart .chart-slice .slice-label {
     border-top: 6px solid @vertical-bar-chart-line-color;
-    color: @primary-font-color + #555;
     font-size: .8em;
     text-align: center;
     text-transform: uppercase;
     margin-top: 20px;
     padding-top: 6px;
 }
+
+/* Chart slice grids */
+.lotus-charts.vertical-bar-chart {
+    .period.slice_half {
+        width: @vertical-bar-width / 2;
+    }
+    .period.slice_1 {
+        width: @vertical-bar-width;
+    }
+    .period.slice_2 {
+        width: (@slice-width * 2);
+    }
+    .period.slice_3 {
+        width: (@slice-width * 3);
+    }
+    .period.slice_4 {
+        width: (@slice-width * 4);
+    }
+    .period.slice_5 {
+        width: (@slice-width * 5);
+    }
+    .period.slice_6 {
+        width: (@slice-width * 6);
+    }
+    .period.slice_7 {
+        width: (@slice-width * 7);
+    }
+    .period.slice_8 {
+        width: (@slice-width * 8);
+    }
+    .period.slice_9 {
+        width: (@slice-width * 9);
+    }
+    .period.slice_10 {
+        width: (@slice-width * 10);
+    }
+    .period.slice_11 {
+        width: (@slice-width * 11);
+    }
+    .period.slice_12 {
+        width: (@slice-width * 12);
+    }
+    .period.slice_13 {
+        width: (@slice-width * 13);
+    }
+    .period.slice_14 {
+        width: (@slice-width * 14);
+    }
+    .period.slice_15 {
+        width: (@slice-width * 15);
+    }
+    .period.slice_16 {
+        width: (@slice-width * 16);
+    }
+    .period.slice_17 {
+        width: (@slice-width * 17);
+    }
+    .period.slice_18 {
+        width: (@slice-width * 18);
+    }
+    .period.slice_19 {
+        width: (@slice-width * 19);
+    }
+    .period.slice_20 {
+        width: (@slice-width * 20);
+    }
+    .period.slice_21 {
+        width: (@slice-width * 21);
+    }
+    .period.slice_22 {
+        width: (@slice-width * 22);
+    }
+    .period.slice_23 {
+        width: (@slice-width * 23);
+    }
+    .period.slice_24 {
+        width: (@slice-width * 24);
+    }
+}
+
+
