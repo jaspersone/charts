@@ -109,19 +109,21 @@ div.lotus-charts {
 /************************************/
 /* Typography                       */
 /************************************/
-div.lotus-charts, .lotus-charts div, .lotus-charts span, .lotus-charts iframe,
-.lotus-charts h1, .lotus-charts h2, .lotus-charts h3, .lotus-charts h4, .lotus-charts h5, .lotus-charts h6, .lotus-charts p, .lotus-charts blockquote, .lotus-charts pre,
-.lotus-charts a, .lotus-charts abbr, .lotus-charts acronym, .lotus-charts address, .lotus-charts big, .lotus-charts cite, .lotus-charts code,
-.lotus-charts del, .lotus-charts dfn, .lotus-charts em, .lotus-charts img, .lotus-charts .lotus-charts ins, .lotus-charts kbd, .lotus-charts q, .lotus-charts s, .lotus-charts samp,
-.lotus-charts small, .lotus-charts strike, .lotus-charts strong, .lotus-charts sub, .lotus-charts sup, .lotus-charts tt, .lotus-charts var,
-.lotus-charts b, .lotus-charts u, .lotus-charts i, .lotus-charts center,
-.lotus-charts dl, .lotus-charts dt, .lotus-charts dd, .lotus-charts ol, .lotus-charts ul, .lotus-charts li,
-.lotus-charts fieldset, .lotus-charts form, .lotus-charts label, .lotus-charts legend,
-.lotus-charts table, .lotus-charts caption, .lotus-charts tbody, .lotus-charts tfoot, .lotus-charts thead, .lotus-charts tr, .lotus-charts th, .lotus-charts td,
-.lotus-charts article, .lotus-charts aside, .lotus-charts canvas, .lotus-charts details, .lotus-charts figcaption, .lotus-charts figure, 
-.lotus-charts footer, .lotus-charts header, .lotus-charts hgroup, .lotus-charts menu, .lotus-charts nav, .lotus-charts section, .lotus-charts summary,
-.lotus-charts time, .lotus-charts mark, .lotus-charts audio, .lotus-charts video {
-    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+div.lotus-charts, .lotus-charts {
+    div, span, iframe,
+    h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+    a, abbr, acronym, address, big, cite, code,
+    del, dfn, em, img, ins, kbd, q, s, samp,
+    small, strike, strong, sub, sup, tt, var,
+    b, u, i, center,
+    dl, dt, dd, ol, ul, li,
+    fieldset, form, label, legend,
+    table, caption, tbody, tfoot, thead, tr, th, td,
+    article, aside, canvas, details, figcaption, figure, 
+    footer, header, hgroup, menu, nav, section, summary,
+    time, mark, audio, video {
+        font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+    }
 }
 
 .lotus-charts {
@@ -239,6 +241,10 @@ div.lotus-charts, .lotus-charts div, .lotus-charts span, .lotus-charts iframe,
 /************************************/
 /* Vertical Bar Chart               */
 /************************************/
+/* Chart slice less vars */
+@slice-padding: 8px;
+@slice-width: @vertical-bar-width + (@slice-padding * 2);
+
 .lotus-charts.vertical-bar-chart {
     overflow: hidden;
     position: relative;
@@ -253,6 +259,17 @@ div.lotus-charts, .lotus-charts div, .lotus-charts span, .lotus-charts iframe,
     padding: 60px 0;
 }
 
+.lotus-charts.vertical-bar-chart .period {
+    background: #fef;
+    float: left;
+    padding: 0 0 60px;
+    position: relative;
+    overflow: hidden;
+    /* height is assigned by adding sibling class ".slice_X"
+        where X = the number of slices that this period will 
+        contain */
+}
+
 .lotus-charts.vertical-bar-chart .chart-slice {
     border-top: 1px solid @vertical-bar-chart-line-color;
     border-bottom: 1px solid @vertical-bar-chart-line-color;
@@ -260,16 +277,96 @@ div.lotus-charts, .lotus-charts div, .lotus-charts span, .lotus-charts iframe,
     height: @vertical-bar-max-height;
     width: @vertical-bar-width;
     position: relative;
-    padding: 0 8px;
+    padding: 0 @slice-padding;
 }
+
+/* Chart slice grids */
+.lotus-charts.vertical-bar-chart {
+    .period.slice_half {
+        width: @vertical-bar-width / 2;
+    }
+    .period.slice_1 {
+        width: @vertical-bar-width;
+    }
+    .period.slice_2 {
+        width: (@slice-width * 2) - (@slice-padding * 2);
+    }
+    .period.slice_3 {
+        width: (@slice-width * 3) - (@slice-padding * 2);
+    }
+    .period.slice_4 {
+        width: (@slice-width * 4) - (@slice-padding * 2);
+    }
+    .period.slice_5 {
+        width: (@slice-width * 5) - (@slice-padding * 2);
+    }
+    .period.slice_6 {
+        width: (@slice-width * 6) - (@slice-padding * 2);
+    }
+    .period.slice_7 {
+        width: (@slice-width * 7) - (@slice-padding * 2);
+    }
+    .period.slice_8 {
+        width: (@slice-width * 8) - (@slice-padding * 2);
+    }
+    .period.slice_9 {
+        width: (@slice-width * 9) - (@slice-padding * 2);
+    }
+    .period.slice_10 {
+        width: (@slice-width * 10) - (@slice-padding * 2);
+    }
+    .period.slice_11 {
+        width: (@slice-width * 11) - (@slice-padding * 2);
+    }
+    .period.slice_12 {
+        width: (@slice-width * 12) - (@slice-padding * 2);
+    }
+    .period.slice_13 {
+        width: (@slice-width * 13) - (@slice-padding * 2);
+    }
+    .period.slice_14 {
+        width: (@slice-width * 14) - (@slice-padding * 2);
+    }
+    .period.slice_15 {
+        width: (@slice-width * 15) - (@slice-padding * 2);
+    }
+    .period.slice_16 {
+        width: (@slice-width * 16) - (@slice-padding * 2);
+    }
+    .period.slice_17 {
+        width: (@slice-width * 17) - (@slice-padding * 2);
+    }
+    .period.slice_18 {
+        width: (@slice-width * 18) - (@slice-padding * 2);
+    }
+    .period.slice_19 {
+        width: (@slice-width * 19) - (@slice-padding * 2);
+    }
+    .period.slice_20 {
+        width: (@slice-width * 20) - (@slice-padding * 2);
+    }
+    .period.slice_21 {
+        width: (@slice-width * 21) - (@slice-padding * 2);
+    }
+    .period.slice_22 {
+        width: (@slice-width * 22) - (@slice-padding * 2);
+    }
+    .period.slice_23 {
+        width: (@slice-width * 23) - (@slice-padding * 2);
+    }
+    .period.slice_24 {
+        width: (@slice-width * 24) - (@slice-padding * 2);
+    }
+}
+
 
 .lotus-charts.vertical-bar-chart .chart-slice .slider-rail {
     border-left: 1px solid @vertical-bar-chart-line-color;
     height: @vertical-bar-max-height;
     margin: 0;
     position: relative;
-    left: 50%;
-    width: 50%;
+    margin-left: (@vertical-bar-width / 2);
+    width: (@vertical-bar-width / 2) - 1px;
 }
 
 .lotus-charts.vertical-bar-chart .chart-slice .bar {
