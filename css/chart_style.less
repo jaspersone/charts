@@ -137,6 +137,10 @@ div.lotus-charts, .lotus-charts {
 	h4 { font-size: @h4-size;}
 	h5 { font-size: @h5-size;}
 	h6 { font-size: @h6-size;}
+
+    .metric {
+        font-size: .8em;
+    }
 }
 
 /************************************/
@@ -249,22 +253,48 @@ div.lotus-charts, .lotus-charts {
 
 .lotus-charts.vertical-bar-chart {
     overflow: hidden;
+    padding: @label-padding 0;
     position: relative;
     width: 100%;
 }
 
 .lotus-charts.vertical-bar-chart .chart-slice-window {
-    overflow: hidden;
+    border: 1px solid @vertical-bar-chart-line-color;
+    border-left: 0;
     position: relative;
+    left: @slice-width / 2;
     width: 100%;
     height: @vertical-bar-max-height;
-    padding: @label-padding 0 (@label-padding * 2);
+    z-index: 800;
 }
 
-.lotus-charts.vertical-bar-chart .period {
-    background: #fef;
-    float: left;
+.lotus-charts.vertical-bar-chart .chart-scale {
+    background-color: #fff;
+    background: rgba(255, 255, 255, .7) url("../images/noise.png") repeat left top;
+    border-top: 1px solid @vertical-bar-chart-line-color;
+    border-bottom: 1px solid @vertical-bar-chart-line-color;
+    position: absolute;
+    top: @label-padding;
+    left: 0;
+    width: (@slice-width / 2);
     height: @vertical-bar-max-height;
+    z-index: 900;
+}
+.lotus-charts.vertical-bar-chart .chart-scale-segment {
+    color: @label-color-light - #222;
+    font-size: 1em;
+    height: @vertical-bar-max-height / 5;
+    line-height: @vertical-bar-max-height / 5;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+
+.lotus-charts.vertical-bar-chart .period {
+    border-left: 1px dashed @vertical-bar-chart-line-color;
+    float: left;
+    height: @vertical-bar-max-height + @label-padding + 8px;
+    margin-left: 1px;
     padding: 0;
     position: relative;
     /* width is assigned by adding sibling class ".slice_X"
@@ -272,15 +302,12 @@ div.lotus-charts, .lotus-charts {
         contain */
 }
 .lotus-charts.vertical-bar-chart .period-label {
-    border-top: 1px solid @vertical-bar-chart-line-color;
     position: absolute;
     top: @vertical-bar-max-height + @label-padding;
     padding: 0 @slice-padding;
 }
 
 .lotus-charts.vertical-bar-chart .chart-slice {
-    border-top: 1px solid @vertical-bar-chart-line-color;
-    border-bottom: 1px solid @vertical-bar-chart-line-color;
     float: left;
     height: @vertical-bar-max-height;
     width: @vertical-bar-width;
