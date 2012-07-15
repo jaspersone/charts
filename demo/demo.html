@@ -88,7 +88,10 @@
                 <div class="chart-scale-segment"><span class="currency">$</span>20<span class="metric">k</span></div>
                 <div class="chart-scale-segment"><span class="currency">$</span>10<span class="metric">k</span></div>
             </div>
-            <div class="chart-slice-window">
+            <!-- Note width is max of set by number of slices contained or the window width.
+                 To find width of slices:
+                 Slice width is 112px + (8px * 2) = 128 per slice => + (2px per period)  -->
+            <div class="chart-slice-window" style="width: 1028px">
                 <div class="period slice_4">
                     <div class="period-label">2011</div>
                     <div class="chart-slice">

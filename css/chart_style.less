@@ -265,9 +265,10 @@ div.lotus-charts, .lotus-charts {
 .lotus-charts.vertical-bar-chart .chart-slice-window {
     border: 1px solid @vertical-bar-chart-line-color;
     border-left: 0;
+	border-right: 0;
     position: relative;
     left: @slice-width / 2;
-    width: 100%;
+    /* width: should be set dynamically by server given the total number of slices */
     height: @vertical-bar-max-height;
     z-index: 800;
 }
