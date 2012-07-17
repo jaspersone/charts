@@ -41,6 +41,7 @@ Version: 0.0
 @vertical-bar-max-height: 300px;
 @vertical-bar-width: 112px;
 @vertical-bar-chart-line-color: #e5e5e5;
+@vertical-bar-chart-bubble-label-color: #333;
 
 /************************************/
 /* Eric Meyer Reset                 */
@@ -373,6 +374,9 @@ div.lotus-charts, .lotus-charts {
     background: @blue;
 }
 
+.lotus-charts.vertical-bar-chart .chart-slice .bubble-label {
+    text-align: center;
+}
 .lotus-charts.vertical-bar-chart .chart-slice .slice-label {
     border-top: 6px solid @vertical-bar-chart-line-color;
     font-size: .8em;
