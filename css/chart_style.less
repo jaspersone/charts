@@ -42,6 +42,7 @@ Version: 0.0
 @vertical-bar-width: 112px;
 @vertical-bar-chart-line-color: #e5e5e5;
 @vertical-bar-chart-bubble-label-color: #333;
+@vertical-bar-chart-bubble-label-text-color: #fff;
 
 /************************************/
 /* Eric Meyer Reset                 */
@@ -374,9 +375,36 @@ div.lotus-charts, .lotus-charts {
     background: @blue;
 }
 
-.lotus-charts.vertical-bar-chart .chart-slice .bubble-label {
-    text-align: center;
+.lotus-charts.vertical-bar-chart .chart-slice .bubble-background-gradient {
+    background-color: @vertical-bar-chart-bubble-label-color;
+    background: #333; /* Old browsers */
+    background-image: url("../images/noise.png");
+    background-repeat: repeat;
+    background-position: left top;
+    background-image: url("../images/noise.png"), -moz-linear-gradient(top,  #111 0%, #333333 17%, #333 100%); /* FF3.6+ */
+    background-image: url("../images/noise.png"), -webkit-gradient(linear, left top, left bottom, color-stop(0%,#111), color-stop(17%,#333), color-stop(100%,#333)); /* Chrome,Safari4+ */
+    background: url("../images/noise.png"), -webkit-linear-gradient(top,  #111 0%,#333 17%,#333 100%); /* Chrome10+,Safari5.1+ */
+    background: url("../images/noise.png"), -o-linear-gradient(top,  #111 0%,#333 17%,#333 100%); /* Opera 11.10+ */
+    background: url("../images/noise.png"), -ms-linear-gradient(top,  #111 0%,#333 17%,#333 100%); /* IE10+ */
+    background: url("../images/noise.png"), linear-gradient(to bottom,  #111 0%,#333 17%,#333 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#111', endColorstr='#333333',GradientType=0 ); /* IE6-8 */
+    border-top: 1px solid (@vertical-bar-chart-bubble-label-color - #222);
+    border-bottom: 1px solid #fff;
 }
+
+.lotus-charts.vertical-bar-chart .chart-slice .bubble-label {
+    .lotus-charts.vertical-bar-chart .chart-slice .bubble-background-gradient;
+    color: @vertical-bar-chart-bubble-label-text-color;
+    margin: 0 8px;
+    padding: .5em 0;
+    position: relative;
+    top: -88px;
+    text-align: center;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
 .lotus-charts.vertical-bar-chart .chart-slice .slice-label {
     border-top: 6px solid @vertical-bar-chart-line-color;
     font-size: .8em;
