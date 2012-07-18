@@ -77,6 +77,41 @@ function delCookie(name) {
 }
 
 /************************************
+* Charts General                    *
+************************************/
+
+/************************************
+* Vertical Bar Charts               *
+************************************/
+function verticalBarCharts() {
+    if (TESTING) console.log("Vertical Bar Charts Starting");
+
+    // get maximum bar height
+    MAX_BAR_HEIGHT = 300;
+    detectTabEditing(MAX_BAR_HEIGHT);
+}
+
+function detectTabEditing(MAX_BAR_HEIGHT) {
+    var $current_pull_tab = $(".lotus-charts.vertical-bar-chart .pull-tab");
+    var $active_pull_tab = null;
+    var isEditable = false;
+
+    // this section determines when editing should begin
+    $current_pull_tab.mousedown(function() {
+        isEditable = true;
+        if (TESTING) { console.log("Tab touched"); }
+    });
+    
+    // detects when editing should stop
+    $(document).mouseup(function() {
+        if (isEditable) {
+            console.log("Tab released");
+            isEditable = false;
+        }
+    });
+}
+
+/************************************
 * Main                              *
 ************************************/
 
@@ -102,4 +137,7 @@ $(document).ready(function() {
     if ($.browser.msie) {
 		alert("Hello IE, we meet again.")
 	}
+
+    // start up vertical bar charts
+    verticalBarCharts();
 });
