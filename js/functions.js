@@ -118,6 +118,8 @@ function detectTabEditing(MAX_BAR_HEIGHT) {
         $current_pull_tab.mousedown(function() {
             isEditable = true;
             if (TESTING) { console.log("Tab touched"); }
+            var $currentBar = $(this).parent();
+            changeBarValue($currentBar);
         });
         
         // detects when editing should stop
@@ -132,6 +134,9 @@ function detectTabEditing(MAX_BAR_HEIGHT) {
     }
 }
 
+function changeBarValue($bar) {
+    if (TESTING) { console.log($bar); }
+}
 /************************************
 * Main                              *
 ************************************/
