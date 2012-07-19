@@ -88,7 +88,15 @@ function verticalBarCharts() {
 
     // get maximum bar height
     MAX_BAR_HEIGHT = 300;
+    // make areas clickable in iOS
+    makeClickableiOS();
     detectTabEditing(MAX_BAR_HEIGHT);
+}
+
+function makeClickableiOS() {
+    $(".lotus-charts .pull-tab").click(function() {
+        return false;
+    });
 }
 
 function detectTabEditing(MAX_BAR_HEIGHT) {
