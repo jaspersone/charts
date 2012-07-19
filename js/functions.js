@@ -7,7 +7,7 @@
 * Global Variables  	   	 	    *
 ************************************/
 var TESTING = true;
-
+var IS_TOUCH_DEVICE = isTouchDevice();
 /************************************
 * Screen Information  	   	 	    *
 ************************************/
@@ -79,18 +79,11 @@ function delCookie(name) {
 /************************************
 * Charts General                    *
 ************************************/
-
-/************************************
-* Vertical Bar Charts               *
-************************************/
-function verticalBarCharts() {
-    if (TESTING) console.log("Vertical Bar Charts Starting");
-
-    // get maximum bar height
-    MAX_BAR_HEIGHT = 300;
-    // make areas clickable in iOS
-    makeClickableiOS();
-    detectTabEditing(MAX_BAR_HEIGHT);
+// params: none
+// return: true if device is a touch device, false otherwise
+// behavior: when called, determines if click events are detected
+function isTouchDevice() {
+    return !!('ontouchstart' in window);
 }
 
 function makeClickableiOS() {
@@ -99,24 +92,44 @@ function makeClickableiOS() {
     });
 }
 
+/************************************
+* Vertical Bar Charts               *
+************************************/
+// params: none
+// return: none
+// behavior: kick off all vertical bar charts functions needed to activate this portion of charts
+function verticalBarCharts() {
+    if (TESTING) console.log("Vertical Bar Charts Starting");
+
+    // get maximum bar height
+    MAX_BAR_HEIGHT = 300;
+    detectTabEditing(MAX_BAR_HEIGHT);
+}
+
 function detectTabEditing(MAX_BAR_HEIGHT) {
     var $current_pull_tab = $(".lotus-charts.vertical-bar-chart .pull-tab");
     var $active_pull_tab = null;
     var isEditable = false;
+    var isTouchDevice = false;
 
-    // this section determines when editing should begin
-    $current_pull_tab.mousedown(function() {
-        isEditable = true;
-        if (TESTING) { console.log("Tab touched"); }
-    });
-    
-    // detects when editing should stop
-    $(document).mouseup(function() {
-        if (isEditable) {
-            console.log("Tab released");
-            isEditable = false;
-        }
-    });
+    // Don't fire mouse events if we're dealing with a touch device    
+    if (true /*!IS_TOUCH_DEVICE*/) {
+        // this section determines when editing should begin
+        $current_pull_tab.mousedown(function() {
+            isEditable = true;
+            if (TESTING) { console.log("Tab touched"); }
+        });
+        
+        // detects when editing should stop
+        $(document).mouseup(function() {
+            if (isEditable) {
+                console.log("Tab released");
+                isEditable = false;
+            }
+        });
+    } else {
+        // add touch related event listeners here
+    }
 }
 
 /************************************
@@ -146,6 +159,12 @@ $(document).ready(function() {
 		alert("Hello IE, we meet again.")
 	}
 
+    // make areas clickable in iOS
+    if (IS_TOUCH_DEVICE) {
+        if (TESTING) { console.log("This is a touch device"); }
+        makeClickableiOS();
+    }
+ 
     // start up vertical bar charts
     verticalBarCharts();
 });
