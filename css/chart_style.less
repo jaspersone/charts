@@ -398,13 +398,22 @@ div.lotus-charts, .lotus-charts {
     margin: 0 8px;
     padding: .5em 0;
     position: relative;
-    top: -88px;
+    top: -108px;
     text-align: center;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
 }
 
+.lotus-charts.vertical-bar-chart .chart-slice .bubble-label .down-arrow {
+    background: transparent url("../images/arrow-down-32.png") no-repeat center top;
+    background-size: 16px 12px;
+    width: 16px;
+    height: 12px;
+    position: absolute;
+    bottom: -11px; /* 1px less b/c image needs to overlap bubble-label 1px border */
+    left: 50% - 8px;
+}
 .lotus-charts.vertical-bar-chart .chart-slice .slice-label {
     border-top: 6px solid @vertical-bar-chart-line-color;
     font-size: .8em;
