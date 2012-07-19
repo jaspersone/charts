@@ -8,6 +8,7 @@
 ************************************/
 var TESTING = true;
 var IS_TOUCH_DEVICE = isTouchDevice();
+var MAX_BAR_HEIGHT = 300;
 /************************************
 * Screen Information  	   	 	    *
 ************************************/
@@ -101,8 +102,6 @@ function makeClickableiOS() {
 function verticalBarCharts() {
     if (TESTING) console.log("Vertical Bar Charts Starting");
 
-    // get maximum bar height
-    MAX_BAR_HEIGHT = 300;
     detectTabEditing(MAX_BAR_HEIGHT);
 }
 
@@ -111,6 +110,9 @@ function detectTabEditing(MAX_BAR_HEIGHT) {
     var $active_pull_tab = null;
     var isEditable = false;
     var isTouchDevice = false;
+
+    // don't scroll page when tabs are touched
+    $current_pull_tab.on("touchmove", false);
 
     // Don't fire mouse events if we're dealing with a touch device    
     if (true /*!IS_TOUCH_DEVICE*/) {
@@ -136,6 +138,7 @@ function detectTabEditing(MAX_BAR_HEIGHT) {
 
 function changeBarValue($bar) {
     if (TESTING) { console.log($bar); }
+
 }
 /************************************
 * Main                              *
