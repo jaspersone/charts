@@ -201,6 +201,7 @@ $(document).ready(function() {
 
 	if (TESTING) {
 		console.log("Initial Screen Dimensions are: " + screen_dimensions);
+        console.log("IS_TOUCH_DEVICE:" + IS_TOUCH_DEVICE);
 	}
 	
 	// keep screen_dimensions up to date
