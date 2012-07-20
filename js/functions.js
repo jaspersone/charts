@@ -164,7 +164,7 @@ function verticalBarCharts() {
             coordsOnMouseDown = getCurrentCoords();
             if (TESTING) {
                 console.log("Tab touched");
-                console.log("Coords on mouse down: " + coordsOnMouseDown);
+                console.log("Coords on touchstart: " + coordsOnMouseDown);
             }
         });
         
@@ -182,6 +182,8 @@ function verticalBarCharts() {
                     console.log("<<<< touchstart && touchmove detected >>>>");
                 }
                 changeBarValue($currentBar, coordsOnMouseDown);
+            } else {
+                console.log("You shouldn't be in here");
             }
         });
 
