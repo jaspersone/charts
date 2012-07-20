@@ -163,6 +163,7 @@ function verticalBarCharts() {
         $currentPullTab.bind("touchstart", function(e) {
             barIsEditable = true;
             $currentBar = $(this).parent();
+            e.preventDefault();
             var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
             coordsOnMouseDown = [touch.pageX, touch.pageY];
             if (TESTING) {
@@ -182,7 +183,6 @@ function verticalBarCharts() {
         });
 
         $(document).bind("touchmove", function(e) {
-            if (TESTING) { console.log("touchmove barIsEditable state: " + barIsEditable); }
             if (barIsEditable) {
                 if (TESTING) {
                     console.log("<<<< touchstart && touchmove detected >>>>");
