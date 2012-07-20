@@ -154,6 +154,9 @@ function verticalBarCharts() {
 
         $(document).mousemove(function() {
             if (barIsEditable) {
+                if (TESTING) {
+                    console.log("<<<< mousedown && mousemove detected >>>>");
+                }
                 changeBarValue($currentBar, coordsOnMouseDown);
             }
         });
