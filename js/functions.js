@@ -157,6 +157,35 @@ function verticalBarCharts() {
         if (TESTING) {
             console.log("Touch device detected");
         }
+        // this section determines when editing should begin
+        $currentPullTab.bind("touchstart", function() {
+            barIsEditable = true;
+            $currentBar = $(this).parent();
+            coordsOnMouseDown = getCurrentCoords();
+            if (TESTING) {
+                console.log("Tab touched");
+                console.log("Coords on mouse down: " + coordsOnMouseDown);
+            }
+        });
+        
+        // detects when editing should stop
+        $(document).bind("touchend", function() {
+            if (barIsEditable) {
+                console.log("Tab released");
+                barIsEditable = false;
+            }
+        });
+
+        $(document).bind("touchmove", function() {
+            if (barIsEditable) {
+                if (TESTING) {
+                    console.log("<<<< touchstart && touchmove detected >>>>");
+                }
+                changeBarValue($currentBar, coordsOnMouseDown);
+            }
+        });
+
+
     }
 }
 
