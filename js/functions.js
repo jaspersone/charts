@@ -9,6 +9,10 @@
 var TESTING = true;
 var IS_TOUCH_DEVICE = isTouchDevice();
 var MAX_BAR_HEIGHT = 300;
+var MOUSE_COORDS = [0,0]; // tracks user's mouse coordinates [x,y]
+var isTouchDevice = false;
+var barIsEditable = false;
+
 /************************************
 * Screen Information  	   	 	    *
 ************************************/
@@ -93,6 +97,25 @@ function makeClickableiOS() {
     });
 }
 
+// params: none
+// return: none
+// behavior: when called, starts updating global array MOUSE_COORDS with current mouse's X and Y
+//           position on the screen
+function trackCoordinates() {
+    $(document).mousemove(function(e) {
+        MOUSE_COORDS[1] = e.pageY;
+        MOUSE_COORDS[0] = e.pageX;
+    });
+}
+
+// params: none
+// return: array of mouse's X and Y coordinates at the time of the function call
+// behavior: instead of returning the global array MOUSE_COORDS, creates a new array of the values
+//           from MOUSE_COORDS
+function getCurrentCoords() {
+    return [MOUSE_COORDS[0], MOUSE_COORDS[1]]
+}
+
 /************************************
 * Vertical Bar Charts               *
 ************************************/
@@ -108,8 +131,6 @@ function verticalBarCharts() {
 function detectTabEditing(MAX_BAR_HEIGHT) {
     var $current_pull_tab = $(".lotus-charts.vertical-bar-chart .pull-tab");
     var $active_pull_tab = null;
-    var isEditable = false;
-    var isTouchDevice = false;
 
     // don't scroll page when tabs are touched
     $current_pull_tab.on("touchmove", false);
@@ -118,17 +139,18 @@ function detectTabEditing(MAX_BAR_HEIGHT) {
     if (true /*!IS_TOUCH_DEVICE*/) {
         // this section determines when editing should begin
         $current_pull_tab.mousedown(function() {
-            isEditable = true;
+            barIsEditable = true;
+            var currentCoords = getCurrentCoords();
             if (TESTING) { console.log("Tab touched"); }
             var $currentBar = $(this).parent();
-            changeBarValue($currentBar);
+            changeBarValue($currentBar, currentCoords);
         });
         
         // detects when editing should stop
         $(document).mouseup(function() {
-            if (isEditable) {
+            if (barIsEditable) {
                 console.log("Tab released");
-                isEditable = false;
+                barIsEditable = false;
             }
         });
     } else {
@@ -136,13 +158,24 @@ function detectTabEditing(MAX_BAR_HEIGHT) {
     }
 }
 
-function changeBarValue($bar) {
-    var initial_height = (int) $bar.css('height');
+function changeBarValue($bar, initialCoords) {
+    var initialHeight = ($bar).height();
     if (TESTING) {
         console.log($bar);
-        console.log("The bar's initial height is: " + initial_height);
+        console.log("The bar's initial height is: " + initialHeight);
+        console.log("Initial mouse coordinates  : " + initialCoords);
     }
 
+    while (barIsEditable) {
+        var currentCoords = getCurrentCoords();
+        var diffX = currentCoords[0] - initialCoords[0];
+        var diffY = currentCoords[1] - initialCoords[1];
+        var adjustedX = (diffX + ($bar).height());
+        if (adjustedX <= MAX_BAR_HEIGHT && adjustedX >= 0) { 
+            var newHeight = adjustedX + "px";
+            ($bar).css("height", newHeight);
+        }
+    }
 }
 /************************************
 * Main                              *
@@ -170,6 +203,9 @@ $(document).ready(function() {
     if ($.browser.msie) {
 		alert("Hello IE, we meet again.")
 	}
+
+    // start tracking mouse coordinates
+    trackCoordinates();
 
     // make areas clickable in iOS
     if (IS_TOUCH_DEVICE) {
