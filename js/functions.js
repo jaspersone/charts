@@ -158,10 +158,10 @@ function verticalBarCharts() {
             console.log("Touch device detected");
         }
         // this section determines when editing should begin
-        $currentPullTab.bind("touchstart", function() {
+        $currentPullTab.bind("touchstart", function(e) {
             barIsEditable = true;
             $currentBar = $(this).parent();
-            coordsOnMouseDown = getCurrentCoords();
+            coordsOnMouseDown = [e.pageX, e.pageY];
             if (TESTING) {
                 console.log("Tab touched");
                 console.log("Coords on touchstart: " + coordsOnMouseDown);
