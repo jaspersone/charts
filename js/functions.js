@@ -139,7 +139,9 @@ function verticalBarCharts() {
         // detects when editing should stop
         $(document).mouseup(function() {
             if (barIsEditable) {
-                console.log("Tab released");
+                if (TESTING) {
+                    console.log("Tab released");
+                }
                 barIsEditable = false;
             }
         });
@@ -172,12 +174,15 @@ function verticalBarCharts() {
         // detects when editing should stop
         $(document).bind("touchend", function() {
             if (barIsEditable) {
-                console.log("Tab released");
+                if (TESTING) {
+                    console.log("Tab released");
+                }
                 barIsEditable = false;
             }
         });
 
         $(document).bind("touchmove", function(e) {
+            if (TESTING) { console.log("touchmove barIsEditable state: " + barIsEditable); }
             if (barIsEditable) {
                 if (TESTING) {
                     console.log("<<<< touchstart && touchmove detected >>>>");
