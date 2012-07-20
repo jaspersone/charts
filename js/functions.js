@@ -198,7 +198,7 @@ function changeBarValue($bar, initialCoords) {
     var diffY = getCurrentCoords()[1] - initialCoords[1];
     var adjustedY = (($bar).height() - diffY); // subtract b/c bar Y pixels are measured from top to bottom
 
-    changeBarValueHelper(initialHeight, diffX, diffY, adjustedY);
+    changeBarValueHelper($bar, initialCoords, initialHeight, diffX, diffY, adjustedY);
 }
 
 function touch_changeBarValue($bar, intialCoords, touch) {
@@ -207,10 +207,10 @@ function touch_changeBarValue($bar, intialCoords, touch) {
     var diffY = touch.pageY - initialCoords[1];
     var adjustedY = (($bar).height() - diffY); // subtract b/c bar Y pixels are measured from top to bottom
 
-    changeBarValueHelper(initialHeight, diffX, diffY, adjustedY);
+    changeBarValueHelper($bar, initialCoords, initialHeight, diffX, diffY, adjustedY);
 }
 
-function changeBarValueHelper(initialHeight, diffX, diffY, adjustedY) {
+function changeBarValueHelper($bar, initialCoords, initialHeight, diffX, diffY, adjustedY) {
     if (TESTING) {
         console.log($bar);
         console.log("The bar's initial height is: " + initialHeight);
