@@ -201,14 +201,15 @@ $(document).ready(function() {
 
 	if (TESTING) {
 		console.log("Initial Screen Dimensions are: " + screen_dimensions);
-        console.log("IS_TOUCH_DEVICE:" + IS_TOUCH_DEVICE);
 	}
 	
 	// keep screen_dimensions up to date
 	window.onresize = function() {
 		screen_dimensions = getScreenDimensions();
-		if (TESTING)
+		if (TESTING) {
 			console.log("New screen dimensions are: " + screen_dimensions);
+            console.log("IS_TOUCH_DEVICE:" + IS_TOUCH_DEVICE);
+        }
 	}
 	
 	// check for internet explorer
