@@ -161,7 +161,8 @@ function verticalBarCharts() {
         $currentPullTab.bind("touchstart", function(e) {
             barIsEditable = true;
             $currentBar = $(this).parent();
-            coordsOnMouseDown = [e.pageX, e.pageY];
+            var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+            coordsOnMouseDown = [touch.pageX, touch.pageY];
             if (TESTING) {
                 console.log("Tab touched");
                 console.log("Coords on touchstart: " + coordsOnMouseDown);
@@ -182,7 +183,8 @@ function verticalBarCharts() {
                     console.log("<<<< touchstart && touchmove detected >>>>");
                 }
                 e.preventDefault();
-                changeBarValue($currentBar, coordsOnMouseDown);
+                var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+                touch_changeBarValue($currentBar, coordsOnMouseDown, touch);
             }
         });
 
@@ -196,6 +198,19 @@ function changeBarValue($bar, initialCoords) {
     var diffY = getCurrentCoords()[1] - initialCoords[1];
     var adjustedY = (($bar).height() - diffY); // subtract b/c bar Y pixels are measured from top to bottom
 
+    changeBarValueHelper(initialHeight, diffX, diffY, adjustedY);
+}
+
+function touch_changeBarValue($bar, intialCoords, touch) {
+    var initialHeight = ($bar).height();
+    var diffX = touch.pageX - initialCoords[0];
+    var diffY = touch.pageY - initialCoords[1];
+    var adjustedY = (($bar).height() - diffY); // subtract b/c bar Y pixels are measured from top to bottom
+
+    changeBarValueHelper(initialHeight, diffX, diffY, adjustedY);
+}
+
+function changeBarValueHelper(initialHeight, diffX, diffY, adjustedY) {
     if (TESTING) {
         console.log($bar);
         console.log("The bar's initial height is: " + initialHeight);
@@ -203,7 +218,6 @@ function changeBarValue($bar, initialCoords) {
         console.log("Current mouse coordinates  : " + coordsOnMouseDown);
         console.log("New adjusted height        : " + adjustedY);
     }
-
 
     if (diffY !=0 && adjustedY <= MAX_BAR_HEIGHT && adjustedY >= 0) { 
         if (TESTING) { console.log("Inside changing bar height"); }
@@ -216,7 +230,6 @@ function changeBarValue($bar, initialCoords) {
         console.log("Hitting the limit!!!!");
     }
 }
-
 /************************************
 * Main                              *
 ************************************/
@@ -248,10 +261,9 @@ $(document).ready(function() {
 	}
 
     // start tracking mouse coordinates
-    trackCoordinates();
-
-    // make areas clickable in iOS
-    if (IS_TOUCH_DEVICE) {
+    if (!IS_TOUCH_DEVICE) {
+        trackCoordinates();
+    } else {
         if (TESTING) { console.log("This is a touch device"); }
         makeClickableiOS();
     }
