@@ -7,10 +7,9 @@
 * Global Variables  	   	 	    *
 ************************************/
 var TESTING = true;
-var IS_TOUCH_DEVICE = isTouchDevice();
 var MAX_BAR_HEIGHT = 300;
+var IS_TOUCH_DEVICE = false;
 var MOUSE_COORDS = [0,0]; // tracks user's mouse coordinates [x,y]
-var isTouchDevice = false;
 var barIsEditable = false;
 var coordsOnMouseDown = [0,0];
 /************************************
@@ -84,13 +83,6 @@ function delCookie(name) {
 /************************************
 * Charts General                    *
 ************************************/
-// params: none
-// return: true if device is a touch device, false otherwise
-// behavior: when called, determines if click events are detected
-function isTouchDevice() {
-    return !!('ontouchstart' in window);
-}
-
 function makeClickableiOS() {
     $(".lotus-charts .pull-tab").click(function() {
         return false;
@@ -132,7 +124,7 @@ function verticalBarCharts() {
     $currentPullTab.on("touchmove", false);
 
     // Don't fire mouse events if we're dealing with a touch device    
-    if (true /*!IS_TOUCH_DEVICE*/) {
+    if (!IS_TOUCH_DEVICE) {
         // this section determines when editing should begin
         $currentPullTab.mousedown(function() {
             barIsEditable = true;
@@ -162,6 +154,9 @@ function verticalBarCharts() {
         });
     } else {
         // add touch related event listeners here
+        if (TESTING) {
+            console.log("Touch device detected");
+        }
     }
 }
 
@@ -202,7 +197,8 @@ $(document).ready(function() {
 	// get screen information
     var is_retina = isRetinaScreen();
     var screen_dimensions = getScreenDimensions(); // array [width, height]
-	
+    IS_TOUCH_DEVICE = 'ontouchend' in document;
+
 	if (TESTING) {
 		console.log("Initial Screen Dimensions are: " + screen_dimensions);
 	}
