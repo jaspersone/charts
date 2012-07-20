@@ -12,7 +12,7 @@ var MAX_BAR_HEIGHT = 300;
 var MOUSE_COORDS = [0,0]; // tracks user's mouse coordinates [x,y]
 var isTouchDevice = false;
 var barIsEditable = false;
-
+var coordsOnMouseDown = [0,0];
 /************************************
 * Screen Information  	   	 	    *
 ************************************/
@@ -124,26 +124,24 @@ function getCurrentCoords() {
 // behavior: kick off all vertical bar charts functions needed to activate this portion of charts
 function verticalBarCharts() {
     if (TESTING) console.log("Vertical Bar Charts Starting");
-
-    detectTabEditing(MAX_BAR_HEIGHT);
-}
-
-function detectTabEditing(MAX_BAR_HEIGHT) {
-    var $current_pull_tab = $(".lotus-charts.vertical-bar-chart .pull-tab");
+    var $currentPullTab = $(".lotus-charts.vertical-bar-chart .pull-tab");
+    var $currentBar = null;
     var $active_pull_tab = null;
 
     // don't scroll page when tabs are touched
-    $current_pull_tab.on("touchmove", false);
+    $currentPullTab.on("touchmove", false);
 
     // Don't fire mouse events if we're dealing with a touch device    
     if (true /*!IS_TOUCH_DEVICE*/) {
         // this section determines when editing should begin
-        $current_pull_tab.mousedown(function() {
+        $currentPullTab.mousedown(function() {
             barIsEditable = true;
-            var currentCoords = getCurrentCoords();
-            if (TESTING) { console.log("Tab touched"); }
-            var $currentBar = $(this).parent();
-            changeBarValue($currentBar, currentCoords);
+            $currentBar = $(this).parent();
+            coordsOnMouseDown = getCurrentCoords();
+            if (TESTING) {
+                console.log("Tab touched");
+                console.log("Coords on mouse down: " + coordsOnMouseDown);
+            }
         });
         
         // detects when editing should stop
@@ -153,6 +151,12 @@ function detectTabEditing(MAX_BAR_HEIGHT) {
                 barIsEditable = false;
             }
         });
+
+        $(document).mousemove(function() {
+            if (barIsEditable) {
+                changeBarValue($currentBar, coordsOnMouseDown);
+            }
+        });
     } else {
         // add touch related event listeners here
     }
@@ -160,23 +164,31 @@ function detectTabEditing(MAX_BAR_HEIGHT) {
 
 function changeBarValue($bar, initialCoords) {
     var initialHeight = ($bar).height();
+    var diffX = getCurrentCoords()[0] - initialCoords[0];
+    var diffY = getCurrentCoords()[1] - initialCoords[1];
+    var adjustedY = (($bar).height() - diffY); // subtract b/c bar Y pixels are measured from top to bottom
+
     if (TESTING) {
         console.log($bar);
         console.log("The bar's initial height is: " + initialHeight);
         console.log("Initial mouse coordinates  : " + initialCoords);
+        console.log("Current mouse coordinates  : " + coordsOnMouseDown);
+        console.log("New adjusted height        : " + adjustedY);
     }
 
-    while (barIsEditable) {
-        var currentCoords = getCurrentCoords();
-        var diffX = currentCoords[0] - initialCoords[0];
-        var diffY = currentCoords[1] - initialCoords[1];
-        var adjustedX = (diffX + ($bar).height());
-        if (adjustedX <= MAX_BAR_HEIGHT && adjustedX >= 0) { 
-            var newHeight = adjustedX + "px";
-            ($bar).css("height", newHeight);
-        }
+
+    if (diffY !=0 && adjustedY <= MAX_BAR_HEIGHT && adjustedY >= 0) { 
+        if (TESTING) { console.log("Inside changing bar height"); }
+        var newHeight = adjustedY + "px";
+        ($bar).css("height", newHeight);
+        // must reset coordsOnMouseDown (consider renaming so this makes more sense)
+        coordsOnMouseDown[0] = initialCoords[0] + diffX;
+        coordsOnMouseDown[1] = initialCoords[1] + diffY;
+    } else {
+        console.log("Hitting the limit!!!!");
     }
 }
+
 /************************************
 * Main                              *
 ************************************/
