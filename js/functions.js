@@ -183,6 +183,7 @@ function verticalBarCharts() {
         });
 
         $(document).bind("touchmove", function(e) {
+            console.log("IN TOUCHMOVE and barIsEditable is " + barIsEditable);
             if (barIsEditable) {
                 if (TESTING) {
                     console.log("<<<< touchstart && touchmove detected >>>>");
