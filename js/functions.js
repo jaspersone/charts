@@ -176,14 +176,13 @@ function verticalBarCharts() {
             }
         });
 
-        $(document).bind("touchmove", function() {
+        $(document).bind("touchmove", function(e) {
             if (barIsEditable) {
                 if (TESTING) {
                     console.log("<<<< touchstart && touchmove detected >>>>");
                 }
+                e.preventDefault();
                 changeBarValue($currentBar, coordsOnMouseDown);
-            } else {
-                console.log("You shouldn't be in here");
             }
         });
 
