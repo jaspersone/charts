@@ -137,7 +137,11 @@ function detectTabEditing(MAX_BAR_HEIGHT) {
 }
 
 function changeBarValue($bar) {
-    if (TESTING) { console.log($bar); }
+    var initial_height = (int) $bar.css('height');
+    if (TESTING) {
+        console.log($bar);
+        console.log("The bar's initial height is: " + initial_height);
+    }
 
 }
 /************************************
