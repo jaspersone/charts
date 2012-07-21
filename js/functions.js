@@ -126,10 +126,14 @@ function verticalBarCharts() {
     // Don't fire mouse events if we're dealing with a touch device    
     if (!IS_TOUCH_DEVICE) {
         // this section determines when editing should begin
-        $currentPullTab.mousedown(function() {
+        $currentPullTab.mousedown(function(e) {
             barIsEditable = true;
+            e.preventDefault();
             $currentBar = $(this).parent();
             coordsOnMouseDown = getCurrentCoords();
+            if (!($currentBar).hasClass('saved')) {
+                ($currentBar).addClass('saved');
+            }
             if (TESTING) {
                 console.log("Tab touched");
                 console.log("Coords on mouse down: " + coordsOnMouseDown);
@@ -146,15 +150,16 @@ function verticalBarCharts() {
             }
         });
 
-        $(document).mousemove(function() {
+        $(document).mousemove(function(e) {
             if (barIsEditable) {
+                e.preventDefault();
                 if (TESTING) {
                     console.log("<<<< mousedown && mousemove detected >>>>");
                 }
                 changeBarValue($currentBar, coordsOnMouseDown);
             }
         });
-    } else {
+    } else { // beyond this for touch devices
         // add touch related event listeners here
         if (TESTING) {
             console.log("Touch device detected");
@@ -166,6 +171,9 @@ function verticalBarCharts() {
             e.preventDefault();
             var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
             coordsOnMouseDown = [touch.pageX, touch.pageY];
+            if (!($currentBar).hasClass('saved')) {
+                ($currentBar).addClass('saved');
+            }
             if (TESTING) {
                 console.log("Tab touched");
                 console.log("Coords on touchstart: " + coordsOnMouseDown);
@@ -229,6 +237,12 @@ function changeBarValueHelper($bar, initialCoords, initialHeight, diffX, diffY, 
         if (TESTING) { console.log("Inside changing bar height"); }
         var newHeight = adjustedY + "px";
         ($bar).css("height", newHeight);
+        if (adjustedY <= 0) {
+            ($bar).removeClass('zero'); // do not add duplicate class
+            ($bar).addClass('zero');
+        } else {
+            ($bar).removeClass('zero');
+        }
         // must reset coordsOnMouseDown (consider renaming so this makes more sense)
         coordsOnMouseDown[0] = initialCoords[0] + diffX;
         coordsOnMouseDown[1] = initialCoords[1] + diffY;

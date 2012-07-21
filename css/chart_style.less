@@ -339,7 +339,6 @@ div.lotus-charts, .lotus-charts {
 
 .lotus-charts.vertical-bar-chart .chart-slice .bar {
     background: hsla(hue(@blue), saturation(@blue), lightness(@blue), 0.6);
-    border-top: 1px solid @blue;
     position: absolute;
     bottom: 0;
     overflow: visible;
@@ -353,8 +352,8 @@ div.lotus-charts, .lotus-charts {
     filter:alpha(opacity=60); /* For IE8 and earlier */
 }
 
-.lotus-charts.vertical-bar-chart .chart-slice .bar.saved {
-    border-top: 0;
+.lotus-charts.vertical-bar-chart .chart-slice .bar.zero {
+    border-top: 1px solid @blue;
 }
 
 .lotus-charts.vertical-bar-chart .chart-slice .bar .pull-tab {
