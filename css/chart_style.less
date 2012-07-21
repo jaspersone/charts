@@ -259,7 +259,7 @@ div.lotus-charts, .lotus-charts {
 
 .lotus-charts.vertical-bar-chart {
     overflow: hidden;
-    padding: @label-padding 0;
+    padding: (@label-padding * 2) 0 @label-padding;
     position: relative;
     width: 100%;
 }
@@ -280,8 +280,9 @@ div.lotus-charts, .lotus-charts {
     background: rgba(255, 255, 255, .7) url("../images/noise.png") repeat left top;
     border-top: 1px solid @vertical-bar-chart-line-color;
     border-bottom: 1px solid @vertical-bar-chart-line-color;
+    padding: 8px 0;
     position: absolute;
-    top: @label-padding;
+    top: @label-padding * 2 - 8px;
     left: 0;
     width: (@slice-width / 2);
     height: @vertical-bar-max-height;
@@ -291,7 +292,7 @@ div.lotus-charts, .lotus-charts {
     color: @label-color-light - #222;
     font-size: 1em;
     height: @vertical-bar-max-height / 5;
-    line-height: @vertical-bar-max-height / 5;
+    line-height: 1.5em;
     text-align: center;
     text-transform: uppercase;
 }

@@ -131,9 +131,6 @@ function verticalBarCharts() {
             e.preventDefault();
             $currentBar = $(this).parent();
             coordsOnMouseDown = getCurrentCoords();
-            if (!($currentBar).hasClass('saved')) {
-                ($currentBar).addClass('saved');
-            }
             if (TESTING) {
                 console.log("Tab touched");
                 console.log("Coords on mouse down: " + coordsOnMouseDown);
@@ -171,9 +168,6 @@ function verticalBarCharts() {
             e.preventDefault();
             var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
             coordsOnMouseDown = [touch.pageX, touch.pageY];
-            if (!($currentBar).hasClass('saved')) {
-                ($currentBar).addClass('saved');
-            }
             if (TESTING) {
                 console.log("Tab touched");
                 console.log("Coords on touchstart: " + coordsOnMouseDown);
@@ -237,6 +231,7 @@ function changeBarValueHelper($bar, initialCoords, initialHeight, diffX, diffY, 
         if (TESTING) { console.log("Inside changing bar height"); }
         var newHeight = adjustedY + "px";
         ($bar).css("height", newHeight);
+        if (!($bar).hasClass('saved')) { ($bar).addClass('saved'); }
         if (adjustedY <= 0) {
             ($bar).removeClass('zero'); // do not add duplicate class
             ($bar).addClass('zero');
