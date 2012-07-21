@@ -12,6 +12,7 @@ var IS_TOUCH_DEVICE = false;
 var MOUSE_COORDS = [0,0]; // tracks user's mouse coordinates [x,y]
 var barIsEditable = false;
 var coordsOnMouseDown = [0,0];
+
 /************************************
 * Screen Information  	   	 	    *
 ************************************/
