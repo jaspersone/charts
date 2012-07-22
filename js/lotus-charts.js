@@ -1,6 +1,6 @@
 /************************************
 * Lotus Charts Functions JS v0.01   *
-* July 10, 2012                     *
+* July 20, 2012                     *
 ************************************/
 
 /************************************
@@ -32,7 +32,6 @@ function getScreenDimensions() {
 /************************************
 * Cookies                           *
 ************************************/
-
 /*
 Notes:
 In order for this cookie library to work properly, all cookies
@@ -185,7 +184,7 @@ function verticalBarCharts() {
             }
         });
 
-        $(document).bind("touchmove", function(e) {
+        $currentPullTab.bind("touchmove", function(e) {
             console.log("IN TOUCHMOVE and barIsEditable is " + barIsEditable);
             if (barIsEditable) {
                 if (TESTING) {
@@ -196,8 +195,6 @@ function verticalBarCharts() {
                 touch_changeBarValue($currentBar, coordsOnMouseDown, touch);
             }
         });
-
-
     }
 }
 
