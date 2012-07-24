@@ -166,7 +166,10 @@ function verticalBarCharts() {
             barIsEditable = true;
             e.preventDefault();
             var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
-            coordsOnMouseDown = [touch.pageX, touch.pageY];
+            var origX = touch.pageX;
+            var origY = touch.pageY;
+            coordsOnMouseDown[0] = origX;
+            coordsOnMouseDown[1] = origY;
             if (TESTING) {
                 console.log("Tab touched");
                 console.log("Coords on touchstart: " + coordsOnMouseDown);
@@ -191,13 +194,15 @@ function verticalBarCharts() {
                 $currentBar = $(this).parent();
 
                 if (TESTING) {
-                    console.log("<<<< touchstart && touchmove detected >>>>");
-                    console.log("     coordinate: [" + touch.pageX + ", " + touch.pageY + "]");
+                    console.log("<<<< touchmove detected >>>>");
+                    console.log("     coordinate: " + currCoords);
+                    console.log("     currentBar: " + $currentBar);
+                    console.log("     coordsOnMouseDown: " + coordsOnMouseDown);
                 }
                 // only send touch_changeBarValue if the person has moved their finger
                 if (coordsOnMouseDown[1] != currCoords[1]) {
                     if (TESTING) {
-                        console.log("about to send to changeBarValue");
+                        console.log("      about to send to changeBarValue");
                     }
                     touch_changeBarValue($currentBar, coordsOnMouseDown, currCoords);
                 }
@@ -215,24 +220,25 @@ function changeBarValue($bar, initialCoords) {
     changeBarValueHelper($bar, initialCoords, initialHeight, diffX, diffY, adjustedY);
 }
 
-function touch_changeBarValue(bar, intialCoords, currCoords) {
+function touch_changeBarValue(bar, initialCoords, currCoords) {
+    // lock bar editing until this is function completes
     if (TESTING) {
         console.log("<<<< In changeBarValue >>>>");
+        console.log("     initialCoords : " + initialCoords);
+        console.log("     currCoords    : " + currCoords);
+        console.log("     bar: " + bar);
     }
     var initialHeight = $(bar).height();
     var diffX = currCoords[0] - initialCoords[0];
     var diffY = currCoords[1] - initialCoords[1];
-    var adjustedY = (($bar).height() - diffY); // subtract b/c bar Y pixels are measured from top to bottom
+    var adjustedY = $(bar).height() - diffY; // subtract b/c bar Y pixels are measured from top to bottom
 
     if (TESTING) {
-        console.log("     $bar: " + $bar);
-        console.log("     initialCoords : " + initialCoords);
-        console.log("     currCoords    : " + currCoords);
         console.log("     initialHeight : " + initialHeight);
         console.log("     adjustedY     : " + adjustedY);
     }
  
-    changeBarValueHelper($bar, initialCoords, initialHeight, diffX, diffY, adjustedY);
+    changeBarValueHelper(bar, initialCoords, initialHeight, diffX, diffY, adjustedY);
 }
 
 function changeBarValueHelper($bar, initialCoords, initialHeight, diffX, diffY, adjustedY) {
