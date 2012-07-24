@@ -8,6 +8,7 @@
 ************************************/
 var TESTING = true;
 var MAX_BAR_HEIGHT = 300;
+var INITITAL_BAR_SCALE_MAX = 500; // vertical bar initial Y access maximum value
 var IS_TOUCH_DEVICE = false;
 var MOUSE_COORDS = [0,0]; // tracks user's mouse coordinates [x,y]
 var barIsEditable = false;
@@ -120,6 +121,9 @@ function verticalBarCharts() {
     var $currentBar = null;
     var $active_pull_tab = null;
 
+    // set up initial Y access scale
+
+
     // don't scroll page when tabs are touched
     $pullTabs.on("touchmove", false);
 
@@ -128,7 +132,6 @@ function verticalBarCharts() {
         // this section determines when editing should begin
         $pullTabs.mousedown(function(e) {
             barIsEditable = true;
-            e.preventDefault();
             $currentBar = $(this).parent();
             coordsOnMouseDown = getCurrentCoords();
             if (TESTING) {
@@ -149,7 +152,6 @@ function verticalBarCharts() {
 
         $(document).mousemove(function(e) {
             if (barIsEditable) {
-                e.preventDefault();
                 if (TESTING) {
                     console.log("<<<< mousedown && mousemove detected >>>>");
                 }
