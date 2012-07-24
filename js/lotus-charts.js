@@ -216,13 +216,6 @@ function changeBarValue($bar, initialCoords, currCoords) {
         console.log("<<<< In changeBarValue >>>>");
         console.log("     initialHeight : " + initialHeight);
         console.log("     adjustedY     : " + adjustedY);
-    }
- 
-    changeBarValueHelper($bar, initialCoords, initialHeight, diffX, diffY, adjustedY);
-}
-
-function changeBarValueHelper($bar, initialCoords, initialHeight, diffX, diffY, adjustedY) {
-    if (TESTING) {
         console.log($bar);
         console.log("The bar's initial height is: " + initialHeight);
         console.log("Initial mouse coordinates  : " + initialCoords);
