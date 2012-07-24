@@ -153,7 +153,8 @@ function verticalBarCharts() {
                 if (TESTING) {
                     console.log("<<<< mousedown && mousemove detected >>>>");
                 }
-                changeBarValue($currentBar, coordsOnMouseDown);
+                var currCoords = [e.pageX, e.pageY];
+                changeBarValue($currentBar, coordsOnMouseDown, currCoords);
             }
         });
     } else { // beyond this for touch devices
@@ -196,39 +197,23 @@ function verticalBarCharts() {
                     console.log("     coordinate: " + currCoords);
                     console.log("     currentBar: " + $currentBar);
                     console.log("     coordsOnMouseDown: " + coordsOnMouseDown);
+                    console.log("     about to send to changeBarValue");
                 }
-                if (TESTING) {
-                    console.log("      about to send to changeBarValue");
-                }
-                touch_changeBarValue($currentBar, coordsOnMouseDown, currCoords);
+                changeBarValue($currentBar, coordsOnMouseDown, currCoords);
             }
         });
     }
 }
 
-function changeBarValue($bar, initialCoords) {
-    var initialHeight = ($bar).height();
-    var diffX = getCurrentCoords()[0] - initialCoords[0];
-    var diffY = getCurrentCoords()[1] - initialCoords[1];
-    var adjustedY = (($bar).height() - diffY); // subtract b/c bar Y pixels are measured from top to bottom
-
-    changeBarValueHelper($bar, initialCoords, initialHeight, diffX, diffY, adjustedY);
-}
-
-function touch_changeBarValue($bar, initialCoords, currCoords) {
+function changeBarValue($bar, initialCoords, currCoords) {
     // lock bar editing until this is function completes
-    if (TESTING) {
-        console.log("<<<< In changeBarValue >>>>");
-        console.log("     initialCoords : " + initialCoords);
-        console.log("     currCoords    : " + currCoords);
-        console.log("     $bar          : " + $bar);
-    }
     var initialHeight = ($bar).height();
     var diffX = currCoords[0] - initialCoords[0];
     var diffY = currCoords[1] - initialCoords[1];
     var adjustedY = ($bar).height() - diffY; // subtract b/c bar Y pixels are measured from top to bottom
 
     if (TESTING) {
+        console.log("<<<< In changeBarValue >>>>");
         console.log("     initialHeight : " + initialHeight);
         console.log("     adjustedY     : " + adjustedY);
     }
