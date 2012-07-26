@@ -106,7 +106,7 @@ function trackCoordinates() {
 // behavior: instead of returning the global array MOUSE_COORDS, creates a new array of the values
 //           from MOUSE_COORDS
 function getCurrentCoords() {
-    return [MOUSE_COORDS[0], MOUSE_COORDS[1]]
+    return [MOUSE_COORDS[0], MOUSE_COORDS[1]];
 }
 
 /************************************
