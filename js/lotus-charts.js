@@ -8,7 +8,7 @@
 ************************************/
 var TESTING = true;
 var MAX_BAR_HEIGHT = 300;
-var INITITAL_BAR_SCALE_MAX = 500; // vertical bar initial Y access maximum value
+var vertical_bar_scale_max = 500; // vertical bar default Y access value (before resize)
 var IS_TOUCH_DEVICE = false;
 var MOUSE_COORDS = [0,0]; // tracks user's mouse coordinates [x,y]
 var barIsEditable = false;
@@ -28,6 +28,12 @@ function isRetinaScreen() {
 function getScreenDimensions() {
 	var dimensions = [$('body').width(), $('body').height()];
 	return dimensions;
+}
+
+// params: none
+// return: true if a touch device is detected, false otherwise
+function isTouchDevice() {
+    return 'ontouchend' in document;
 }
 
 /************************************
@@ -107,6 +113,13 @@ function trackCoordinates() {
 //           from MOUSE_COORDS
 function getCurrentCoords() {
     return [MOUSE_COORDS[0], MOUSE_COORDS[1]]
+}
+
+// params:  barLength - the physical max length of the bar chart in pixels
+//          maxChartValue - the maximum current value allowed in the chart
+//          increment - the increment set by the user, default set is 1
+// returns: function, that when called, will return
+function mapChartValues(barLength, maxChartValue, increment = 1) {
 }
 
 /************************************
@@ -219,10 +232,9 @@ function changeBarValue($bar, initialCoords, currCoords) {
         console.log("     initialHeight : " + initialHeight);
         console.log("     adjustedY     : " + adjustedY);
         console.log($bar);
-        console.log("The bar's initial height is: " + initialHeight);
-        console.log("Initial mouse coordinates  : " + initialCoords);
-        console.log("Current mouse coordinates  : " + coordsOnMouseDown);
-        console.log("New adjusted height        : " + adjustedY);
+        console.log("     Initial mouse coordinates  : " + initialCoords);
+        console.log("     Current mouse coordinates  : " + coordsOnMouseDown);
+        console.log("     New adjusted height        : " + adjustedY);
     }
 
     if (diffY !=0 && adjustedY <= MAX_BAR_HEIGHT && adjustedY >= 0) { 
@@ -241,6 +253,10 @@ function changeBarValue($bar, initialCoords, currCoords) {
         coordsOnMouseDown[1] = initialCoords[1] + diffY;
     } else {
         console.log("Hitting the limit!!!!");
+
+        // add code for what to do, MAX_BAR_HEIGHT - 10% of height
+        
+        // add handling for below zero
     }
 }
 /************************************
@@ -253,7 +269,7 @@ $(document).ready(function() {
 	// get screen information
     var is_retina = isRetinaScreen();
     var screen_dimensions = getScreenDimensions(); // array [width, height]
-    IS_TOUCH_DEVICE = 'ontouchend' in document;
+    IS_TOUCH_DEVICE = isTouchDevice();
 
 	if (TESTING) {
 		console.log("Initial Screen Dimensions are: " + screen_dimensions);
