@@ -120,6 +120,7 @@ function getCurrentCoords() {
 //          increment - the increment set by the user, default set is 1
 // returns: function, that when called, will return
 function mapChartValues(barLength, maxChartValue, increment = 1) {
+    return false;
 }
 
 /************************************
