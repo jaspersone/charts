@@ -112,15 +112,15 @@ function trackCoordinates() {
 // behavior: instead of returning the global array MOUSE_COORDS, creates a new array of the values
 //           from MOUSE_COORDS
 function getCurrentCoords() {
-    return [MOUSE_COORDS[0], MOUSE_COORDS[1]];
+    var map = [MOUSE_COORDS[0], MOUSE_COORDS[1]];
+    return map;
 }
 
 // params:  barLength - the physical max length of the bar chart in pixels
 //          maxChartValue - the maximum current value allowed in the chart
-//          increment - the increment set by the user, default set is 1
 // returns: function, that when called, will return
-function mapChartValues(barLength, maxChartValue, increment = 1) {
-    return false;
+function mapChartValues(barLength, maxChartValue) {
+    return maxChartValue / barLength;
 }
 
 /************************************
