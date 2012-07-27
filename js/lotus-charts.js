@@ -112,8 +112,7 @@ function trackCoordinates() {
 // behavior: instead of returning the global array MOUSE_COORDS, creates a new array of the values
 //           from MOUSE_COORDS
 function getCurrentCoords() {
-    var map = [MOUSE_COORDS[0], MOUSE_COORDS[1]];
-    return map;
+    return [MOUSE_COORDS[0], MOUSE_COORDS[1]];
 }
 
 // params:  barLength - the physical max length of the bar chart in pixels
