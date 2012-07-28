@@ -1,6 +1,6 @@
 /************************************
 * Lotus Charts Functions JS v0.01   *
-* July 20, 2012                     *
+* July 28, 2012                     *
 ************************************/
 
 /************************************
@@ -9,6 +9,8 @@
 var TESTING = true;
 var MAX_BAR_HEIGHT = 300;
 var vertical_bar_scale_max = 500; // vertical bar default Y access value (before resize)
+
+var screen_dimensions;
 var IS_TOUCH_DEVICE = false;
 var MOUSE_COORDS = [0,0]; // tracks user's mouse coordinates [x,y]
 var barIsEditable = false;
@@ -262,26 +264,25 @@ function changeBarValue($bar, initialCoords, currCoords) {
 /************************************
 * Main                              *
 ************************************/
-
 // Main function calls
 $(document).ready(function() {
 
 	// get screen information
-    var is_retina = isRetinaScreen();
-    var screen_dimensions = getScreenDimensions(); // array [width, height]
+    screen_dimensions = getScreenDimensions(); // array [width, height]
     IS_TOUCH_DEVICE = isTouchDevice();
 
-	if (TESTING) {
-		console.log("Initial Screen Dimensions are: " + screen_dimensions);
-	}
+    if (isRetinaScreen()) {
+        // load retina assets
+    } else {
+        // load regular assets
+    }
+
+    if (TESTING) { console.log("Initial Screen Dimensions are: " + screen_dimensions); }
 	
 	// keep screen_dimensions up to date
 	window.onresize = function() {
 		screen_dimensions = getScreenDimensions();
-		if (TESTING) {
-			console.log("New screen dimensions are: " + screen_dimensions);
-            console.log("IS_TOUCH_DEVICE:" + IS_TOUCH_DEVICE);
-        }
+        if (TESTING) { console.log("New screen dimensions are: " + screen_dimensions); }
 	}
 	
 	// check for internet explorer
@@ -293,7 +294,9 @@ $(document).ready(function() {
     if (!IS_TOUCH_DEVICE) {
         trackCoordinates();
     } else {
-        if (TESTING) { console.log("This is a touch device"); }
+        // no need to track coordinates on a touch device
+        // as they are only updated on touchstart/touchend
+        // or touchmove.
         makeClickableiOS();
     }
  
