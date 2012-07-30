@@ -207,7 +207,6 @@ function verticalBarCharts() {
                 e.preventDefault();
                 var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
                 var currCoords = [touch.pageX, touch.pageY];
-                $currentBar = $(this).parent();
 
                 if (TESTING) {
                     console.log("<<<< touchmove detected >>>>");
@@ -216,7 +215,7 @@ function verticalBarCharts() {
                     console.log("     coordsOnMouseDown: " + coordsOnMouseDown);
                     console.log("     about to send to changeBarValue");
                 }
-                changeBarValue($currentBar, coordsOnMouseDown, currCoords);
+                changeBarValue($(this).parent(), coordsOnMouseDown, currCoords);
             }
         });
     }
