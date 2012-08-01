@@ -8,13 +8,27 @@
 ************************************/
 
 /************************************
+* Basic Testing Functions  	  	    *
+************************************/
+function printTest(testName, expected, actual) {
+    console.log("****************************");
+    console.log(testName);
+    console.log("****************************");
+
+}
+
+/************************************
+* Test Charts General               *
+************************************/
+function test_getNearestValue() {
+    printTest("Get Nearest Value 1");
+}
+
+/************************************
 * Main                              *
 ************************************/
 // Main function calls
 $(document).ready(function() {
     if (TESTING) {
-        console.log("****************************");
-        console.log("* LOTUS CHARTS UNIT TESTS  *");
-        console.log("****************************");
     }
 }

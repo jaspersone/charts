@@ -120,10 +120,13 @@ function getCurrentCoords() {
 // params:  barLength - the physical max length of the bar chart in pixels
 //          maxChartValue - the maximum current value allowed in the chart
 // returns: function, that when called, will return
-function mapChartValues(barLength, maxChartValue) {
-    return maxChartValue / barLength;
+function getNearestPixel(maxPixels, maxChartValue, chartValue) {
+    return Math.floor((chartValue / maxChartValue) * maxPixels);
 }
 
+function getNearestValue(maxPixels, maxChartValue, pixel, increment) {
+    return; 
+}
 /************************************
 * Vertical Bar Charts               *
 ************************************/
