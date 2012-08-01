@@ -12,9 +12,9 @@
 ************************************/
 // TODO: write documentation
 function printTest(testName, expected, actual) {
-    console.log("************************************");
+    console.log("--------------------------------------------------------");
     console.log("Testing: " + testName);
-    console.log("************************************");
+    console.log("--------------------------------------------------------");
     console.log("Expected: " + expected);
     console.log("Actual  : " + actual);
     if (doTest(expected, actual)) { console.log("test passed"); }
@@ -43,6 +43,11 @@ function test_() {
 /************************************
 * Test Charts General               *
 ************************************/
+function run_getNearestValueTests() {
+    test_getNearestValue1();
+    test_getNearestValue2();
+}
+
 function test_getNearestValue1() {
     var testName = "getNearestValue() - Basic rounding down";
     var expected;
@@ -82,5 +87,12 @@ function test_getNearestValue2() {
 // Main function calls
 $(document).ready(function() {
     if (TESTING) {
+        console.log("");
+        console.log("************************************");
+        console.log("Lotus Charts UNIT TESTING SUITE V0.1");
+        console.log("************************************");
+        console.log("");
+
+        run_getNearestValueTests();
     }
-}
+});
