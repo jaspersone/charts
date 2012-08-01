@@ -117,15 +117,14 @@ function getCurrentCoords() {
     return [MOUSE_COORDS[0], MOUSE_COORDS[1]];
 }
 
-// params:  barLength - the physical max length of the bar chart in pixels
-//          maxChartValue - the maximum current value allowed in the chart
-// returns: function, that when called, will return
+// TODO: write documentation
 function getNearestPixel(maxPixels, maxChartValue, chartValue) {
     return Math.floor((chartValue / maxChartValue) * maxPixels);
 }
 
+// TODO: finish function
 function getNearestValue(maxPixels, maxChartValue, pixel, increment) {
-    return; 
+    return false; 
 }
 /************************************
 * Vertical Bar Charts               *
