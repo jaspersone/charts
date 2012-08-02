@@ -75,12 +75,17 @@ function test_getNearestValue2() {
     printTest(testName, expected, actual);
 }
 
-
 /************************************
 * Main                              *
 ************************************/
 // Main function calls
 $(document).ready(function() {
     if (TESTING) {
+        //start_tests();
     }
+}
+
+function startTests() {
+    test_getNearestValue1();
+    test_getNearestValue2();
 }
