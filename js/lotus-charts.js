@@ -8,7 +8,7 @@
 ************************************/
 var TESTING = true;
 var MAX_BAR_HEIGHT = 300;
-var vertical_bar_scale_max = 500; // vertical bar default Y access value (before resize)
+var verticalBarScaleMax = 500; // vertical bar default Y access value (before resize)
 
 var screen_dimensions;
 var IS_TOUCH_DEVICE = false;

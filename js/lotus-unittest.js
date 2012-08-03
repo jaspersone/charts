@@ -80,19 +80,16 @@ function test_getNearestValue2() {
     printTest(testName, expected, actual);
 }
 
-
 /************************************
 * Main                              *
 ************************************/
 // Main function calls
 $(document).ready(function() {
     if (TESTING) {
-        console.log("");
-        console.log("************************************");
-        console.log("Lotus Charts UNIT TESTING SUITE V0.1");
-        console.log("************************************");
-        console.log("");
-
-        run_getNearestValueTests();
+        startTests();
     }
-});
+}
+
+function startTests() {
+    run_getNearestValueTests();
+}
