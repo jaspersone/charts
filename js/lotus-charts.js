@@ -284,10 +284,11 @@ function changeBarValue($bar, initialCoords, currCoords) {
     } else {
         var newHeight;
         if (adjustedY <= 0) { // gone below 0
-            newHeight = ($bar).css("height", "0");
-            ($bar).removeClass('zero').addClass('zero');
+            ($bar).css("height", "0").removeClass('zero').addClass('zero');
         }
-        console.log("Hitting the limit!!!!");
+        if (adjustedY >= MAX_BAR_HEIGHT) { // gone above max height
+            ($bar).css("height", MAX_BAR_HEIGHT + "px");
+        }
 
         // add code for what to do, MAX_BAR_HEIGHT - 10% of height
         
