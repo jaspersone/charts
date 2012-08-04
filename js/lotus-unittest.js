@@ -17,9 +17,23 @@ function printTest(testName, expected, actual) {
     console.log("--------------------------------------------------------");
     console.log("Expected: " + expected);
     console.log("Actual  : " + actual);
-    if (doTest(expected, actual)) { console.log("test passed"); }
-    else { console.log(">>>> test failed <<<<"); }
-    console.log("");
+    if (doTest(expected, actual)) {
+        console.log("test passed\n");
+        return 1;
+    }
+    else {
+        console.log(">>>> test failed <<<<\n");
+        return 0;
+    }
+}
+
+function printGroupResults(testName, resultsArray) {
+    console.log("--------------------------------------------------------");
+    console.log("--------------------------------------------------------");
+    console.log(testName + ": complete.");
+    console.log(resultsArray[0] + " passed out of " + resultsArray[1] + " tests.");
+    console.log("--------------------------------------------------------");
+    console.log("--------------------------------------------------------");
 }
 
 // TODO: need to refactor to better test for arrays and objects
@@ -27,6 +41,16 @@ function doTest(expected, actual) {
     return expected === actual;
 }
 
+function sumArray(the_array) {
+    var total = 0;
+    for (x in the_array) { total += x; }
+    return total;
+}
+
+function sumResult(resultsArray, test) {
+    resultsArray[0] += test;
+    resultsArray[1] += 1;
+}
 // Basic test function body:
 /*
 function test_() {
@@ -36,7 +60,7 @@ function test_() {
 
     // you should assign expected and actual values here
 
-    printTest(testName, expected, actual);
+    return printTest(testName, expected, actual);
 }
 */
 
@@ -44,9 +68,14 @@ function test_() {
 * Test Charts General               *
 ************************************/
 function run_getNearestValueTests() {
-    test_getNearestValue1();
-    test_getNearestValue2();
-    test_getNearestValue3();
+    var testGroupName = "Get Nearest Value Tests";
+    var resultsArray = [0, 0];
+
+    sumResult(resultsArray, test_getNearestValue1());
+    sumResult(resultsArray, test_getNearestValue2());
+    sumResult(resultsArray, test_getNearestValue3());
+
+    printGroupResults(testGroupName, resultsArray);
 }
 
 function test_getNearestValue1() {
@@ -61,7 +90,7 @@ function test_getNearestValue1() {
     
     expected = 245;
     actual = getNearestValue(maxPixel, maxChartValue, pixel, increment);
-    printTest(testName, expected, actual);
+    return printTest(testName, expected, actual);
 }
 
 function test_getNearestValue2() {
@@ -78,7 +107,7 @@ function test_getNearestValue2() {
     expected = 247;
     actual = getNearestValue(maxPixel, maxChartValue, pixel, increment);
 
-    printTest(testName, expected, actual);
+    return printTest(testName, expected, actual);
 }
 
 function test_getNearestValue3() {
@@ -95,7 +124,7 @@ function test_getNearestValue3() {
     expected = 245;
     actual = getNearestValue(maxPixel, maxChartValue, pixel, increment);
 
-    printTest(testName, expected, actual);
+    return printTest(testName, expected, actual);
 }
 /************************************
 * Main                              *
@@ -108,5 +137,8 @@ $(document).ready(function() {
 });
 
 function startTests() {
-    run_getNearestValueTests();
+    var totalTests = 0;
+    var totalPassed = 0;
+    
+    var nearestValueTests_results = run_getNearestValueTests();
 }
