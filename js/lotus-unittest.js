@@ -31,7 +31,7 @@ function printGroupResults(testName, resultsArray) {
     console.log("========================================================");
     console.log(testName + ": complete.");
     console.log(resultsArray[0] + " passed out of " + resultsArray[1] + " tests.");
-    console.log("========================================================");
+    console.log("========================================================\n\n");
 }
 
 // TODO: need to refactor to better test for arrays and objects
@@ -139,6 +139,67 @@ function test_getNearestValue3() {
 
     return printTest(testName, expected, actual);
 }
+
+
+function run_getNearestPixel() {
+    var testGroupName = "Get Nearest Pixel Tests";
+    var resultsArray = [0, 0];
+
+    sumResult(resultsArray, test_getNearestPixel1());
+    sumResult(resultsArray, test_getNearestPixel2());
+    sumResult(resultsArray, test_getNearestPixel3());
+
+    printGroupResults(testGroupName, resultsArray);
+}
+
+function test_getNearestPixel1() {
+    var testName = "getNearestPixel() - Basic no rounding needed, one to one scale";
+    var expected;
+    var actual;
+
+    // you should assign expected and actual values here
+    var maxPixel = 300;
+    var maxChartValue = 300;
+    var chartValue = 247;
+    
+    expected = 247;
+    actual = getNearestPixel(maxPixel, maxChartValue, chartValue);
+
+    return printTest(testName, expected, actual);
+}
+
+function test_getNearestPixel2() {
+    var testName = "getNearestPixel() - Basic no rounding needed, double scale";
+    var expected;
+    var actual;
+
+    // you should assign expected and actual values here
+    var maxPixel = 300;
+    var maxChartValue = 600;
+    var chartValue = 300;
+    
+    expected = 150;
+    actual = getNearestPixel(maxPixel, maxChartValue, chartValue);
+
+    return printTest(testName, expected, actual);
+}
+
+function test_getNearestPixel3() {
+    var testName = "getNearestPixel() - Basic rounding needed";
+    var expected;
+    var actual;
+
+    // you should assign expected and actual values here
+    var maxPixel = 300;
+    var maxChartValue = 1000;
+    var chartValue = 334;
+    
+    expected = 100;
+    actual = getNearestPixel(maxPixel, maxChartValue, chartValue);
+
+    return printTest(testName, expected, actual);
+}
+
 /************************************
 * Main                              *
 ************************************/
@@ -153,5 +214,6 @@ function startTests() {
     var totalTests = 0;
     var totalPassed = 0;
     
-    var nearestValueTests_results = run_getNearestValueTests();
+    run_getNearestValueTests();
+    run_getNearestPixel();
 }
