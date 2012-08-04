@@ -257,6 +257,9 @@ function changeBarValue($bar, initialCoords, currCoords) {
     var diffY = currCoords[1] - initialCoords[1];
     var adjustedY = ($bar).height() - diffY; // subtract b/c bar Y pixels are measured from top to bottom
 
+    var maxChartValue = 50000; // this value must be pulled later
+    var increment = 100; // this value must be dynamically set later by user
+
     if (TESTING) {
         console.log("<<<< In changeBarValue >>>>");
         console.log("     initialHeight : " + initialHeight);
@@ -294,7 +297,31 @@ function changeBarValue($bar, initialCoords, currCoords) {
         
         // add handling for below zero
     }
+    if (diffY != 0) {
+        // change the value of the label
+        changeLabelValue($bar, maxChartValue, adjustedY, increment);
+    }
 }
+
+function changeLabelValue($bar, maxChartValue, currPixel, increment) {
+    var value = getNearestValue(MAX_BAR_HEIGHT, maxChartValue, currPixel, increment);
+    // don't allow negative values
+    value = (value < 0) ? 0 : value;
+    
+    var $label      = ($bar).children(".bubble-label");
+    var $currency   = ($label).children(".currency");
+    var $number     = ($label).children('.number');
+    var $metric     = ($label).children('.metric');
+    
+    $number.html(value);
+    
+    if (TESTING) {
+        console.log("<><><><><><><><><><><><><><><><>");
+        console.log("Bubble bar value: " + value);
+        console.log("<><><><><><><><><><><><><><><><>");
+    }
+}
+
 /************************************
 * Main                              *
 ************************************/
