@@ -126,7 +126,6 @@ function getNearestPixel(maxPixels, maxChartValue, chartValue) {
 function getNearestValue(maxPixels, maxChartValue, pixel, increment) {
     var percentage = pixel / maxPixels;
     var nearestValueBase = Math.round(maxChartValue * percentage);
-
     return increment * Math.floor(nearestValueBase / increment); 
 }
 /************************************

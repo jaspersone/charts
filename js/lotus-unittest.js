@@ -105,7 +105,7 @@ $(document).ready(function() {
     if (TESTING) {
         startTests();
     }
-}
+});
 
 function startTests() {
     run_getNearestValueTests();
