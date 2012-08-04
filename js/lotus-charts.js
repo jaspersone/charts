@@ -132,7 +132,7 @@ function getNearestValue(maxPixels, maxChartValue, pixel, increment) {
 * Horizontal Bar Charts             *
 ************************************/
 function horizontalBarCharts() {
-    var animationTime = 800;
+    var animationTime = 1500;
     $(".lotus-charts.horizontal-bar-chart").each(function() {
         var $marker = $(this).find(".chart-marker");
         var $bar    = $(this).find(".fill");
@@ -147,8 +147,8 @@ function animateHorizontalBar($marker, $bar, animationTime) {
     $marker.css("left", "1px");
     $bar.css("width", "0");
 
-    $marker.animate({left: valueString,}, animationTime);
-    $bar.animate({width: valueString,}, animationTime);
+    $marker.animate({left: valueString,}, animationTime, "swing");
+    $bar.animate({width: valueString,}, animationTime, "swing");
 }
 
 
