@@ -299,7 +299,10 @@ function changeBarValue($bar, initialCoords, currCoords) {
     }
     if (diffY != 0) {
         // change the value of the label
-        changeLabelValue($bar, maxChartValue, adjustedY, increment);
+        var updatedValue = changeLabelValue($bar, maxChartValue, adjustedY, increment);
+        if (TESTING) {
+            console.log("Value to send to server: " + value);
+        }
     }
 }
 
@@ -309,17 +312,29 @@ function changeLabelValue($bar, maxChartValue, currPixel, increment) {
     value = (value < 0) ? 0 : value;
     
     var $label      = ($bar).children(".bubble-label");
-    var $currency   = ($label).children(".currency");
     var $number     = ($label).children('.number');
     var $metric     = ($label).children('.metric');
     
-    $number.html(value);
-    
-    if (TESTING) {
-        console.log("<><><><><><><><><><><><><><><><>");
-        console.log("Bubble bar value: " + value);
-        console.log("<><><><><><><><><><><><><><><><>");
+    var normalizedValue;
+    var units;
+
+    if (value > 999999999) { // billions
+        $metric.html("G");
+        $normalizedValue = value / 1000000000;
+    } else if (value > 999999) { // millions
+        $metric.html("M");
+        $normalizedValue = value / 1000000;
+    } else if (value > 999) { // thousands
+        $metric.html("K");
+        normalizedValue = value / 1000;
+    } else {
+        $metric.html(""); // remove
+        normalizedValue = value;
     }
+
+    $number.html(normalizedValue);
+    
+    return value;
 }
 
 /************************************
