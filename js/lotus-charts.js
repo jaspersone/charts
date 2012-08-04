@@ -282,6 +282,11 @@ function changeBarValue($bar, initialCoords, currCoords) {
         coordsOnMouseDown[0] = initialCoords[0] + diffX;
         coordsOnMouseDown[1] = initialCoords[1] + diffY;
     } else {
+        var newHeight;
+        if (adjustedY <= 0) { // gone below 0
+            newHeight = ($bar).css("height", "0");
+            ($bar).removeClass('zero').addClass('zero');
+        }
         console.log("Hitting the limit!!!!");
 
         // add code for what to do, MAX_BAR_HEIGHT - 10% of height
