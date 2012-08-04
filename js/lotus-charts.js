@@ -129,6 +129,30 @@ function getNearestValue(maxPixels, maxChartValue, pixel, increment) {
     return increment * Math.floor(nearestValueBase / increment); 
 }
 /************************************
+* Horizontal Bar Charts             *
+************************************/
+function horizontalBarCharts() {
+    var animationTime = 800;
+    $(".lotus-charts.horizontal-bar-chart").each(function() {
+        var $marker = $(this).find(".chart-marker");
+        var $bar    = $(this).find(".fill");
+        animateHorizontalBar($marker, $bar, animationTime);
+    });
+}
+
+function animateHorizontalBar($marker, $bar, animationTime) {
+    var fillValue = $bar.attr("rel");
+    var valueString = fillValue + "px";
+    
+    $marker.css("left", "1px");
+    $bar.css("width", "0");
+
+    $marker.animate({left: valueString,}, animationTime);
+    $bar.animate({width: valueString,}, animationTime);
+}
+
+
+/************************************
 * Vertical Bar Charts               *
 ************************************/
 // params: none
@@ -302,6 +326,9 @@ $(document).ready(function() {
         // or touchmove.
         makeClickableiOS();
     }
+
+    // start up horizontal bar charts
+    horizontalBarCharts();
  
     // start up vertical bar charts
     verticalBarCharts();
