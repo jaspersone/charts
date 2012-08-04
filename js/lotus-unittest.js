@@ -28,12 +28,10 @@ function printTest(testName, expected, actual) {
 }
 
 function printGroupResults(testName, resultsArray) {
-    console.log("--------------------------------------------------------");
-    console.log("--------------------------------------------------------");
+    console.log("========================================================");
     console.log(testName + ": complete.");
     console.log(resultsArray[0] + " passed out of " + resultsArray[1] + " tests.");
-    console.log("--------------------------------------------------------");
-    console.log("--------------------------------------------------------");
+    console.log("========================================================");
 }
 
 // TODO: need to refactor to better test for arrays and objects
@@ -51,6 +49,21 @@ function sumResult(resultsArray, test) {
     resultsArray[0] += test;
     resultsArray[1] += 1;
 }
+
+// Basic test group function body:
+
+/*
+function run_() {
+    var testGroupName = "";
+    var resultsArray = [0, 0];
+
+    // tests
+    sumResult(resultsArray, test_());
+
+    printGroupResults(testGroupName, resultsArray);
+}
+*/
+
 // Basic test function body:
 /*
 function test_() {
