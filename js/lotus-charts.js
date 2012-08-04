@@ -124,7 +124,10 @@ function getNearestPixel(maxPixels, maxChartValue, chartValue) {
 
 // TODO: finish function
 function getNearestValue(maxPixels, maxChartValue, pixel, increment) {
-    return false; 
+    var percentage = pixel / maxPixels;
+    var nearestValueBase = Math.round(maxChartValue * percentage);
+
+    return increment * Math.floor(nearestValueBase / increment); 
 }
 /************************************
 * Vertical Bar Charts               *

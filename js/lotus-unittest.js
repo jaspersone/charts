@@ -46,6 +46,7 @@ function test_() {
 function run_getNearestValueTests() {
     test_getNearestValue1();
     test_getNearestValue2();
+    test_getNearestValue3();
 }
 
 function test_getNearestValue1() {
@@ -80,6 +81,22 @@ function test_getNearestValue2() {
     printTest(testName, expected, actual);
 }
 
+function test_getNearestValue3() {
+    var testName = "getNearestValue() - Basic rounding needed";
+    var expected;
+    var actual;
+
+    // you should assign expected and actual values here
+    var maxPixel = 300;
+    var maxChartValue = 300;
+    var pixel = 247;
+    var increment = 5;
+    
+    expected = 245;
+    actual = getNearestValue(maxPixel, maxChartValue, pixel, increment);
+
+    printTest(testName, expected, actual);
+}
 /************************************
 * Main                              *
 ************************************/
