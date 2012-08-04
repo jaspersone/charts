@@ -131,6 +131,8 @@ function getNearestValue(maxPixels, maxChartValue, pixel, increment) {
 /************************************
 * Horizontal Bar Charts             *
 ************************************/
+// TODO: make variable animation time based upon the width of the bar
+
 function horizontalBarCharts() {
     var animationTime = 1500;
     $(".lotus-charts.horizontal-bar-chart").each(function() {
@@ -150,7 +152,6 @@ function animateHorizontalBar($marker, $bar, animationTime) {
     $marker.animate({left: valueString,}, animationTime, "swing");
     $bar.animate({width: valueString,}, animationTime, "swing");
 }
-
 
 /************************************
 * Vertical Bar Charts               *
