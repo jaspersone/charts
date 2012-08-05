@@ -8,7 +8,8 @@
 ************************************/
 var TESTING = true;
 var MAX_BAR_HEIGHT = 300;
-var verticalBarScaleMax = 500; // vertical bar default Y access value (before resize)
+var verticalBarScaleMax; // vertical bar default Y access value (before resize)
+var verticalBarIncrement;
 
 var screen_dimensions;
 var IS_TOUCH_DEVICE = false;
@@ -146,8 +147,8 @@ function animateHorizontalBar($marker, $bar, animationTime) {
     var fillValue = $bar.attr("rel");
     var valueString = fillValue + "px";
     
-    $marker.css("left", "1px");
-    $bar.css("width", "0");
+    $marker.css("left", "0px");
+    $bar.css("width", "0px");
 
     $marker.animate({left: valueString,}, animationTime, "swing");
     $bar.animate({width: valueString,}, animationTime, "swing");
@@ -161,17 +162,12 @@ function animateHorizontalBar($marker, $bar, animationTime) {
 // behavior: kick off all vertical bar charts functions needed to activate this portion of charts
 function verticalBarCharts() {
     if (TESTING) console.log("Vertical Bar Charts Starting");
+
+    verticalBarScaleMax = $(".lotus-charts.vertical-bar-chart").attr("rel");
+    verticalBarIncrement = getBestIncrement(verticalBarScaleMax);
+
     var $pullTabs = $(".lotus-charts.vertical-bar-chart .pull-tab");
-    var $currentBar = null;
-    var $active_pull_tab = null;
-
-    // set up initial Y access scale
-
-
-    // don't scroll page when tabs are touched
-    $pullTabs.on("touchmove", false);
-
-    // Don't fire mouse events if we're dealing with a touch device    
+    var $currentBar = null; var $active_pull_tab = null; // set up initial Y access scale // don't scroll page when tabs are touched $pullTabs.on("touchmove", false); // Don't fire mouse events if we're dealing with a touch device    
     if (!IS_TOUCH_DEVICE) {
         // this section determines when editing should begin
         $pullTabs.mousedown(function(e) {
@@ -250,6 +246,11 @@ function verticalBarCharts() {
     }
 }
 
+function getBestIncrement(maxValue) {
+    var power = 2; // TODO: figure out the math
+    return power < 0 ? 1 : Math.pow(10, power);  
+}
+
 function changeBarValue($bar, initialCoords, currCoords) {
     // lock bar editing until this is function completes
     var initialHeight = ($bar).height();
@@ -257,8 +258,8 @@ function changeBarValue($bar, initialCoords, currCoords) {
     var diffY = currCoords[1] - initialCoords[1];
     var adjustedY = ($bar).height() - diffY; // subtract b/c bar Y pixels are measured from top to bottom
 
-    var maxChartValue = 50000; // this value must be pulled later
-    var increment = 100; // this value must be dynamically set later by user
+    var maxChartValue = verticalBarScaleMax;
+    var increment = verticalBarIncrement; // this value must be dynamically set later by user
 
     if (TESTING) {
         console.log("<<<< In changeBarValue >>>>");
