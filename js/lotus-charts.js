@@ -8,6 +8,7 @@
 ************************************/
 var TESTING = true;
 var MAX_BAR_HEIGHT = 300;
+var DEFAULT_MAX_SCALE = 300;
 var verticalBarScaleMax; // vertical bar default Y access value (before resize)
 var verticalBarIncrement;
 
@@ -123,12 +124,22 @@ function getNearestPixel(maxPixels, maxChartValue, chartValue) {
     return Math.floor((chartValue / maxChartValue) * maxPixels);
 }
 
-// TODO: finish function
+// TODO: write documentation
 function getNearestValue(maxPixels, maxChartValue, pixel, increment) {
     var percentage = pixel / maxPixels;
     var nearestValueBase = Math.round(maxChartValue * percentage);
     return increment * Math.floor(nearestValueBase / increment); 
 }
+
+// params: $chart - a jquery object representing the chart
+// return: the current maximum value of the chart
+// behavior: the chart should have its max value embedded as the attribute "rel".
+//           this function simply returns that value as an integer
+function getChartScaleMax($chart) {
+    var relValue = $chart.attr("rel");
+    return relValue ? parseInt(relValue) : DEFAULT_MAX_SCALE;
+}
+
 /************************************
 * Horizontal Bar Charts             *
 ************************************/
@@ -163,7 +174,7 @@ function animateHorizontalBar($marker, $bar, animationTime) {
 function verticalBarCharts() {
     if (TESTING) console.log("Vertical Bar Charts Starting");
 
-    verticalBarScaleMax = $(".lotus-charts.vertical-bar-chart").attr("rel");
+    verticalBarScaleMax = getChartScaleMax($(".lotus-charts.vertical-bar-chart"));
     verticalBarIncrement = getBestIncrement(verticalBarScaleMax);
 
     var $pullTabs = $(".lotus-charts.vertical-bar-chart .pull-tab");
@@ -302,7 +313,7 @@ function changeBarValue($bar, initialCoords, currCoords) {
         // change the value of the label
         var updatedValue = changeLabelValue($bar, maxChartValue, adjustedY, increment);
         if (TESTING) {
-            console.log("Value to send to server: " + value);
+            console.log("Value to send to server: " + updatedValue);
         }
     }
 }
