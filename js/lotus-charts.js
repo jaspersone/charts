@@ -350,10 +350,10 @@ function changeLabelValue($bar, maxChartValue, currPixel, increment) {
 
     if (value > 999999999) { // billions
         $metric.html("G");
-        $normalizedValue = value / 1000000000;
+        normalizedValue = value / 1000000000;
     } else if (value > 999999) { // millions
         $metric.html("M");
-        $normalizedValue = value / 1000000;
+        normalizedValue = value / 1000000;
     } else if (value > 999) { // thousands
         $metric.html("K");
         normalizedValue = value / 1000;
