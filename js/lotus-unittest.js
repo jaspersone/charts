@@ -215,12 +215,11 @@ function run_getChartScaleMax() {
 
     printGroupResults(testGroupName, resultsArray);
 }
-*/
 
 // Basic test function body:
 function test_getChartScaleMax1(fakeChartString, idString) {
     // create fake chart div
-    $(body).append(fakeChartString);
+    $("body").append(fakeChartString);
     
     var testName = "getNearestChartScaleMax() - valid value exists";
     var expected = 600;
@@ -234,7 +233,7 @@ function test_getChartScaleMax1(fakeChartString, idString) {
 
 function test_getChartScaleMax2(fakeChartString, idString) {
     // create fake chart div
-    $(body).append(fakeChartString);
+    $("body").append(fakeChartString);
     $(idString).removeAttr("rel");
     // copy over temp_DEFAULT_MAX_SCALE
     var temp_DEFAULT_MAX_SCALE = DEFAULT_MAX_SCALE;
@@ -255,7 +254,7 @@ function test_getChartScaleMax2(fakeChartString, idString) {
 
 function test_getChartScaleMax3(fakeChartString, idString) {
     // create fake chart div
-    $(body).append(fakeChartString);
+    $("body").append(fakeChartString);
     $(idString).attr("rel", "foo");
     // copy over temp_DEFAULT_MAX_SCALE
     var temp_DEFAULT_MAX_SCALE = DEFAULT_MAX_SCALE;
