@@ -137,8 +137,12 @@ function getNearestValue(maxPixels, maxChartValue, pixel, increment) {
 // behavior: the chart should have its max value embedded as the attribute "rel".
 //           this function simply returns that value as an integer
 function getChartScaleMax($chart) {
-    var relValue = $chart.attr("rel");
-    return relValue ? parseInt(relValue) : DEFAULT_MAX_SCALE;
+    var relValue = parseInt($chart.attr("rel"));
+    if (isNaN(relValue)) {
+        return DEFAULT_MAX_SCALE;
+    } else {
+        return relValue ? parseInt(relValue) : DEFAULT_MAX_SCALE;
+    }
 }
 
 // params: $chart - a jquery object representing the chart
