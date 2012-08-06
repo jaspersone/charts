@@ -155,11 +155,18 @@ function setChartScaleMax($chart, newValue) {
     verticalBarScaleMax = parseInt(newValue);
     $chart.attr("rel", newValue);
 }
+
+// TODO: need to refactor for efficiency
+function getBestIncrement(maxValue, pixels) {
+    // get height of the container
+    var power = Math.floor(Math.log(maxValue / pixels) / Math.log(10)); // TODO: figure out the math
+    return power < 0 ? 1 : Math.pow(10, power);  
+}
+
 /************************************
 * Horizontal Bar Charts             *
 ************************************/
 // TODO: make variable animation time based upon the width of the bar
-
 function horizontalBarCharts() {
     var animationTime = 1500;
     $(".lotus-charts.horizontal-bar-chart").each(function() {
@@ -190,7 +197,8 @@ function verticalBarCharts() {
     if (TESTING) console.log("Vertical Bar Charts Starting");
 
     verticalBarScaleMax = getChartScaleMax($(".lotus-charts.vertical-bar-chart"));
-    verticalBarIncrement = getBestIncrement(verticalBarScaleMax);
+    var chartHeight = $(".vertical-bar-chart .chart-slice-window").height()
+    verticalBarIncrement = getBestIncrement(verticalBarScaleMax, chartHeight);
 
     var $pullTabs = $(".lotus-charts.vertical-bar-chart .pull-tab");
     var $currentBar = null; var $active_pull_tab = null; // set up initial Y access scale // don't scroll page when tabs are touched $pullTabs.on("touchmove", false); // Don't fire mouse events if we're dealing with a touch device    
@@ -270,11 +278,6 @@ function verticalBarCharts() {
             }
         });
     }
-}
-
-function getBestIncrement(maxValue) {
-    var power = 2; // TODO: figure out the math
-    return power < 0 ? 1 : Math.pow(10, power);  
 }
 
 function changeBarValue($bar, initialCoords, currCoords) {

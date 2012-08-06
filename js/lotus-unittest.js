@@ -80,6 +80,13 @@ function test_() {
 /************************************
 * Test Charts General               *
 ************************************/
+
+
+
+/************************************
+* Test Get Nearest Value            *
+************************************/
+
 function run_getNearestValueTests() {
     var testGroupName = "Get Nearest Value Tests";
     var resultsArray = [0, 0];
@@ -140,7 +147,9 @@ function test_getNearestValue3() {
     return printTest(testName, expected, actual);
 }
 
-
+/************************************
+* Test Get Nearest Pixel            *
+************************************/
 function run_getNearestPixel() {
     var testGroupName = "Get Nearest Pixel Tests";
     var resultsArray = [0, 0];
@@ -200,7 +209,9 @@ function test_getNearestPixel3() {
     return printTest(testName, expected, actual);
 }
 
-
+/************************************
+* Test Get Chart Scale Max          *
+************************************/
 function run_getChartScaleMax() {
     var testGroupName = "Get Chart Scale Max Tests";
     var resultsArray = [0, 0];
@@ -274,6 +285,98 @@ function test_getChartScaleMax3(fakeChartString, idString) {
 }
 
 /************************************
+* Test Get Chart Scale Max          *
+************************************/
+function run_getBestIncrement() {
+    var testGroupName = "Get Best Increment Tests ";
+    var resultsArray = [0, 0];
+
+    // tests
+    sumResult(resultsArray, test_getBestIncrement1());
+    sumResult(resultsArray, test_getBestIncrement2());
+    sumResult(resultsArray, test_getBestIncrement3());
+    sumResult(resultsArray, test_getBestIncrement4());
+    sumResult(resultsArray, test_getBestIncrement5());
+
+    printGroupResults(testGroupName, resultsArray);
+}
+
+function test_getBestIncrement1() {
+    var testName = "getBestIncrement() - less than 1 to 1";
+    var expected;
+    var actual;
+
+    var maxValue = 100;
+    var pixelHeight = 300;
+
+    // you should assign expected and actual values here
+    expected = 1;
+    actual = getBestIncrement(maxValue, pixelHeight);
+
+    return printTest(testName, expected, actual);
+}
+
+function test_getBestIncrement2() {
+    var testName = "getBestIncrement() - basic 1 to 1";
+    var expected;
+    var actual;
+
+    var maxValue = 300;
+    var pixelHeight = 300;
+
+    // you should assign expected and actual values here
+    expected = 1;
+    actual = getBestIncrement(maxValue, pixelHeight);
+
+    return printTest(testName, expected, actual);
+}
+
+function test_getBestIncrement3() {
+    var testName = "getBestIncrement() - basic 1 to 10";
+    var expected;
+    var actual;
+
+    var maxValue = 3000;
+    var pixelHeight = 300;
+
+    // you should assign expected and actual values here
+    expected = 10;
+    actual = getBestIncrement(maxValue, pixelHeight);
+
+    return printTest(testName, expected, actual);
+}
+
+function test_getBestIncrement4() {
+    var testName = "getBestIncrement() - large numbers";
+    var expected;
+    var actual;
+
+    var maxValue = 5450000;
+    var pixelHeight = 300;
+
+    // you should assign expected and actual values here
+    expected = 10000;
+    actual = getBestIncrement(maxValue, pixelHeight);
+
+    return printTest(testName, expected, actual);
+}
+
+function test_getBestIncrement5() {
+    var testName = "getBestIncrement() - very large and complicated numbers";
+    var expected;
+    var actual;
+
+    var maxValue = 123748975632347;
+    var pixelHeight = 300;
+
+    // you should assign expected and actual values here
+    expected = 100000000000;
+    actual = getBestIncrement(maxValue, pixelHeight);
+
+    return printTest(testName, expected, actual);
+}
+
+/************************************
 * Main                              *
 ************************************/
 // Main function calls
@@ -290,4 +393,5 @@ function startTests() {
     run_getNearestValueTests();
     run_getNearestPixel();
     run_getChartScaleMax();
+    run_getBestIncrement();
 }
