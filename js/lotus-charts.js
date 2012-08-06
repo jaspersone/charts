@@ -7,6 +7,7 @@
 * Global Variables  	   	 	    *
 ************************************/
 var TESTING = true;
+var AJAX_ON = false;
 var MAX_BAR_HEIGHT = 300;
 var DEFAULT_MAX_SCALE = 300;
 var verticalBarScaleMax; // vertical bar default Y access value (before resize)
@@ -140,6 +141,16 @@ function getChartScaleMax($chart) {
     return relValue ? parseInt(relValue) : DEFAULT_MAX_SCALE;
 }
 
+// params: $chart - a jquery object representing the chart
+//         newValue - the value to set the chart's new max height
+// return: n/a
+// behavior: the chart's rel value is changed to match the updated value as well as the
+//           global variable verticalBarScaleMax
+// TODO: also update the backends in the future
+function setChartScaleMax($chart, newValue) {
+    verticalBarScaleMax = parseInt(newValue);
+    $chart.attr("rel", newValue);
+}
 /************************************
 * Horizontal Bar Charts             *
 ************************************/

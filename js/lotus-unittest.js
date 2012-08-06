@@ -200,6 +200,80 @@ function test_getNearestPixel3() {
     return printTest(testName, expected, actual);
 }
 
+
+function run_getChartScaleMax() {
+    var testGroupName = "Get Chart Scale Max Tests";
+    var resultsArray = [0, 0];
+    
+    var idString = "#purdy-fake-chart";
+    var fakeChart = "<div id='purdy-fake-chart' rel='600'></div>";
+
+    // tests
+    sumResult(resultsArray, test_getChartScaleMax1(fakeChart, idString));
+    sumResult(resultsArray, test_getChartScaleMax2(fakeChart, idString));
+    sumResult(resultsArray, test_getChartScaleMax3(fakeChart, idString));
+
+    printGroupResults(testGroupName, resultsArray);
+}
+*/
+
+// Basic test function body:
+function test_getChartScaleMax1(fakeChartString, idString) {
+    // create fake chart div
+    $(body).append(fakeChartString);
+    
+    var testName = "getNearestChartScaleMax() - valid value exists";
+    var expected = 600;
+    var actual = getChartScaleMax($(idString));
+
+    // destroy fake chart div
+    $(idString).remove();
+
+    return printTest(testName, expected, actual);
+}
+
+function test_getChartScaleMax2(fakeChartString, idString) {
+    // create fake chart div
+    $(body).append(fakeChartString);
+    $(idString).removeAttr("rel");
+    // copy over temp_DEFAULT_MAX_SCALE
+    var temp_DEFAULT_MAX_SCALE = DEFAULT_MAX_SCALE;
+    DEFAULT_MAX_SCALE = 300;
+
+    var testName = "getNearestChartScaleMax() - no rel value exists";
+    var expected = 300;
+    var actual = getChartScaleMax($(idString));
+
+    // restore DEFAULT_MAX_SCALE
+    DEFAULT_MAX_SCALE = temp_DEFAULT_MAX_SCALE;
+
+    // destroy fake chart div
+    $(idString).remove();
+
+    return printTest(testName, expected, actual);
+}
+
+function test_getChartScaleMax3(fakeChartString, idString) {
+    // create fake chart div
+    $(body).append(fakeChartString);
+    $(idString).attr("rel", "foo");
+    // copy over temp_DEFAULT_MAX_SCALE
+    var temp_DEFAULT_MAX_SCALE = DEFAULT_MAX_SCALE;
+    DEFAULT_MAX_SCALE = 300;
+
+    var testName = "getNearestChartScaleMax() - no rel value is not a number";
+    var expected = 300;
+    var actual = getChartScaleMax($(idString));
+
+    // restore DEFAULT_MAX_SCALE
+    DEFAULT_MAX_SCALE = temp_DEFAULT_MAX_SCALE;
+
+    // destroy fake chart div
+    $(idString).remove();
+
+    return printTest(testName, expected, actual);
+}
+
 /************************************
 * Main                              *
 ************************************/
@@ -216,4 +290,5 @@ function startTests() {
     
     run_getNearestValueTests();
     run_getNearestPixel();
+    run_getChartScaleMax();
 }
