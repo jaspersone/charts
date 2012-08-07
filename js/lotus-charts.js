@@ -328,10 +328,7 @@ function changeBarValue($bar, initialCoords, currCoords) {
         }
         if (adjustedY >= MAX_BAR_HEIGHT) { // gone above max height
             ($bar).css("height", MAX_BAR_HEIGHT + "px");
-            if (!barIsEditable) {
-                rescaleChart($chart, adjustedY);
-            }
-        }
+       }
 
         // add code for what to do, MAX_BAR_HEIGHT - 10% of height
         
@@ -342,6 +339,12 @@ function changeBarValue($bar, initialCoords, currCoords) {
         var updatedValue = changeLabelValue($bar, maxChartValue, adjustedY, increment);
         if (TESTING) {
             console.log("Value to send to server: " + updatedValue);
+        }
+        if (!barIsEditable) {
+            // TODO: FIX THIS!!!
+            // This needs to be called with another guard around it, as here it barIsEditable
+            // will always be true.
+            rescaleChart($chart, adjustedY);
         }
     }
 }
