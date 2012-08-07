@@ -163,6 +163,29 @@ function getBestIncrement(maxValue, pixels) {
     return power < 0 ? 1 : Math.pow(10, power);  
 }
 
+// TODO: refactor and document
+function normalizeValue(value) {
+    var normalizedValue;
+    var metric;
+    if (value > 999999999999) { // trillions
+        metric = "T";
+        normalizedValue = value / 1000000000;
+    } else if (value > 999999999) { // billions
+        metric = "G";
+        normalizedValue = value / 1000000000;
+    } else if (value > 999999) { // millions
+        metric = "M";
+        normalizedValue = value / 1000000;
+    } else if (value > 999) { // thousands
+        metric = "K";
+        normalizedValue = value / 1000;
+    } else {
+        metric = ""; // remove
+        normalizedValue = value;
+    }
+    return [normalizedValue, metric];
+}
+
 // TODO: finish function
 // params: chart to rescale
 // return: none
@@ -206,8 +229,20 @@ function rescaleChart($chart) {
 // return: none
 // behavior: given the new chart
 function rescaleAxis($chart, chartMax) {
+    var $chartScaleSegments = ($chart).find(".chart-scale").children();
+    var numSegments = ($chartScaleSegments).length;
+    var increment = Math.floor(chartMax / numSegments);
+    
+    ($chartScaleSegments).each(function(index) {
+        if (TESTING) {
+            console.log(index + ": " + $(this).html());
+        }
+    }); 
+
     if (TESTING) {
         console.log("In rescaleAxis()");
+        console.log("Number of segments: " + numSegments);
+        console.log("Increment value:    " + increment);
     }
 }
 
@@ -416,26 +451,11 @@ function changeLabelValue($bar, maxChartValue, currPixel, increment) {
     var $number     = ($label).children('.number');
     var $metric     = ($label).children('.metric');
     
-    var normalizedValue;
-    var units;
+    var newValues   = normalizeValue(value);
+    var normalizedValue = newValues[0];
+    var units       = newValues[1];
 
-    if (value > 999999999999) { // trillions
-        $metric.html("T");
-        normalizedValue = value / 1000000000;
-    } else if (value > 999999999) { // billions
-        $metric.html("G");
-        normalizedValue = value / 1000000000;
-    } else if (value > 999999) { // millions
-        $metric.html("M");
-        normalizedValue = value / 1000000;
-    } else if (value > 999) { // thousands
-        $metric.html("K");
-        normalizedValue = value / 1000;
-    } else {
-        $metric.html(""); // remove
-        normalizedValue = value;
-    }
-
+    $metric.html(units);
     $number.html(normalizedValue);
     
     return value;
