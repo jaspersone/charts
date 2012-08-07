@@ -163,13 +163,60 @@ function getBestIncrement(maxValue, pixels) {
     return power < 0 ? 1 : Math.pow(10, power);  
 }
 
-// TODO: complete writing this function
-function rescaleChart($chart, value) {
+// TODO: finish function
+// params: chart to rescale
+// return: none
+// behavior: checks for elements inside chart with class edited-bar then checks their value to determine
+//           if they need to be rescaled
+function rescaleChart($chart) {
+    // get bar that is in question
+    var $editedBar = ($chart).find(".edited-bar");
+    var value = parseInt($editedBar.attr("rel"));
     if (TESTING) {
         console.log("In rescale chart");
-        console.log("Offending value: " + value);
+        console.log("Original max: " + value);
+    }
+
+    if (value >= verticalBarScaleMax) {
+        // only resize chart if it is necessary
+        var count = 0;
+        while (value >= 10) {
+            value = value / 10;
+            count++;
+        }
+        // calculate and set new max value
+        verticalBarScaleMax = (Math.ceil(value) + 1) * Math.pow(10, count);
+
+        // update scale html
+        rescaleAxis($chart, verticalBarScaleMax);        
+        // update all bars
+        resizeBars($chart, verticalBarScaleMax);
+    }
+
+    if (TESTING) {
+       console.log("Vertical Bar Scale Max is: " + verticalBarScaleMax);
+    }
+
+    // after finished remove class edited-bar
+    ($editedBar).removeClass("edited-bar");
+}
+
+// params: $chart - the jquery object that represents the chart's outer wrapper
+//         chartMax - the adjusted max value of the chart
+// return: none
+// behavior: given the new chart
+function rescaleAxis($chart, chartMax) {
+    if (TESTING) {
+        console.log("In rescaleAxis()");
     }
 }
+
+function resizeBars($chart, chartMax) {
+    if (TESTING) {
+        console.log("In resizeBars()");
+    }
+}
+
 /************************************
 * Horizontal Bar Charts             *
 ************************************/
@@ -213,7 +260,11 @@ function verticalBarCharts() {
         // this section determines when editing should begin
         $pullTabs.mousedown(function(e) {
             barIsEditable = true;
+            
+            // mark as current edited bar
             $currentBar = $(this).parent();
+            $currentBar.addClass("edited-bar");
+
             coordsOnMouseDown = getCurrentCoords();
             if (TESTING) {
                 console.log("Tab touched");
@@ -228,6 +279,9 @@ function verticalBarCharts() {
                     console.log("Tab released");
                 }
                 barIsEditable = false;
+
+                // rescale chart
+                rescaleChart($chart);
             }
         });
 
@@ -249,6 +303,11 @@ function verticalBarCharts() {
         $pullTabs.bind("touchstart", function(e) {
             barIsEditable = true;
             e.preventDefault();
+
+            // mark as current edited bar
+            $currentBar = $(this).parent();
+            $currentBar.addClass("edited-bar");
+
             var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
             coordsOnMouseDown[0] = touch.pageX;
             coordsOnMouseDown[1] = touch.pageY;
@@ -264,6 +323,7 @@ function verticalBarCharts() {
                 if (TESTING) {
                     console.log("Tab released");
                 }
+                rescaleChart($chart);
                 barIsEditable = false;
             }
         });
@@ -337,14 +397,12 @@ function changeBarValue($bar, initialCoords, currCoords) {
     if (diffY != 0) {
         // change the value of the label
         var updatedValue = changeLabelValue($bar, maxChartValue, adjustedY, increment);
+        
+        // change the value of the bar's rel
+        ($bar).attr("rel", updatedValue);
+ 
         if (TESTING) {
             console.log("Value to send to server: " + updatedValue);
-        }
-        if (!barIsEditable) {
-            // TODO: FIX THIS!!!
-            // This needs to be called with another guard around it, as here it barIsEditable
-            // will always be true.
-            rescaleChart($chart, adjustedY);
         }
     }
 }
