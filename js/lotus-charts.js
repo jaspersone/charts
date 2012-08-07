@@ -229,9 +229,6 @@ function verticalBarCharts() {
                 }
                 barIsEditable = false;
             }
-            if (true) {
-                rescaleChart($chart, adjustedY);
-            }
         });
 
         $(document).mousemove(function(e) {
@@ -331,6 +328,9 @@ function changeBarValue($bar, initialCoords, currCoords) {
         }
         if (adjustedY >= MAX_BAR_HEIGHT) { // gone above max height
             ($bar).css("height", MAX_BAR_HEIGHT + "px");
+            if (!barIsEditable) {
+                rescaleChart($chart, adjustedY);
+            }
         }
 
         // add code for what to do, MAX_BAR_HEIGHT - 10% of height
