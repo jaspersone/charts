@@ -163,6 +163,13 @@ function getBestIncrement(maxValue, pixels) {
     return power < 0 ? 1 : Math.pow(10, power);  
 }
 
+// TODO: complete writing this function
+function rescaleChart($chart, value) {
+    if (TESTING) {
+        console.log("In rescale chart");
+        console.log("Offending value: " + value);
+    }
+}
 /************************************
 * Horizontal Bar Charts             *
 ************************************/
@@ -195,8 +202,8 @@ function animateHorizontalBar($marker, $bar, animationTime) {
 // behavior: kick off all vertical bar charts functions needed to activate this portion of charts
 function verticalBarCharts() {
     if (TESTING) console.log("Vertical Bar Charts Starting");
-
-    verticalBarScaleMax = getChartScaleMax($(".lotus-charts.vertical-bar-chart"));
+    var $chart = $(".lotus-charts.vertical-bar-chart"); 
+    verticalBarScaleMax = getChartScaleMax($chart);
     var chartHeight = $(".vertical-bar-chart .chart-slice-window").height()
     verticalBarIncrement = getBestIncrement(verticalBarScaleMax, chartHeight);
 
@@ -221,6 +228,9 @@ function verticalBarCharts() {
                     console.log("Tab released");
                 }
                 barIsEditable = false;
+            }
+            if (true) {
+                rescaleChart($chart, adjustedY);
             }
         });
 
@@ -348,7 +358,10 @@ function changeLabelValue($bar, maxChartValue, currPixel, increment) {
     var normalizedValue;
     var units;
 
-    if (value > 999999999) { // billions
+    if (value > 999999999999) { // trillions
+        $metric.html("T");
+        normalizedValue = value / 1000000000;
+    } else if (value > 999999999) { // billions
         $metric.html("G");
         normalizedValue = value / 1000000000;
     } else if (value > 999999) { // millions
