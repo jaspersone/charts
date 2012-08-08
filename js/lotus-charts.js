@@ -125,7 +125,7 @@ function getNearestPixel(maxPixels, maxChartValue, chartValue) {
     return Math.floor((chartValue / maxChartValue) * maxPixels);
 }
 
-// TODO: write documentation
+// TODO: make sure that it doesn't return a value that has more than 1 decimal when converted
 function getNearestValue(maxPixels, maxChartValue, pixel, increment) {
     var percentage = pixel / maxPixels;
     var nearestValueBase = Math.round(maxChartValue * percentage);
