@@ -272,25 +272,40 @@ function resizeBars($chart, chartMax) {
 /************************************
 * Horizontal Bar Charts             *
 ************************************/
-// TODO: make variable animation time based upon the width of the bar
 function horizontalBarCharts() {
     var animationTime = 1500;
     $(".lotus-charts.horizontal-bar-chart").each(function() {
-        var $marker = $(this).find(".chart-marker");
-        var $bar    = $(this).find(".fill");
-        animateHorizontalBar($marker, $bar, animationTime);
+        animateHorizontalBar($(this), animationTime);
     });
 }
 
-function animateHorizontalBar($marker, $bar, animationTime) {
-    var fillValue = $bar.attr("rel");
-    var valueString = fillValue + "px";
+// TODO: resizing windows causes outside container to change, but does not change inside
+//       bar size
+function animateHorizontalBar($chart, animationTime) {
+    var $marker = ($chart).find(".chart-marker");
+    var $bar    = ($chart).find(".fill");
+    var maxPixels =  $bar.parent().width() - 8;
+    var maxChartValue = parseInt(($chart).attr("rel"));
+    var chartValue = parseInt(($chart).children(".chart-marker-box").attr("rel"));
+
+    var pixelWidth = getNearestPixel(maxPixels, maxChartValue, chartValue);
+
+    var valueString = pixelWidth + "px";
     
     $marker.css("left", "0px");
     $bar.css("width", "0px");
 
     $marker.animate({left: valueString,}, animationTime, "swing");
     $bar.animate({width: valueString,}, animationTime, "swing");
+
+    if (TESTING) {
+        console.log("<<<< In Animate Horizontal Bar >>>>");
+        console.log("maxPixels:     " + maxPixels);
+        console.log("maxChartValue: " + maxChartValue);
+        console.log("chartValue:    " + chartValue);
+        console.log("pixelWdith:    " + pixelWidth);
+        console.log("valueString:   " + valueString);
+    }
 }
 
 /************************************
