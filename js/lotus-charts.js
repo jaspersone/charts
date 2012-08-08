@@ -201,10 +201,8 @@ function rescaleChart($chart) {
         console.log("In rescale chart");
         console.log("Original max: " + value);
     }
-
     if (value && value >= verticalBarScaleMax) {
         // only resize chart if it is necessary
-        $editedBar.addClass("max");
         var count = 0;
         while (value >= 10) {
             value = value / 10;
@@ -218,24 +216,8 @@ function rescaleChart($chart) {
         // update all bars
         resizeBars($chart, verticalBarScaleMax);
     } else if (value && ($editedBar).hasClass("max")) {
-        //remove class
-        ($editedBar).removeClass("max");
-        
-        // reset max
-        verticalBarHighestValue = 0;
-
         // find new max and assign it
-        var $bars = ($chart).find(".bar");
-        var maxIndex = 0;
-        ($bars).each(function(index) {
-            var currValue = parseInt($(this).attr("rel"));
-            if (currValue > verticalBarHighestValue) {
-                verticalBarHighestValue = currValue;
-                maxIndex = index;
-            }
-        });
-        // assign new max
-        (($bars)[maxIndex]).addClass("max");
+        assignMax(($chart).find(".bar"));
     }
 
     if (TESTING) {
@@ -333,6 +315,39 @@ function animateHorizontalBar($chart, animationTime) {
 /************************************
 * Vertical Bar Charts               *
 ************************************/
+//warning: this algorithm is potentially O(N^2) and will loop through entire list
+//         try to call it sparingly
+function assignMax($listToFindMaxFrom) {
+    if (TESTING) {
+        console.log("<<<< in assignMax() >>>>");
+    }
+
+    // reset highest value
+    verticalBarHighestValue = -1;
+ 
+    ($listToFindMaxFrom).each(function(index) {
+        var currValue = parseInt($(this).attr("rel"));
+        if (TESTING) {
+            console.log(" current max value: " + verticalBarHighestValue);
+            console.log(" this bar value:    " + currValue);
+        }
+        if (currValue > verticalBarHighestValue) {
+            // clear all other maxes
+            clearAllMax($listToFindMaxFrom);
+            // assign this one class max
+            $(this).addClass("max");
+            // update highest value
+            verticalBarHighestValue = currValue;
+        }
+    });
+}
+
+function clearAllMax($listToClear) {
+    ($listToClear).each(function(i) {
+        $(this).removeClass("max");
+    });
+}
+
 // params: none
 // return: none
 // behavior: kick off all vertical bar charts functions needed to activate this portion of charts
@@ -345,6 +360,10 @@ function verticalBarCharts() {
 
     var $pullTabs = $(".lotus-charts.vertical-bar-chart .pull-tab");
     var $currentBar = null; var $active_pull_tab = null; // set up initial Y access scale // don't scroll page when tabs are touched $pullTabs.on("touchmove", false); // Don't fire mouse events if we're dealing with a touch device    
+    
+    // loop through and find highest value and assign it class max
+    assignMax(($chart).find(".bar"));
+       
     if (!IS_TOUCH_DEVICE) {
         // this section determines when editing should begin
         $pullTabs.mousedown(function(e) {
@@ -492,7 +511,12 @@ function changeBarValue($bar, initialCoords, currCoords) {
         
         // change the value of the bar's rel
         ($bar).attr("rel", updatedValue);
- 
+        
+        // if larger than max, assign it to be max
+        if (updatedValue > verticalBarHighestValue) {
+            assignMax($(".lotus-charts.vertical-bar-chart").find(".bar"));
+        }
+
         if (TESTING) {
             console.log("Value to send to server: " + updatedValue);
         }
