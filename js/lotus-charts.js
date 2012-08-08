@@ -8,7 +8,7 @@
 ************************************/
 var TESTING = true;
 var AJAX_ON = false;
-var MAX_BAR_HEIGHT = 300;
+var MAX_BAR_HEIGHT = 300; // in pixels
 var DEFAULT_MAX_SCALE = 300;
 var verticalBarScaleMax; // vertical bar default Y access value (before resize)
 var verticalBarIncrement;
@@ -234,19 +234,36 @@ function rescaleAxis($chart, chartMax) {
     var increment = Math.floor(chartMax / numSegments);
     
     ($chartScaleSegments).each(function(index) {
+        var value = chartMax - (index * increment);
+        // normalizedArray = [normalized value, units];
+        var normalizedArray = normalizeValue(value);
+
+        // set new values
+        $(this).children(".number").html(normalizedArray[0]);
+        $(this).children(".metric").html(normalizedArray[1]);
+
         if (TESTING) {
             console.log(index + ": " + $(this).html());
+            console.log("new value: " + normalizedArray[0] + normalizedArray[1]);
         }
     }); 
-
-    if (TESTING) {
-        console.log("In rescaleAxis()");
-        console.log("Number of segments: " + numSegments);
-        console.log("Increment value:    " + increment);
-    }
 }
 
 function resizeBars($chart, chartMax) {
+    var animationTime = 1000;
+    var $chartBars = ($chart).find(".bar");
+    ($chartBars).each(function(index) {
+        // find new pixel to go to
+        var newHeight = getNearestPixel(MAX_BAR_HEIGHT, chartMax, parseInt($(this).attr("rel"))) + "px";
+        if (TESTING) {
+            console.log("<<<< BAR " + index + " >>>>");
+            console.log("Old height: " + $(this).height());
+            console.log("new height: " + newHeight);
+        }
+        // animate to new pixel
+        $(this).animate({height: newHeight,}, animationTime, "swing").css("overflow", "visible");
+    });
+
     if (TESTING) {
         console.log("In resizeBars()");
     }
@@ -294,6 +311,9 @@ function verticalBarCharts() {
     if (!IS_TOUCH_DEVICE) {
         // this section determines when editing should begin
         $pullTabs.mousedown(function(e) {
+            if (e && e.preventDefault) {
+                e.preventDefault();
+            }
             barIsEditable = true;
             
             // mark as current edited bar
