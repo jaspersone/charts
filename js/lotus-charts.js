@@ -10,8 +10,10 @@ var TESTING = true;
 var AJAX_ON = false;
 var MAX_BAR_HEIGHT = 300; // in pixels
 var DEFAULT_MAX_SCALE = 300;
+
 var verticalBarScaleMax; // vertical bar default Y access value (before resize)
 var verticalBarIncrement;
+var verticalBarHighestValue;
 
 var screen_dimensions;
 var IS_TOUCH_DEVICE = false;
@@ -187,21 +189,22 @@ function normalizeValue(value) {
 }
 
 // TODO: finish function
-// params: chart to rescale
+// params: $chart - chart to rescale
 // return: none
 // behavior: checks for elements inside chart with class edited-bar then checks their value to determine
 //           if they need to be rescaled
 function rescaleChart($chart) {
     // get bar that is in question
     var $editedBar = ($chart).find(".edited-bar");
-    var value = parseInt($editedBar.attr("rel"));
+    var value = $editedBar ? parseInt($editedBar.attr("rel")) : false;
     if (TESTING) {
         console.log("In rescale chart");
         console.log("Original max: " + value);
     }
 
-    if (value >= verticalBarScaleMax) {
+    if (value && value >= verticalBarScaleMax) {
         // only resize chart if it is necessary
+        $editedBar.addClass("max");
         var count = 0;
         while (value >= 10) {
             value = value / 10;
@@ -214,6 +217,25 @@ function rescaleChart($chart) {
         rescaleAxis($chart, verticalBarScaleMax);        
         // update all bars
         resizeBars($chart, verticalBarScaleMax);
+    } else if (value && ($editedBar).hasClass("max")) {
+        //remove class
+        ($editedBar).removeClass("max");
+        
+        // reset max
+        verticalBarHighestValue = 0;
+
+        // find new max and assign it
+        var $bars = ($chart).find(".bar");
+        var maxIndex = 0;
+        ($bars).each(function(index) {
+            var currValue = parseInt($(this).attr("rel"));
+            if (currValue > verticalBarHighestValue) {
+                verticalBarHighestValue = currValue;
+                maxIndex = index;
+            }
+        });
+        // assign new max
+        (($bars)[maxIndex]).addClass("max");
     }
 
     if (TESTING) {
