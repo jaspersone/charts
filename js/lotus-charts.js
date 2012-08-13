@@ -118,7 +118,7 @@ function trackCoordinates() {
 // return: array of mouse's X and Y coordinates at the time of the function call
 // behavior: instead of returning the global array MOUSE_COORDS, creates a new array of the values
 //           from MOUSE_COORDS
-function getCurrentCoords() {
+function getCurrentMouseCoords() {
     return [MOUSE_COORDS[0], MOUSE_COORDS[1]];
 }
 
@@ -201,23 +201,20 @@ function rescaleChart($chart) {
         console.log("In rescale chart");
         console.log("Original max: " + value);
     }
-    if (value && value >= verticalBarScaleMax) {
-        // only resize chart if it is necessary
-        var count = 0;
-        while (value >= 10) {
-            value = value / 10;
-            count++;
-        }
-        // calculate and set new max value
-        verticalBarScaleMax = (Math.ceil(value) + 1) * Math.pow(10, count);
 
-        // update scale html
-        rescaleAxis($chart, verticalBarScaleMax);        
-        // update all bars
-        resizeBars($chart, verticalBarScaleMax);
-    } else if (value && ($editedBar).hasClass("max")) {
-        // find new max and assign it
-        assignMax(($chart).find(".bar"));
+    // only resize chart if it is necessary
+    if (value) {
+        if (value >= verticalBarScaleMax) {
+            // set new max value
+            verticalBarScaleMax = calculateNewMaxChartValue(value);
+            // update scale html
+            rescaleAxis($chart, verticalBarScaleMax);        
+            // update all bars
+            resizeBars($chart, verticalBarScaleMax);
+        } else if (($editedBar).hasClass("max")) {
+            // find new max and assign it
+            assignMax(($chart).find(".bar"));
+        }
     }
 
     if (TESTING) {
@@ -226,6 +223,16 @@ function rescaleChart($chart) {
 
     // after finished remove class edited-bar
     ($editedBar).removeClass("edited-bar");
+}
+
+function calculateNewMaxChartValue (currValue) {
+    var count = 0;
+    while (currValue >= 10) {
+        currValue = currValue / 10;
+        count++;
+    }
+    // return new max value
+    return (Math.ceil(currValue) + 1) * Math.pow(10, count);
 }
 
 // params: $chart - the jquery object that represents the chart's outer wrapper
@@ -335,7 +342,7 @@ function assignMax($listToFindMaxFrom) {
             // clear all other maxes
             clearAllMax($listToFindMaxFrom);
             // assign this one class max
-            $(this).addClass("max");
+            $(this).removeClass("max").addClass("max");
             // update highest value
             verticalBarHighestValue = currValue;
         }
@@ -376,7 +383,7 @@ function verticalBarCharts() {
             $currentBar = $(this).parent();
             $currentBar.addClass("edited-bar");
 
-            coordsOnMouseDown = getCurrentCoords();
+            coordsOnMouseDown = getCurrentMouseCoords();
             if (TESTING) {
                 console.log("Tab touched");
                 console.log("Coords on mouse down: " + coordsOnMouseDown);
