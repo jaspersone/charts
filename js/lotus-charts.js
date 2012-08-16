@@ -218,7 +218,6 @@ function rescaleChart($chart) {
     var $editedBar = ($chart).find(".edited-bar");
     var value = getBarValue($editedBar);
 
-    findAndAssignMax(($chart).find(".bar"));
 
     if (TESTING) {
         console.log("In rescale chart");
@@ -445,6 +444,7 @@ function verticalBarCharts() {
                 }
                 barIsEditable = false;
 
+                findAndAssignMax(($chart).find(".bar"));
                 // rescale chart
                 rescaleChart($chart);
             }
@@ -488,6 +488,9 @@ function verticalBarCharts() {
                 if (TESTING) {
                     console.log("Tab released");
                 }
+
+                findAndAssignMax(($chart).find(".bar"));
+                // rescale chart
                 rescaleChart($chart);
                 barIsEditable = false;
             }
