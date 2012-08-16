@@ -196,23 +196,29 @@ function normalizeValue(value) {
 function rescaleChart($chart) {
     // get bar that is in question
     var $editedBar = ($chart).find(".edited-bar");
-    var isMaxBar = ($editedBar).hasClass("max");
     var value = $editedBar ? parseInt($editedBar.attr("rel")) : false;
+
+    findAndAssignMax(($chart).find(".bar"));
 
     if (TESTING) {
         console.log("In rescale chart");
         console.log("Original max: " + value);
     }
-
+    
     // only resize chart if it is necessary
     if (!(isNaN(value))) {
-        if (value >= verticalBarScaleMax || (isMaxBar && value < (.5 * verticalBarMaxValue))) {
-            // set new max value
-            verticalBarScaleMax = calculateNewMaxChartValue(value);
-            // update scale html
-            rescaleAxis($chart, verticalBarScaleMax); 
-            // update all bars
-            resizeBars($chart, verticalBarScaleMax);
+        if (value >= verticalBarScaleMax || value <= verticalBarMaxValue) {
+            // find new max before doing rescale
+            if (verticalBarMaxValue < (.5 * verticalBarScaleMax) || value >= verticalBarScaleMax) {
+                console.log("WHAT THE HECK >>> verticalBarScaleMax: " + verticalBarScaleMax);
+                console.log("                  verticalBarMaxValue: " + verticalBarMaxValue);
+                // set new max value
+                verticalBarScaleMax = calculateNewMaxChartValue(value);
+                // update scale html
+                rescaleAxis($chart, verticalBarScaleMax); 
+                // update all bars
+                resizeBars($chart, verticalBarScaleMax);
+            }
         }
     }
 
@@ -375,9 +381,13 @@ function verticalBarCharts() {
     var chartHeight = $(".vertical-bar-chart .chart-slice-window").height()
     verticalBarIncrement = getBestIncrement(verticalBarScaleMax, chartHeight);
 
+    // set up initial Y access scale
+    // don't scroll page when tabs are touched $pullTabs.on("touchmove", false);
+    // Don't fire mouse events if we're dealing with a touch device    
     var $pullTabs = $(".lotus-charts.vertical-bar-chart .pull-tab");
-    var $currentBar = null; var $active_pull_tab = null; // set up initial Y access scale // don't scroll page when tabs are touched $pullTabs.on("touchmove", false); // Don't fire mouse events if we're dealing with a touch device    
-    
+    var $currentBar = null;
+    var $active_pull_tab = null; 
+   
     // loop through and find highest value and assign it class max
     findAndAssignMax(($chart).find(".bar"));
        
