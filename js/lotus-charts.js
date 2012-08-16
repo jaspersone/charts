@@ -147,6 +147,26 @@ function getChartScaleMax($chart) {
     }
 }
 
+// params: $bar - a jquery object of the bar to find the value of
+// return: either an integer value of the bar or false if the bar does not exist
+// behavior: by calling method with a valid bar, the function attempts to return the rel value, which is
+//           where the function expects the $bar to store its value
+function getBarValue($bar) {
+    return $bar ? parseInt(($bar).attr("rel")) : false;
+}
+
+// params: $bar - a jquery object that the user wants to set a value for
+//         value - an integer value that will be assigned to the bar
+// return: true if the value was assigned, false otherwise
+// behavior: setBarValue expects value to be a number, if it is a number it will set the object $bar's rel value
+//           equal that number and return true. otherwise it will return false.
+// TODO: also update backends in the future
+function setBarValue($bar, value) {
+    if (isNaN(value)) return false;
+    ($bar).attr("rel", value);
+    return true;
+}
+
 // params: $chart - a jquery object representing the chart
 //         newValue - the value to set the chart's new max height
 // return: n/a
@@ -190,13 +210,13 @@ function normalizeValue(value) {
 
 // TODO: finish function
 // params: $chart - chart to rescale
-// return: none
+// return: true if chart rescaled, false otherwise
 // behavior: checks for elements inside chart with class edited-bar then checks their value to determine
 //           if they need to be rescaled
 function rescaleChart($chart) {
     // get bar that is in question
     var $editedBar = ($chart).find(".edited-bar");
-    var value = $editedBar ? parseInt($editedBar.attr("rel")) : false;
+    var value = getBarValue($editedBar);
 
     findAndAssignMax(($chart).find(".bar"));
 
@@ -206,20 +226,26 @@ function rescaleChart($chart) {
     }
     
     // only resize chart if it is necessary
-    if (!(isNaN(value))) {
-        if (value >= verticalBarScaleMax || value <= verticalBarMaxValue) {
-            // find new max before doing rescale
-            if (verticalBarMaxValue < (.5 * verticalBarScaleMax) || value >= verticalBarScaleMax) {
-                console.log("WHAT THE HECK >>> verticalBarScaleMax: " + verticalBarScaleMax);
-                console.log("                  verticalBarMaxValue: " + verticalBarMaxValue);
-                // set new max value
-                verticalBarScaleMax = calculateNewMaxChartValue(value);
-                // update scale html
-                rescaleAxis($chart, verticalBarScaleMax); 
-                // update all bars
-                resizeBars($chart, verticalBarScaleMax);
-            }
+    if (isNaN(value)) {
+        return false;
+    }
+
+    if (value >= verticalBarScaleMax || value <= verticalBarMaxValue) {
+        // find new max before doing rescale
+        if (verticalBarMaxValue < (.5 * verticalBarScaleMax) || value >= verticalBarScaleMax) {
+            // get new value
+
+            // set new max value
+            verticalBarScaleMax = calculateNewMaxChartValue(verticalBarMaxValue);
+            // update scale html
+            rescaleAxis($chart, verticalBarScaleMax); 
+            // update all bars
+            resizeBars($chart, verticalBarScaleMax);
+        } else {
+            return false;
         }
+    } else {
+        return false;
     }
 
     if (TESTING) {
@@ -228,6 +254,7 @@ function rescaleChart($chart) {
 
     // after finished remove class edited-bar
     ($editedBar).removeClass("edited-bar");
+    return true;
 }
 
 function calculateNewMaxChartValue (currValue) {
@@ -238,7 +265,7 @@ function calculateNewMaxChartValue (currValue) {
         count++;
     }
     // return new max value
-    result = (Math.ceil(currValue) + 1) * Math.pow(10, count);
+    result = (Math.floor(currValue) + 1) * Math.pow(10, count);
     return result > DEFAULT_MAX_SCALE ? result : DEFAULT_MAX_SCALE; 
 }
 
@@ -343,7 +370,7 @@ function findAndAssignMax($listToFindMaxFrom) {
     verticalBarMaxValue = -1;
  
     ($listToFindMaxFrom).each(function(index) {
-        var currValue = parseInt($(this).attr("rel"));
+        var currValue = getBarValue($(this));
         if (TESTING) {
             console.log(" current max value: " + verticalBarMaxValue);
             console.log(" this bar value:    " + currValue);
