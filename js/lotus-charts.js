@@ -217,7 +217,7 @@ function rescaleChart($chart) {
     // get bar that is in question
     var $editedBar = ($chart).find(".edited-bar");
     var value = getBarValue($editedBar);
-
+    var $pullTabs = ($chart).find(".pull-tab");
 
     if (TESTING) {
         console.log("In rescale chart");
@@ -232,8 +232,6 @@ function rescaleChart($chart) {
     if (value >= verticalBarScaleMax || value <= verticalBarMaxValue) {
         // find new max before doing rescale
         if (verticalBarMaxValue < (.5 * verticalBarScaleMax) || value >= verticalBarScaleMax) {
-            // get new value
-
             // set new max value
             verticalBarScaleMax = calculateNewMaxChartValue(verticalBarMaxValue);
             // update scale html
