@@ -229,17 +229,11 @@ function rescaleChart($chart) {
         return false;
     }
 
-    if (value >= verticalBarScaleMax) {
+    if (value >= verticalBarScaleMax || (value <= verticalBarMaxValue && verticalBarMaxValue < (.5 * verticalBarScaleMax)) ) {
         doRescale($chart);
         return true;
     }
-    
-    if (value <= verticalBarMaxValue && verticalBarMaxValue < (.5 * verticalBarScaleMax)) {
-        doRescale($chart);
-        return true;
-    }
-
-    return true;
+    return false;
 }
 
 function doRescale($chart) {
