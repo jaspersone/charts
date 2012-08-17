@@ -15,7 +15,11 @@ Version: 0.0
 @purple:    #992670;
 @blue:      #6dafe1;
 @green:     #5bbc19;
-
+/*
+@warning-color-low: ;
+@warning-color-med: ;
+@warning-color-high: ;
+*/
 @primary-font-color: #333;
 @heading-font-color: #222;
 @label-color-light: @primary-font-color + #555;
@@ -268,7 +272,7 @@ div.lotus-charts, .lotus-charts {
 .lotus-charts.vertical-bar-chart .chart-slice-window {
     border: 1px solid @vertical-bar-chart-line-color;
     border-left: 0;
-	border-right: 0;
+	border-right: 2px solid @vertical-bar-chart-line-color;
     position: relative;
     left: @slice-width / 2;
     /* width: should be set dynamically by server given the total number of slices */
@@ -394,27 +398,36 @@ div.lotus-charts, .lotus-charts {
 }
 
 .lotus-charts.vertical-bar-chart .chart-slice .bubble-label {
-    .lotus-charts.vertical-bar-chart .chart-slice .bubble-background-gradient;
-    color: @vertical-bar-chart-bubble-label-text-color;
+    color: ;
     margin: 0 8px;
     padding: .5em 0;
     position: relative;
     top: -108px;
     text-align: center;
+}
+
+.lotus-charts.vertical-bar-chart .chart-slice .saved .bubble-label {
+    .lotus-charts.vertical-bar-chart .chart-slice .bubble-background-gradient;
+    color: @vertical-bar-chart-bubble-label-text-color;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
-    border-radius: 5px;
+     border-radius: 5px;
 }
 
 .lotus-charts.vertical-bar-chart .chart-slice .bubble-label .down-arrow {
-    background: transparent url("../images/arrow-down-32.png") no-repeat center top;
-    background-size: 16px 12px;
     width: 16px;
     height: 12px;
     position: absolute;
     bottom: -11px; /* 1px less b/c image needs to overlap bubble-label 1px border */
     left: 50% - 8px;
 }
+
+.lotus-charts.vertical-bar-chart .chart-slice .saved .bubble-label .down-arrow {
+    background: transparent url("../images/arrow-down-32.png") no-repeat center top;
+    background-size: 16px 12px;
+ 
+}
+
 .lotus-charts.vertical-bar-chart .chart-slice .slice-label {
     border-top: 6px solid @vertical-bar-chart-line-color;
     font-size: .8em;
