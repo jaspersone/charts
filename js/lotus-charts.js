@@ -44,6 +44,26 @@ function isTouchDevice() {
 }
 
 /************************************
+* Utility Functions                 *
+************************************/
+var debounce = (function() {
+    // create new dictionary of timers to be filled later
+    var timers = {};
+    return function(callback, ms, uniqueID) {
+        // if no unique id is given, use default
+        if (!uniqueID) {
+            uniqueID = "Don't call this twice without a uniqueID, or funky stuff will happen";
+        }
+        // clear timer if another event with same unique id is found
+        if (timers[uniqueID]) {
+            clearTimeout(timers[uniqueID]);
+        }
+        // assign new timer to hit callback function after ms has expired
+        timers[uniqueID] = setTimeout(callback, ms);
+    };
+})();
+
+/************************************
 * Cookies                           *
 ************************************/
 /*
