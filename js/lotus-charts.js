@@ -462,10 +462,11 @@ function verticalBarCharts() {
                     console.log("Tab released");
                 }
                 barIsEditable = false;
-
-                findAndAssignMax(($chart).find(".bar"));
-                // rescale chart
-                rescaleChart($chart);
+                debounce(function() {
+                    findAndAssignMax(($chart).find(".bar"));
+                    // rescale chart
+                    rescaleChart($chart);
+                }, 500, "vertical-bar-mouseup");
             }
         });
 
@@ -507,10 +508,11 @@ function verticalBarCharts() {
                 if (TESTING) {
                     console.log("Tab released");
                 }
-
-                findAndAssignMax(($chart).find(".bar"));
-                // rescale chart
-                rescaleChart($chart);
+                debounce (function() {
+                    findAndAssignMax(($chart).find(".bar"));
+                    // rescale chart
+                    rescaleChart($chart);
+                }, 500, "vertical-bar-touchend");
                 barIsEditable = false;
             }
         });
@@ -638,8 +640,10 @@ $(document).ready(function() {
 	
 	// keep screen_dimensions up to date
 	window.onresize = function() {
-		screen_dimensions = getScreenDimensions();
-        if (TESTING) { console.log("New screen dimensions are: " + screen_dimensions); }
+        debounce(function() {
+            screen_dimensions = getScreenDimensions();
+            if (TESTING) { console.log("New screen dimensions are: " + screen_dimensions); }
+        }, 500, "Screen dimensions");
 	}
 	
 	// check for internet explorer
