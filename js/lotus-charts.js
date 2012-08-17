@@ -214,14 +214,14 @@ function normalizeValue(value) {
 // behavior: checks for elements inside chart with class edited-bar then checks their value to determine
 //           if they need to be rescaled
 function rescaleChart($chart) {
-    // get bar that is in question
+    // only get the bar that has been edited last
     var $editedBar = ($chart).find(".edited-bar");
     var value = getBarValue($editedBar);
-    var $pullTabs = ($chart).find(".pull-tab");
+    // after getting a handle on the edited bar remove class edited-bar
+    ($editedBar).removeClass("edited-bar");
 
     if (TESTING) {
         console.log("In rescale chart");
-        console.log("Original max: " + value);
     }
     
     // only resize chart if it is necessary
@@ -229,29 +229,26 @@ function rescaleChart($chart) {
         return false;
     }
 
-    if (value >= verticalBarScaleMax || value <= verticalBarMaxValue) {
-        // find new max before doing rescale
-        if (verticalBarMaxValue < (.5 * verticalBarScaleMax) || value >= verticalBarScaleMax) {
-            // set new max value
-            verticalBarScaleMax = calculateNewMaxChartValue(verticalBarMaxValue);
-            // update scale html
-            rescaleAxis($chart, verticalBarScaleMax); 
-            // update all bars
-            resizeBars($chart, verticalBarScaleMax);
-        } else {
-            return false;
-        }
-    } else {
-        return false;
+    if (value >= verticalBarScaleMax) {
+        doRescale($chart);
+        return true;
+    }
+    
+    if (value <= verticalBarMaxValue && verticalBarMaxValue < (.5 * verticalBarScaleMax)) {
+        doRescale($chart);
+        return true;
     }
 
-    if (TESTING) {
-       console.log("Vertical Bar Scale Max is: " + verticalBarScaleMax);
-    }
-
-    // after finished remove class edited-bar
-    ($editedBar).removeClass("edited-bar");
     return true;
+}
+
+function doRescale($chart) {
+    // set new max value
+    verticalBarScaleMax = calculateNewMaxChartValue(verticalBarMaxValue);
+    // update scale html
+    rescaleAxis($chart, verticalBarScaleMax); 
+    // update all bars
+    resizeBars($chart, verticalBarScaleMax);
 }
 
 function calculateNewMaxChartValue (currValue) {
