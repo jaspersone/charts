@@ -236,6 +236,10 @@ function rescaleChart($chart) {
     return false;
 }
 
+// params: $chart - a jQuery object representing the chart that needs to be rescaled
+// return: none
+// behavior: a helper function for resizeChart(), which makes function calls to
+//           calculate charts new scale max, rescales the axis, then resizes the bars
 function doRescale($chart) {
     // set new max value
     verticalBarScaleMax = calculateNewMaxChartValue(verticalBarMaxValue);
@@ -245,6 +249,12 @@ function doRescale($chart) {
     resizeBars($chart, verticalBarScaleMax);
 }
 
+// TODO: refactor
+// params: currValue - an integer representing the largest value inside a chart of multiple bars
+// return: an integer representing the closest integer multiple of 10 which bounds the currValue
+//         passed to the function.
+// behavior: the bounding number returned will only have 1 siginificant leading digit, and the rest
+//           of the places will be zeros
 function calculateNewMaxChartValue (currValue) {
     var count = 0;
     var result;
