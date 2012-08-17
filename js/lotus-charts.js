@@ -292,28 +292,30 @@ function calculateNewMaxChartValue (currValue) {
 // return: none
 // behavior: given the new chart
 function rescaleAxis($chart, chartMax) {
-    var $chartScaleSegments = ($chart).find(".chart-scale").children();
-    var numSegments = ($chartScaleSegments).length;
-    var increment = Math.floor(chartMax / numSegments);
-    
-    ($chartScaleSegments).each(function(index) {
-        var value = chartMax - (index * increment);
-        // normalizedArray = [normalized value, units];
-        var normalizedArray = normalizeValue(value);
+    debounce(function() {
+        var $chartScaleSegments = ($chart).find(".chart-scale").children();
+        var numSegments = ($chartScaleSegments).length;
+        var increment = Math.floor(chartMax / numSegments);
+        
+        ($chartScaleSegments).each(function(index) {
+            var value = chartMax - (index * increment);
+            // normalizedArray = [normalized value, units];
+            var normalizedArray = normalizeValue(value);
 
-        // set new values
-        $(this).children(".number").html(normalizedArray[0]);
-        $(this).children(".metric").html(normalizedArray[1]);
+            // set new values
+            $(this).children(".number").html(normalizedArray[0]);
+            $(this).children(".metric").html(normalizedArray[1]);
 
-        if (TESTING) {
-            console.log(index + ": " + $(this).html());
-            console.log("new value: " + normalizedArray[0] + normalizedArray[1]);
-        }
-    }); 
+            if (TESTING) {
+                console.log(index + ": " + $(this).html());
+                console.log("new value: " + normalizedArray[0] + normalizedArray[1]);
+            }
+        }); 
 
-    // reset vertical bar increment
-    var chartHeight = $(".vertical-bar-chart .chart-slice-window").height()
-    verticalBarIncrement = getBestIncrement(verticalBarScaleMax, chartHeight);
+        // reset vertical bar increment
+        var chartHeight = $(".vertical-bar-chart .chart-slice-window").height()
+        verticalBarIncrement = getBestIncrement(verticalBarScaleMax, chartHeight);
+    }, 500, "rescale vertical bar access");
 }
 
 function resizeBars($chart, chartMax) {
@@ -462,11 +464,10 @@ function verticalBarCharts() {
                     console.log("Tab released");
                 }
                 barIsEditable = false;
-                debounce(function() {
-                    findAndAssignMax(($chart).find(".bar"));
-                    // rescale chart
-                    rescaleChart($chart);
-                }, 500, "vertical-bar-mouseup");
+
+                findAndAssignMax(($chart).find(".bar"));
+                // rescale chart
+                rescaleChart($chart);
             }
         });
 
@@ -508,11 +509,10 @@ function verticalBarCharts() {
                 if (TESTING) {
                     console.log("Tab released");
                 }
-                debounce (function() {
-                    findAndAssignMax(($chart).find(".bar"));
-                    // rescale chart
-                    rescaleChart($chart);
-                }, 500, "vertical-bar-touchend");
+
+                findAndAssignMax(($chart).find(".bar"));
+                // rescale chart
+                rescaleChart($chart);
                 barIsEditable = false;
             }
         });
