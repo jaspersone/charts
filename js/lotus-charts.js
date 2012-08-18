@@ -466,16 +466,18 @@ function verticalBarCharts() {
         
         // detects when editing should stop
         $(document).mouseup(function() {
-            if (barIsEditable) {
-                if (TESTING) {
-                    console.log("Tab released");
-                }
-                barIsEditable = false;
+            debounce(function() {
+                if (barIsEditable) {
+                    if (TESTING) {
+                        console.log("Tab released");
+                    }
+                    barIsEditable = false;
 
-                findAndAssignMax(($chart).find(".bar"));
-                // rescale chart
-                rescaleChart($chart);
-            }
+                    findAndAssignMax(($chart).find(".bar"));
+                    // rescale chart
+                    rescaleChart($chart);
+                }
+            }, 500, "vertical-bar-chart-mouseup");
         });
 
         $(document).mousemove(function(e) {
