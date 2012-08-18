@@ -505,16 +505,18 @@ function verticalBarCharts() {
         
         // detects when editing should stop
         $pullTabs.bind("touchend", function() {
-            if (barIsEditable) {
-                if (TESTING) {
-                    console.log("Tab released");
-                }
+            debounce(function() {
+                if (barIsEditable) {
+                    if (TESTING) {
+                        console.log("Tab released");
+                    }
 
-                findAndAssignMax(($chart).find(".bar"));
-                // rescale chart
-                rescaleChart($chart);
-                barIsEditable = false;
-            }
+                    findAndAssignMax(($chart).find(".bar"));
+                    // rescale chart
+                    rescaleChart($chart);
+                    barIsEditable = false;
+                }
+            }, 500, "vertical-bar-chart-pullTabs-touchend");
         });
 
         $pullTabs.bind("touchmove", function(e) {
