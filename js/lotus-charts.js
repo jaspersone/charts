@@ -283,6 +283,15 @@ function doRescale($chart) {
 // behavior: the bounding number returned will only have 1 siginificant leading digit, and the rest
 //           of the places will be zeros
 function calculateNewMaxChartValue (currValue) {
+    var valueString = currValue.toString(); 
+    var count = valueString.length - 1;
+    var first = parseInt(valueString[0]);
+    // return new max value
+    var result = (first + 1) * Math.pow(10, count);
+    return result > DEFAULT_MAX_SCALE ? result : DEFAULT_MAX_SCALE; 
+}
+
+function calculateNewMaxChartValue_OLD (currValue) {
     var count = 0;
     var result;
     while (currValue >= 10) {
@@ -293,6 +302,7 @@ function calculateNewMaxChartValue (currValue) {
     result = (Math.floor(currValue) + 1) * Math.pow(10, count);
     return result > DEFAULT_MAX_SCALE ? result : DEFAULT_MAX_SCALE; 
 }
+
 
 // params: $chart - the jquery object that represents the chart's outer wrapper
 //         chartMax - the adjusted max value of the chart
@@ -440,7 +450,6 @@ function verticalBarCharts() {
     // Don't fire mouse events if we're dealing with a touch device    
     var $pullTabs = $(".lotus-charts.vertical-bar-chart .pull-tab");
     var $currentBar = null;
-    var $active_pull_tab = null; 
    
     // loop through and find highest value and assign it class max
     findAndAssignMax(($chart).find(".bar"));
