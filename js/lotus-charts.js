@@ -46,6 +46,13 @@ function isTouchDevice() {
 /************************************
 * Utility Functions                 *
 ************************************/
+// params: callback - a function to call after the settimeout has been expired
+//         ms - the amount of milliseconds to listen for another duplicate event before
+//              firing the callback function
+//         uniqueID - a string that should be unique and used a key to find the specific timeout for
+//                    a set of duplicate events
+// return: a function that takes the above parameters
+// behavior: stops event related queues from building up by only allowing last function call to run 
 var debounce = (function() {
     // create new dictionary of timers to be filled later
     var timers = {};
