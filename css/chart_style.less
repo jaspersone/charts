@@ -291,7 +291,7 @@ div.lotus-charts, .lotus-charts {
     left: 0;
     width: (@slice-width / 2);
     height: @vertical-bar-max-height;
-    z-index: 900;
+    z-index: 899;
 }
 .lotus-charts.vertical-bar-chart .chart-scale-segment {
     color: @label-color-light - #222;
@@ -398,7 +398,7 @@ div.lotus-charts, .lotus-charts {
 }
 
 .lotus-charts.vertical-bar-chart .chart-slice .bubble-label {
-    color: ;
+    color: @primary-font-color;
     margin: 0 8px;
     padding: .5em 0;
     position: relative;
@@ -406,12 +406,42 @@ div.lotus-charts, .lotus-charts {
     text-align: center;
 }
 
-.lotus-charts.vertical-bar-chart .chart-slice .saved .bubble-label {
+.lotus-charts.vertical-bar-chart .chart-slice .saved .bubble-label,
+.lotus-charts.vertical-bar-chart .chart-slice .bubble-label.open {
     .lotus-charts.vertical-bar-chart .chart-slice .bubble-background-gradient;
     color: @vertical-bar-chart-bubble-label-text-color;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
      border-radius: 5px;
+    z-index: 800;
+}
+.lotus-charts.vertical-bar-chart .chart-slice .bubble-label input {
+    display: none;    
+}
+
+.lotus-charts.vertical-bar-chart .chart-slice .bubble-label.open {
+    .currency, .number, .metric {
+        display: none;
+    }
+    input {
+        border: 2px solid #ccc;
+        display: block;
+        width: 286px;
+        height: 75px;
+        margin: 8px;
+        padding: @default-padding;
+        line-height: 75px;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+    }
+    .down-arrow {
+        z-index: 900;
+    }
+    top: -292px;
+    left: -94px;
+    width: 322px;
+    z-index: 900;
 }
 
 .lotus-charts.vertical-bar-chart .chart-slice .bubble-label .down-arrow {
@@ -422,10 +452,25 @@ div.lotus-charts, .lotus-charts {
     left: 50% - 8px;
 }
 
-.lotus-charts.vertical-bar-chart .chart-slice .saved .bubble-label .down-arrow {
+.lotus-charts.vertical-bar-chart .chart-slice .saved .bubble-label .down-arrow,
+.lotus-charts.vertical-bar-chart .chart-slice .bubble-label.open .down-arrow{
     background: transparent url("../images/arrow-down-32.png") no-repeat center top;
     background-size: 16px 12px;
- 
+}
+
+.lotus-charts.vertical-bar-chart .chart-slice {
+    .bubble-label.open.left, .saved .bubble-label.open.left {
+        left: 0;
+        .down-arrow {
+            left: (@vertical-bar-width / 2) - 16px;
+        }
+    }
+    .bubble-label.open.right, .saved .bubble-label.open.right {
+        right: 0;
+        .down-arrow {
+            right: (@vertical-bar-width / 2) - 16px;
+        }
+    }
 }
 
 .lotus-charts.vertical-bar-chart .chart-slice .slice-label {
