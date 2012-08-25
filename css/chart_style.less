@@ -15,6 +15,7 @@ Version: 0.0
 @purple:    #992670;
 @blue:      #6dafe1;
 @green:     #5bbc19;
+@gray:      #999;
 /*
 @warning-color-low: ;
 @warning-color-med: ;
@@ -415,32 +416,72 @@ div.lotus-charts, .lotus-charts {
      border-radius: 5px;
     z-index: 800;
 }
-.lotus-charts.vertical-bar-chart .chart-slice .bubble-label input {
+.lotus-charts.vertical-bar-chart .chart-slice .bubble-label .edit-bubble {
     display: none;    
+    z-index: 0;
 }
 
 .lotus-charts.vertical-bar-chart .chart-slice .bubble-label.open {
     .currency, .number, .metric {
         display: none;
     }
+    .edit-bubble {
+        display: block;
+        font-size: 0;
+        z-index: 900;
+    }
     input {
         border: 2px solid #ccc;
         display: block;
-        width: 278px;
-        height: 36px;
-        margin: 8px auto;
+        font-size: 36px;
+        margin: 0 auto 8px;
         padding: @default-padding;
+        width: 212px - (2 * @default-padding);
+        height: 36px;
         line-height: 36px;
         -webkit-border-radius: 5px;
         -moz-border-radius: 5px;
         border-radius: 5px;
     }
+    button {
+        background: transparent url(../images/noise.png) repeat left top;
+        border: 0px;
+        color: #fff;
+        cursor: pointer;
+        cursor: hand;
+        font-size: 20px;
+        width: 100px;
+        height: 40px;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+    }
+    button:active {
+        position: relative;
+        -webkit-box-shadow: inset 0px -1px 0px rgba(255, 255, 255, .4), inset 0 1px 3px rgba(0, 0, 0, 0.9);
+        -moz-box-shadow: inset 0px -1px 0px rgba(255, 255, 255, .4), inset 0 1px 3px rgba(0, 0, 0, 0.9);
+        box-shadow: inset 0px -1px 0px rgba(255, 255, 255, .4), inset 0 1px 3px rgba(0, 0, 0, 0.9);
+    }
+    button.button-cancel {
+        background-color: @gray;
+        margin-right: 16px;
+    }
+    button.button-cancel:active {
+        background-color: @gray - #111;
+    }
+    button.button-set {
+        background-color: @blue;
+    }
+    button.button-set:active {
+        background-color: @blue - #111;
+    }
     .down-arrow {
         z-index: 900;
     }
-    top: -164px;
-    left: -94px;
-    width: 322px;
+    margin: 0px;
+    top: -204px;
+    left: -((236px - @vertical-bar-width) / 2);
+    width: 236px;
     z-index: 900;
 }
 
@@ -452,23 +493,30 @@ div.lotus-charts, .lotus-charts {
     left: 50% - 8px;
 }
 
-.lotus-charts.vertical-bar-chart .chart-slice .saved .bubble-label .down-arrow,
-.lotus-charts.vertical-bar-chart .chart-slice .bubble-label.open .down-arrow{
-    background: transparent url("../images/arrow-down-32.png") no-repeat center top;
-    background-size: 16px 12px;
+.lotus-charts.vertical-bar-chart .chart-slice .bubble-label.open .down-arrow {
+    left: 50% - 3px; 
 }
 
 .lotus-charts.vertical-bar-chart .chart-slice {
-    .bubble-label.open.left, .saved .bubble-label.open.left {
+    .saved .bubble-label .down-arrow, .bubble-label.open .down-arrow {
+        background: transparent url("../images/arrow-down-32.png") no-repeat center top;
+        background-size: 16px 12px;
+    }
+}
+
+.lotus-charts.vertical-bar-chart .chart-slice {
+    .bubble-label.open.left,
+    .saved .bubble-label.open.left {
         left: 0;
         .down-arrow {
-            left: (@vertical-bar-width / 2) - 16px;
+            left: (@vertical-bar-width / 2) - 8px;
         }
     }
-    .bubble-label.open.right, .saved .bubble-label.open.right {
-        right: 0;
+    .bubble-label.open.right,
+    .saved .bubble-label.open.right {
+        left: -(236px - @vertical-bar-width);
         .down-arrow {
-            right: (@vertical-bar-width / 2) - 16px;
+            left: (236px - @vertical-bar-width / 2) - 8px;
         }
     }
 }
