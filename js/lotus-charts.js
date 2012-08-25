@@ -552,6 +552,28 @@ function verticalBarCharts() {
             }
         });
     }
+    setupBubbleLabels();
+}
+
+function setupBubbleLabels() {
+    // opening a bubble label
+    $(".bubble-label").click(function() {
+        if (!$(this).hasClass("open")) {
+            // add value of the rel into input box
+            var currency = $(this).find(".currency").html();
+            var $input = $(this).find("input");
+            $input.val(currency + $(this).closest(".bar").attr("rel"));
+            $(this).addClass("open");
+        }
+    });
+
+    // closing a bubble label without saving
+    $(".bubble-label").find(".button-cancel").click(function(e) {
+        $(this).closest(".bubble-label").removeClass("open");
+        e.stopPropagation();
+    });
+
+    // closing a bubble label with saving
 }
 
 function changeBarValue($bar, initialCoords, currCoords) {
