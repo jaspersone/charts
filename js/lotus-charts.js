@@ -647,6 +647,7 @@ function changeLabelValue($bar, maxChartValue, currPixel, increment) {
     value = (value < 0) ? 0 : value;
     
     var $label      = ($bar).children(".bubble-label");
+    var $input      = ($label).children(".edit-bubble").children("input");
     var $number     = ($label).children('.number');
     var $metric     = ($label).children('.metric');
     
@@ -654,6 +655,10 @@ function changeLabelValue($bar, maxChartValue, currPixel, increment) {
     var normalizedValue = newValues[0];
     var units       = newValues[1];
 
+    // update input value
+    $input.val("$" + value);
+
+    // update label value
     $metric.html(units);
     $number.html(normalizedValue);
     
