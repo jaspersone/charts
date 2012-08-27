@@ -562,18 +562,64 @@ function setupBubbleLabels() {
             // add value of the rel into input box
             var currency = $(this).find(".currency").html();
             var $input = $(this).find("input");
+            var $bubble = $(this);
             $input.val(currency + $(this).closest(".bar").attr("rel"));
-            $(this).addClass("open");
+            $bubble.addClass("open");
         }
     });
 
     // closing a bubble label without saving
     $(".bubble-label").find(".button-cancel").click(function(e) {
-        $(this).closest(".bubble-label").removeClass("open");
+        var $bubble = $(this).closest(".bubble-label");
+        $bubble.fadeOut(100);
+        window.setTimeout(function() {
+            $bubble.removeClass("open").fadeIn(100);
+        }, 100);
         e.stopPropagation();
     });
 
     // closing a bubble label with saving
+    $(".bubble-label").find(".button-set").click(function(e) {
+        var $bubble = $(this).closest(".bubble-label");
+        setBubbleLabel($bubble, e);
+        e.stopPropagation();
+    });
+}
+//var verticalBarScaleMax; // maximum size of the chart
+//var verticalBarIncrement; // the size of the chart increments
+//var verticalBarMaxValue; // the current maximum bar value within a chart (not the max size of the chart)
+function setBubbleLabel($bubble, event) {
+        var $bar    = $bubble.closest(".bar");
+        var $chart  = $bar.closest(".vertical-bar-char");
+        var value = parseInt($bubble.children(".edit-bubble").children("input").val().replace(/[^0-9\.]+/g, ''));
+        // TODO: send value to db
+        
+        // update bubble label
+        updateBubbleLabelFromValue($bubble, value);
+
+        // update bar value
+        setBarValue($bar, value);
+        $bar.removeClass("edited-bar").addClass("edited-bar");
+        if (value > verticalBarMaxValue) {
+
+        }
+        rescaleChart($chart); 
+
+        $bubble.fadeOut(100);
+        window.setTimeout(function() {
+            $bubble.removeClass("open").fadeIn(100);
+        }, 100);
+}
+
+function updateBubbleLabelFromValue($bubble, value) {
+    if (value) {
+        var normalizedValue = normalizeValue(value);
+        $bubble.children(".number").html(normalizedValue[0]);
+        $bubble.children(".metric").html(normalizedValue[1]);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 function changeBarValue($bar, initialCoords, currCoords) {
