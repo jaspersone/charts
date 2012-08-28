@@ -402,11 +402,13 @@ function animateHorizontalBar($chart, animationTime) {
 function findAndAssignMax($listToFindMaxFrom) {
     if (TESTING) {
         console.log("<<<< in findAndAssignMax() >>>>");
+        console.log("list: \n" + $listToFindMaxFrom.html());
     }
     // reset highest value
     verticalBarMaxValue = -1;
  
     ($listToFindMaxFrom).each(function(index) {
+        console.log("in list loop");
         var currValue = getBarValue($(this));
         if (TESTING) {
             console.log(" current max value: " + verticalBarMaxValue);
@@ -581,16 +583,24 @@ function setupBubbleLabels() {
     // closing a bubble label with saving
     $(".bubble-label").find(".button-set").click(function(e) {
         var $bubble = $(this).closest(".bubble-label");
-        setBubbleLabel($bubble, e);
+        setBubbleLabel($bubble);
         e.stopPropagation();
+    });
+
+    // setup listening for enter button
+    $(".edit-bubble input").keyup(function(e) {
+        var $bubble = $(this).closest(".bubble-label");
+        if (e.keyCode == 13) {
+           setBubbleLabel($bubble);
+        }
     });
 }
 //var verticalBarScaleMax; // maximum size of the chart
 //var verticalBarIncrement; // the size of the chart increments
 //var verticalBarMaxValue; // the current maximum bar value within a chart (not the max size of the chart)
-function setBubbleLabel($bubble, event) {
+function setBubbleLabel($bubble) {
         var $bar    = $bubble.closest(".bar");
-        var $chart  = $bar.closest(".vertical-bar-char");
+        var $chart  = $bar.closest(".vertical-bar-chart");
         var value = parseInt($bubble.children(".edit-bubble").children("input").val().replace(/[^0-9\.]+/g, ''));
         // TODO: send value to db
         
@@ -599,11 +609,14 @@ function setBubbleLabel($bubble, event) {
 
         // update bar value
         setBarValue($bar, value);
-        $bar.removeClass("edited-bar").addClass("edited-bar");
-        if (value > verticalBarMaxValue) {
-
+        if (value > verticalBarScaleMax) {
+            $bar.removeClass("edited-bar").addClass("edited-bar");
+            findAndAssignMax(($chart).find(".bar"));
+            rescaleChart($chart);
+        } else {
+            findAndAssignMax(($chart).find(".bar"));
+            doRescale($chart);
         }
-        rescaleChart($chart); 
 
         $bubble.fadeOut(100);
         window.setTimeout(function() {
