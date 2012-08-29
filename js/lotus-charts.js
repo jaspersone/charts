@@ -341,7 +341,7 @@ function resizeBars($chart, chartMax) {
 /************************************
 * Horizontal Bar Charts             *
 ************************************/
-function horizontalBarCharts() {
+function startHorizontalBarCharts() {
     var animationTime = 1500;
     $(".lotus-charts.horizontal-bar-chart").each(function() {
         animateHorizontalBar($(this), animationTime);
@@ -423,7 +423,7 @@ function clearAllMax($listToClear) {
 // params: none
 // return: none
 // behavior: kick off all vertical bar charts functions needed to activate this portion of charts
-function verticalBarCharts() {
+function startVerticalBarCharts() {
     if (TESTING) console.log("Vertical Bar Charts Starting");
     var $chart = $(".lotus-charts.vertical-bar-chart"); 
     verticalBarScaleMax = getChartScaleMax($chart);
@@ -710,6 +710,17 @@ function changeLabelValue($bar, maxChartValue, currPixel, increment) {
 /************************************
 * Line Charts                       *
 ************************************/
+function startLineCharts() {
+    if (TESTING) {
+        console.log("<<<< Line Charts Starting >>>>");
+    }
+    // process chart data
+
+    // draw chart elements
+
+    // draw chart lines
+}
+
 // TODO: WRITE TESTS 
 // params: value - the value of the datapoint which will coordinate with the y value on the chart
 //         chartMinValue - the minimum value of the current chart
@@ -771,8 +782,11 @@ $(document).ready(function() {
     }
 
     // start up horizontal bar charts
-    horizontalBarCharts();
+    startHorizontalBarCharts();
  
     // start up vertical bar charts
-    verticalBarCharts();
+    startVerticalBarCharts();
+
+    // start up line charts
+    startLineCharts();
 });
