@@ -247,10 +247,6 @@ function rescaleChart($chart) {
     // after getting a handle on the edited bar remove class edited-bar
     ($editedBar).removeClass("edited-bar");
 
-    if (TESTING) {
-        console.log("In rescale chart");
-    }
-    
     // only resize chart if it is necessary
     if (isNaN(value)) {
         return false;
@@ -290,19 +286,6 @@ function calculateNewMaxChartValue (currValue) {
     var result = (first + 1) * Math.pow(10, count);
     return result > DEFAULT_MAX_SCALE ? result : DEFAULT_MAX_SCALE; 
 }
-
-function calculateNewMaxChartValue_OLD (currValue) {
-    var count = 0;
-    var result;
-    while (currValue >= 10) {
-        currValue = currValue / 10;
-        count++;
-    }
-    // return new max value
-    result = (Math.floor(currValue) + 1) * Math.pow(10, count);
-    return result > DEFAULT_MAX_SCALE ? result : DEFAULT_MAX_SCALE; 
-}
-
 
 // params: $chart - the jquery object that represents the chart's outer wrapper
 //         chartMax - the adjusted max value of the chart
@@ -724,6 +707,25 @@ function changeLabelValue($bar, maxChartValue, currPixel, increment) {
     return value;
 }
 
+/************************************
+* Line Charts                       *
+************************************/
+// params: value - the value of the datapoint which will coordinate with the y value on the chart
+//         chartMinValue - the minimum value of the current chart
+//         chartMaxValue - the maximum value of the current chart
+//         chartHeight - the height of the chart in pixels
+// return: an integer representing the proper y offset from the top of the chart (for SVG)
+function calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight) {
+    var yPosition = 0;
+    // find the entire range of the chart
+    var totalRange = chartMaxValue - chartMinValue;
+    // find the position of the value relative to the entire chart
+    var normalizedPosition = value - chartMinValue;
+    if (TESTING && totalRange < 0) {
+        alert("Whoa, the chartMaxValue appears to be less than the chartMinValue in calculateYPixel!"); 
+    }
+    return yPosition;
+}
 /************************************
 * Main                              *
 ************************************/
