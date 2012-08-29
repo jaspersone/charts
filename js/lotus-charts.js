@@ -710,6 +710,7 @@ function changeLabelValue($bar, maxChartValue, currPixel, increment) {
 /************************************
 * Line Charts                       *
 ************************************/
+// TODO: WRITE TESTS 
 // params: value - the value of the datapoint which will coordinate with the y value on the chart
 //         chartMinValue - the minimum value of the current chart
 //         chartMaxValue - the maximum value of the current chart
@@ -717,15 +718,17 @@ function changeLabelValue($bar, maxChartValue, currPixel, increment) {
 // return: an integer representing the proper y offset from the top of the chart (for SVG)
 function calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight) {
     var yPosition = 0;
-    // find the entire range of the chart
+    // entire range of the chart
     var totalRange = chartMaxValue - chartMinValue;
-    // find the position of the value relative to the entire chart
+    // position of the value relative to the bottom of the chart
     var normalizedPosition = value - chartMinValue;
+    yPosition = chartHeight - getNearestPixel(chartHeight, totalRange, normalizedPosition);
     if (TESTING && totalRange < 0) {
         alert("Whoa, the chartMaxValue appears to be less than the chartMinValue in calculateYPixel!"); 
     }
     return yPosition;
 }
+
 /************************************
 * Main                              *
 ************************************/
