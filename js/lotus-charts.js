@@ -10,6 +10,7 @@ var TESTING = true;
 var AJAX_ON = false;
 var MAX_BAR_HEIGHT = 300; // in pixels
 var DEFAULT_MAX_SCALE = 300; // vertical bar default Y access value (before resize)
+var DEFAULT_CHART_SEGMENT_WIDTH = 40;
 
 var verticalBarScaleMax; // maximum size of the chart
 var verticalBarIncrement; // the size of the chart increments
@@ -710,6 +711,21 @@ function changeLabelValue($bar, maxChartValue, currPixel, increment) {
 /************************************
 * Line Charts                       *
 ************************************/
+function LineChart(id, start, end, height, segWidth, maxVal, minVal, lines) {
+    self.id = id;
+    self.startDate = start;
+    self.endDate = end;
+    self.pixelHeight = height ? height : MAX_BAR_HEIGHT;
+    self.segmentPixelWidth = segWidth ? segWidth : DEFAULT_CHART_SEGMENT_WIDTH;
+    self.maxValue = maxVal ? maxVal : DEFAULT_MAX_SCALE;
+    self.minValue = minVal ? minVal : 0;
+    self.lines = lines ? lines : new Array();
+}
+
+function LineChart.prototype.drawChart() {
+    if (TESTING) console.log("<<<< In Draw Chart >>>>");
+}
+
 function startLineCharts() {
     if (TESTING) {
         console.log("<<<< Line Charts Starting >>>>");
