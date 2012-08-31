@@ -719,10 +719,10 @@ function LineChart(id, start, end, height, segWidth, maxVal, minVal, lines) {
     self.segmentPixelWidth = segWidth ? segWidth : DEFAULT_CHART_SEGMENT_WIDTH;
     self.maxValue = maxVal ? maxVal : DEFAULT_MAX_SCALE;
     self.minValue = minVal ? minVal : 0;
-    self.lines = lines ? lines : new Array();
+    self.lines = lines ? lines : [];
 }
 
-function LineChart.prototype.drawChart() {
+LineChart.prototype.drawChart = function() {
     if (TESTING) console.log("<<<< In Draw Chart >>>>");
 }
 
