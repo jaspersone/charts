@@ -726,6 +726,14 @@ LineChart.prototype.drawChart = function() {
     if (TESTING) console.log("<<<< In Draw Chart >>>>");
 }
 
+function Line() {
+
+}
+
+Line.prototype.drawLine = function() {
+    if (TESTING) console.log("<<<< In Draw Line >>>>");
+}
+
 function startLineCharts() {
     if (TESTING) {
         console.log("<<<< Line Charts Starting >>>>");
