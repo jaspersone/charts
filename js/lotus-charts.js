@@ -712,32 +712,43 @@ function changeLabelValue($bar, maxChartValue, currPixel, increment) {
 * Line Charts                       *
 ************************************/
 function LineChart(id, start, end, height, segWidth, maxVal, minVal, lines) {
-    self.id = id;
-    self.startDate = start;
-    self.endDate = end;
-    self.pixelHeight = height ? height : MAX_BAR_HEIGHT;
-    self.segmentPixelWidth = segWidth ? segWidth : DEFAULT_CHART_SEGMENT_WIDTH;
-    self.maxValue = maxVal ? maxVal : DEFAULT_MAX_SCALE;
-    self.minValue = minVal ? minVal : 0;
-    self.lines = lines ? lines : [];
+    this.id = id;
+    this.startDate = start;
+    this.endDate = end;
+    this.pixelHeight = height ? height : MAX_BAR_HEIGHT;
+    this.segmentPixelWidth = segWidth ? segWidth : DEFAULT_CHART_SEGMENT_WIDTH;
+    this.maxValue = maxVal ? maxVal : DEFAULT_MAX_SCALE;
+    this.minValue = minVal ? minVal : 0;
+    this.lines = lines ? lines : new Array();
 }
 
 LineChart.prototype.drawChart = function() {
-    if (TESTING) console.log("<<<< In Draw Chart >>>>");
+    if (TESTING) {
+        console.log("<<<< In Draw Chart >>>>");
+        console.log("LineChart:     " + this.id);
+        console.log("Start Date:    " + this.startDate);
+        console.log("End Date:      " + this.endDate);
+        console.log("Pixel Height:  " + this.pixelHeight);
+        console.log("Segment Width: " + this.segmentPixelWidth);
+        console.log("Chart Max Val: " + this.maxValue);
+        console.log("Chart Min Val: " + this.minValue);
+        console.log("Lines:         " + this.lines);
+    }                                    
 }
 
-function Line() {
-
+function Line(color, transparency, isDotted, data) {
+    this.color = color;
+    this.transparency = transparency;
+    this.isDashed = isDotted;
+    this.data = data;
 }
 
 Line.prototype.drawLine = function() {
-    if (TESTING) console.log("<<<< In Draw Line >>>>");
+    if (TESTING) { console.log("<<<< In Draw Line >>>>"); }
 }
 
 function startLineCharts() {
-    if (TESTING) {
-        console.log("<<<< Line Charts Starting >>>>");
-    }
+    if (TESTING) { console.log("<<<< Line Charts Starting >>>>"); }
     // process chart data
 
     // draw chart elements

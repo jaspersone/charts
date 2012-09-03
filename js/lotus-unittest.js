@@ -377,6 +377,56 @@ function test_getBestIncrement5() {
 }
 
 /************************************
+* Test Calculate Y Pixel            *
+************************************/
+function run_calculateYPixel() {
+    var testGroupName = "Calculate Y Pixel Tests ";
+    var resultsArray = [0, 0];
+
+    // tests
+    sumResult(resultsArray, test_calculateYPixel1());
+    sumResult(resultsArray, test_calculateYPixel2());
+    //sumResult(resultsArray, test_calculateYPixel3());
+    //sumResult(resultsArray, test_calculateYPixel4());
+    //sumResult(resultsArray, test_calculateYPixel5());
+
+    printGroupResults(testGroupName, resultsArray);
+}
+
+function test_calculateYPixel1() {
+    var testName = "calculateYPixel() - simple case";
+    var expected;
+    var actual;
+
+    var value = 0;
+    var chartMinValue = 0;
+    var chartMaxValue = 100;
+    chartHeight = 100;
+
+    // you should assign expected and actual values here
+    expected = 100;
+    actual = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
+
+    return printTest(testName, expected, actual);
+}
+
+function test_calculateYPixel2() {
+    var testName = "calculateYPixel() - simple case 2";
+    var expected;
+    var actual;
+
+    var value = 100;
+    var chartMinValue = 0;
+    var chartMaxValue = 100;
+    chartHeight = 100;
+
+    // you should assign expected and actual values here
+    expected = 0;
+    actual = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
+
+    return printTest(testName, expected, actual);
+}
+/************************************
 * Main                              *
 ************************************/
 // Main function calls
@@ -394,4 +444,5 @@ function startTests() {
     run_getNearestPixel();
     run_getChartScaleMax();
     run_getBestIncrement();
+    run_calculateYPixel();
 }
