@@ -750,7 +750,15 @@ Line.prototype.drawLine = function() {
 function startLineCharts() {
     if (TESTING) { console.log("<<<< Line Charts Starting >>>>"); }
     // process chart data
-
+    var id      = "fakeID";
+    var start   = new Date(2012, 9, 3);
+    var end     = new Date(2012, 10, 3);
+    var height  = 300; 
+    var segWidth = 40;
+    var maxVal  = 300;
+    var minVal  = 0;
+    var lines   = new Array();
+    var testChart = new LineChart(id, start, end, height, segWidth, maxVal, minVal, lines);   
     // draw chart elements
 
     // draw chart lines
