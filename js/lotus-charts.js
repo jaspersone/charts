@@ -407,6 +407,11 @@ function findAndAssignMax($listToFindMaxFrom) {
     });
 }
 
+// params: jQuery bar object
+// return: none
+// behavior: grabs the bar's current value then assigns that as
+//           the chart's max value as well as attached a class
+//           max to the $bar (for easy finding later)
 function assignMax($bar) {
     var currValue = parseInt(($bar).attr("rel"));
     // update highest value
@@ -415,6 +420,10 @@ function assignMax($bar) {
     ($bar).removeClass("max").addClass("max");
 }
 
+// params: $listToClear - a jQuery object of the list of bars to clear
+// return: none
+// behavior: O(n) running time, loops through and removes class "max"
+//           from each element in the $listToClear
 function clearAllMax($listToClear) {
     ($listToClear).each(function(i) {
         $(this).removeClass("max");
@@ -579,9 +588,7 @@ function setupBubbleLabels() {
         }
     });
 }
-//var verticalBarScaleMax; // maximum size of the chart
-//var verticalBarIncrement; // the size of the chart increments
-//var verticalBarMaxValue; // the current maximum bar value within a chart (not the max size of the chart)
+
 function setBubbleLabel($bubble) {
         var $bar    = $bubble.closest(".bar");
         var $chart  = $bar.closest(".vertical-bar-chart");
@@ -711,15 +718,20 @@ function changeLabelValue($bar, maxChartValue, currPixel, increment) {
 /************************************
 * Line Charts                       *
 ************************************/
+var lineChart_blue  = "#6dafe1";
+var lineChart_green = "#5bbc19";
+var lineChart_circleRadius = "6";
+var lineChart_strokeWidth = "2";
+
 function LineChart(id, start, end, height, segWidth, maxVal, minVal, lines) {
-    this.id = id;
-    this.startDate = start;
-    this.endDate = end;
-    this.pixelHeight = height ? height : MAX_BAR_HEIGHT;
+    this.id             = id;
+    this.startDate      = start;
+    this.endDate        = end;
+    this.pixelHeight    = height ? height : MAX_BAR_HEIGHT;
     this.segmentPixelWidth = segWidth ? segWidth : DEFAULT_CHART_SEGMENT_WIDTH;
-    this.maxValue = maxVal ? maxVal : DEFAULT_MAX_SCALE;
-    this.minValue = minVal ? minVal : 0;
-    this.lines = lines ? lines : new Array();
+    this.maxValue       = maxVal ? maxVal : DEFAULT_MAX_SCALE;
+    this.minValue       = minVal ? minVal : 0;
+    this.lines          = lines ? lines : new Array();
 }
 
 LineChart.prototype.drawChart = function() {
@@ -733,18 +745,41 @@ LineChart.prototype.drawChart = function() {
         console.log("Chart Max Val: " + this.maxValue);
         console.log("Chart Min Val: " + this.minValue);
         console.log("Lines:         " + this.lines);
+        for (line in this.lines) {
+            console.log(">>> New Line:");
+            console.log("    class: " + line.class);
+            console.log("    data:  " + line.data);
+        }
     }                                    
 }
 
-function Line(color, transparency, isDotted, data) {
-    this.color = color;
-    this.transparency = transparency;
-    this.isDashed = isDotted;
-    this.data = data;
+function Line(idName, className, data) {
+    this.idName     = idName;
+    this.className  = className;
+    this.data       = data;
 }
 
-Line.prototype.drawLine = function() {
-    if (TESTING) { console.log("<<<< In Draw Line >>>>"); }
+Line.prototype.getLineString = function() {
+    var myId    = getIdString(this.idName);
+    var myClass = getClassString(this.className);
+    var points  = 'points="' + formatLineData(this.data) + '"';
+    return '<polyline ' + myId + ' ' + myClass + ' ' + points + ' />'
+}
+
+// TODO: write this
+function formatLineData(data) {
+    return data;
+}
+
+// params: id - a string id name
+// return: a string that is formatted as an html id attribute
+function getIdString(id) {
+    return 'id="' + id + '"';
+}
+// params: class - a string class name, or set of space seperated class names
+// return: a string that is formatted as an html class attribute
+function getClassString(className) {
+    return 'class="' + className + '"';
 }
 
 function startLineCharts() {
@@ -758,13 +793,23 @@ function startLineCharts() {
     var maxVal  = 300;
     var minVal  = 0;
     var lines   = new Array();
+
+    // create some fake lines
+
     var testChart = new LineChart(id, start, end, height, segWidth, maxVal, minVal, lines);   
     // draw chart elements
 
     // draw chart lines
 }
 
-// TODO: WRITE TESTS 
+function parseLineChartData($chart) {
+    var lineChart = null;
+    if ($chart) {
+
+    }
+    return lineChart;
+}
+
 // params: value - the value of the datapoint which will coordinate with the y value on the chart
 //         chartMinValue - the minimum value of the current chart
 //         chartMaxValue - the maximum value of the current chart
@@ -799,7 +844,9 @@ $(document).ready(function() {
         // load regular assets
     }
 
-    if (TESTING) { console.log("Initial Screen Dimensions are: " + screen_dimensions); }
+    if (TESTING) {
+        console.log("Initial Screen Dimensions are: " + screen_dimensions);
+    }
 	
 	// keep screen_dimensions up to date
 	window.onresize = function() {
