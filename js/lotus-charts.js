@@ -722,7 +722,11 @@ var lineChart_blue  = "#6dafe1";
 var lineChart_green = "#5bbc19";
 var lineChart_circleRadius = "6";
 var lineChart_strokeWidth = "2";
-
+// Temporary Input
+var lineDict = {
+    
+};
+var lineChart_circleDict = {};
 function LineChart(id, start, end, height, segWidth, maxVal, minVal, lines) {
     this.id             = id;
     this.startDate      = start;
@@ -734,9 +738,12 @@ function LineChart(id, start, end, height, segWidth, maxVal, minVal, lines) {
     this.lines          = lines ? lines : new Array();
 }
 
-LineChart.prototype.drawChart = function() {
+// params: $target - the jQuery object to append the chart to
+// return: none
+LineChart.prototype.appendChartTo = function($target) {
     if (TESTING) {
-        console.log("<<<< In Draw Chart >>>>");
+        console.log("<<<< In Append Chart >>>>");
+        console.log("Print to:      " + $target.html());
         console.log("LineChart:     " + this.id);
         console.log("Start Date:    " + this.startDate);
         console.log("End Date:      " + this.endDate);
@@ -745,14 +752,38 @@ LineChart.prototype.drawChart = function() {
         console.log("Chart Max Val: " + this.maxValue);
         console.log("Chart Min Val: " + this.minValue);
         console.log("Lines:         " + this.lines);
-        for (line in this.lines) {
-            console.log(">>> New Line:");
-            console.log("    class: " + line.class);
-            console.log("    data:  " + line.data);
-        }
-    }                                    
+    }
+    // build basic chart components
+    var basicSVGSettings    = 'xmlns="http://www.w3.org/2000/svg" version="1.1"';
+    var chartWidth          = 'width="100%"'; // TODO: make this dynamic based on seg width
+    var chartHeight         = 'height="' + this.pixelHeight + 'px"';
+
+    // build opening/closing svg strings
+    var openSVGTag =    '<svg ' +
+                        getIdString(this.id) + ' ' + 
+                        basicSVGSettings + ' ' +
+                        chartWidth + ' ' +
+                        chartHeight + '>\n';
+    var closeSVGTag = '</svg>\n';
+
+    // build chart body
+    var chartBody = [];
+    console.log("<<<< Before lines loop >>>> ");
+    for (i = 0; i < this.lines.length; i++) {
+        console.log("Trying to add line: " + this.lines[i].getLineString());
+        chartBody.push(this.lines[i].getLineString());
+    }
+    console.log("<<<< After lines loop >>>>");
+    chartBody = chartBody.join('\n') + '\n';
+    // build chart string
+    var chartString = openSVGTag + chartBody + closeSVGTag;
+    $target.append(chartString);
 }
 
+// params: parent - a LineChart object that owns this line
+//         idName - the unique ID of this line (used for reference
+//         className - a class name to assign to this line for styling
+//         data - a string representation of the data points for this line
 function Line(idName, className, data) {
     this.idName     = idName;
     this.className  = className;
@@ -852,7 +883,6 @@ $(document).ready(function() {
 	window.onresize = function() {
         debounce(function() {
             screen_dimensions = getScreenDimensions();
-            if (TESTING) { console.log("New screen dimensions are: " + screen_dimensions); }
         }, 500, "Screen dimensions");
 	}
 	
