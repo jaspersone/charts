@@ -246,48 +246,47 @@
         <h2>Line Chart</h2>
         <p>The chart description goes here</p>
         <div class="lotus-charts line-chart" rel="300">
+            <!-- Inline SVG Style Sheet -->
+            <style type="text/css">
+                <![CDATA[
+                polyline {
+                    fill: none;
+                    stroke-width: 2;
+                    stroke: #ddd; /* default color */
+                }
+                circle {
+                    stroke-width: 2;
+                    stoke: #aaa; /* default color */
+                }
+
+                /* CUSTOM CLASSES */
+                circle.cost {
+                    fill: #6dafe1; /* blue color */
+                }
+                circle.revenue {
+                    fill: #5bbc19;
+                }
+                circle.projected-cost, circle.projected-revenue {
+                    fill: #fff; /* white color */
+                }
+                polyline.cost, circle.cost,
+                polyline.projected-cost, circle.projected-cost {
+                    stroke: #6dafe1; /* blue color */
+                }
+                polyline.revenue, circle.revenue,
+                polyline.projected-revenue, circle.projected-revenue {
+                    stroke: #5bbc19; /* green color */
+                }
+                polyline.projected-cost, circle.projected-cost,
+                polyline.projected-revenue, circle.projected-revenue {
+                    opacity: .5;
+                }
+                polyline.projected-cost, polyline.projected-revenue {
+                    stroke-dasharray: 8,4;
+                }
+                ]]>
+            </style>
             <svg id="line-graph-01" xmlns="http://www.w3.org/2000/svg" version="1.1" width="100%" height="400px">
-                <!-- Inline Style Sheet -->
-                <style type="text/css">
-                    <![CDATA[
-                    polyline {
-                        fill: none;
-                        stroke-width: 2;
-                        stroke: #ddd; /* default color */
-                    }
-                    circle {
-                        stroke-width: 2;
-                        stoke: #aaa; /* default color */
-                    }
-
-                    /* CUSTOM CLASSES */
-                    circle.cost {
-                        fill: #6dafe1; /* blue color */
-                    }
-                    circle.revenue {
-                        fill: #5bbc19;
-                    }
-                    circle.projected-cost, circle.projected-revenue {
-                        fill: #fff; /* white color */
-                    }
-                    polyline.cost, circle.cost,
-                    polyline.projected-cost, circle.projected-cost {
-                        stroke: #6dafe1; /* blue color */
-                    }
-                    polyline.revenue, circle.revenue,
-                    polyline.projected-revenue, circle.projected-revenue {
-                        stroke: #5bbc19; /* green color */
-                    }
-                    polyline.projected-cost, circle.projected-cost,
-                    polyline.projected-revenue, circle.projected-revenue {
-                        opacity: .5;
-                    }
-                    polyline.projected-cost, polyline.projected-revenue {
-                        stroke-dasharray: 8,4;
-                    }
-
-                    ]]>
-                </style>
                 <!-- Cost Line -->
                 <polyline class="cost" points="50,20 100,50" />
                 <!-- Cost Projected line -->
