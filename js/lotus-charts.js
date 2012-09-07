@@ -768,12 +768,17 @@ LineChart.prototype.appendChartTo = function($target) {
 
     // build chart body
     var chartBody = [];
-    console.log("<<<< Before lines loop >>>> ");
-    for (i = 0; i < this.lines.length; i++) {
-        console.log("Trying to add line: " + this.lines[i].getLineString());
-        chartBody.push(this.lines[i].getLineString());
+    if (TESTING) {
+        console.log("<<<< Before lines loop >>>> ");
+        console.log("Number of lines to loop through: " + this.lines.length);
     }
-    console.log("<<<< After lines loop >>>>");
+    for (i = 0; i < this.lines.length; i++) {
+        var lineString = this.lines[i].getLineString();
+        console.log("Trying to add line: " + lineString);
+        console.log("Data:               " + this.lines[i].data);
+        chartBody.push(lineString);
+    }
+    if (TESTING) console.log("<<<< After lines loop >>>>");
     chartBody = chartBody.join('\n') + '\n';
     // build chart string
     var chartString = openSVGTag + chartBody + closeSVGTag;
@@ -784,7 +789,8 @@ LineChart.prototype.appendChartTo = function($target) {
 //         idName - the unique ID of this line (used for reference
 //         className - a class name to assign to this line for styling
 //         data - a string representation of the data points for this line
-function Line(idName, className, data) {
+function Line(parent, idName, className, data) {
+    this.parent     = parent;
     this.idName     = idName;
     this.className  = className;
     this.data       = data;
@@ -793,13 +799,25 @@ function Line(idName, className, data) {
 Line.prototype.getLineString = function() {
     var myId    = getIdString(this.idName);
     var myClass = getClassString(this.className);
-    var points  = 'points="' + formatLineData(this.data) + '"';
+    var points  = 'points="' + formatLineData(this.parent, this.data) + '"';
     return '<polyline ' + myId + ' ' + myClass + ' ' + points + ' />'
 }
 
 // TODO: write this
-function formatLineData(data) {
-    return data;
+function formatLineData(parent, data) {
+    var chartMinValue = parent.minValue;
+    var chartMaxValue = parent.maxValue;
+    var chartHeight   = parent.pixelHeight;
+    var segWidth      = parent.segmentPixelWidth;
+    var points        = [];
+    var value;
+    var y; 
+    for (i = 0; i < data.length; i++) {
+        value = data[i];
+        y = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
+        points.push((segWidth * i).toString() + y.toString());
+    }
+    return points.join(' ');
 }
 
 // params: id - a string id name
@@ -825,12 +843,25 @@ function startLineCharts() {
     var minVal  = 0;
     var lines   = new Array();
 
-    // create some fake lines
-
+    // create a fake chart
     var testChart = new LineChart(id, start, end, height, segWidth, maxVal, minVal, lines);   
+    // create some fake lines
+    var lineData1 = [10, 20, 30];
+    var lineData2 = [30, 40, 50];
+    var lineData3 = [50, 70, 90];
+    var lineData4 = [90, 100, 200];
+    
+    var aC = new Line(testChart, "aC", "cost", lineData1);
+    var pC = new Line(testChart, "pC", "projected-cost", lineData2);
+    var aR = new Line(testChart, "aR", "revenue", lineData3);
+    var pR = new Line(testChart, "pR", "projected-revenue", lineData4);
+    
+    // add lines to chart
+    testChart.lines.push(aC, pC, aR, pR);
     // draw chart elements
 
     // draw chart lines
+    testChart.appendChartTo($(".line-chart"));
 }
 
 function parseLineChartData($chart) {
