@@ -15,9 +15,14 @@ function printTest(testName, expected, actual) {
     console.log("--------------------------------------------------------");
     console.log("Testing: " + testName);
     console.log("--------------------------------------------------------");
+    
+    if (expected == null || actual == null) {
+        console.log(">>>> test failed <<<< Test has not been completely written.");
+        return 0;
+    }
     console.log("Expected: " + expected);
     console.log("Actual  : " + actual);
-    if (doTest(expected, actual)) {
+    if (compare(expected, actual)) {
         console.log("test passed\n");
         return 1;
     }
@@ -34,9 +39,19 @@ function printGroupResults(testName, resultsArray) {
     console.log("========================================================\n\n");
 }
 
-// TODO: need to refactor to better test for arrays and objects
-function doTest(expected, actual) {
-    return expected === actual;
+// TODO: need to refactor to better test for objects
+function compare(expected, actual) {
+    // check for arrays
+    if (expected instanceof Array) {
+        if (actual instanceof Array && actual.length == expected.length) {
+            for (var i = 0; i < expected.length; i++) {
+                if (!compare(actual[i], expected[i])) { return false; }
+            }
+            return true; // everything in this actual array is the same as expected
+        }
+        return false; // both are arrays but lengths are different, don't compare
+    }
+    return expected === actual; // simple comparison of if not array
 }
 
 function sumArray(the_array) {
@@ -45,6 +60,9 @@ function sumArray(the_array) {
     return total;
 }
 
+// mutates an array which keeps track of two values
+// resultsArray[0] = number of tests passed
+// resultsArray[1] = total number of tests
 function sumResult(resultsArray, test) {
     resultsArray[0] += test;
     resultsArray[1] += 1;
@@ -426,6 +444,63 @@ function test_calculateYPixel2() {
 
     return printTest(testName, expected, actual);
 }
+
+/************************************
+* Test Lines                        *
+************************************/
+function run_LineTests() {
+    var testGroupName = "Line Tests ";
+    var resultsArray = [0, 0];
+
+    // tests
+    sumResult(resultsArray, test_createLine_no_data());
+    sumResult(resultsArray, test_createLine_with_data());
+    sumResult(resultsArray, test_getMinMaxFromLines());
+
+    printGroupResults(testGroupName, resultsArray);
+}
+
+function test_createLine_no_data() {
+    var testName = "createLine_no_data() - create a new line without data";
+    var expected;
+    var actual;
+    
+    expected = [null, "foo", "bar", null];
+    var testLine = new Line(null, "foo", "bar");
+    actual = [testLine.parentChart, testLine.idName, testLine.className, testLine.data];
+
+    return printTest(testName, expected, actual);
+}
+
+function test_createLine_with_data() {
+    var testName = "createLine_with_data() - create a new line with data";
+    var expected;
+    var actual;
+
+    expected = [null, "foo", "bar", [1,2,3]];
+    var testLine = new Line(null, "foo", "bar", [1,2,3]);
+    actual = [testLine.parentChart, testLine.idName, testLine.className, testLine.data];
+
+    return printTest(testName, expected, actual);
+}
+
+function test_getMinMaxFromLines() {
+    var testName = "getMinMaxFromLines() - create a few lines and find min and max";
+    var expected;
+    var actual;
+
+    var line1 = new Line(null, "foo1", "bar", [1,2,3,4,5,6,7,8,9,10,11,23,45]);
+    var line2 = new Line(null, "foo2", "bar", [1,2,3,-20,-30,-314,20,40,108]);
+    var line3 = new Line(null, "foo3", "bar", [45]);
+    var line4 = new Line(null, "foo4", "bar", [101,102,103,104,15]);
+    var line5 = new Line(null, "foo5", "bar", [301,1,2,3]);
+    var lines = [line1, line2, line3, line4, line5];
+
+    expected = [-376, 363];
+    actual   = getMinMaxFromLines(lines);
+    return printTest(testName, expected, actual);
+}
+
 /************************************
 * Main                              *
 ************************************/
@@ -445,4 +520,6 @@ function startTests() {
     run_getChartScaleMax();
     run_getBestIncrement();
     run_calculateYPixel();
+    run_LineTests();
 }
+

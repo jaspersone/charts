@@ -723,19 +723,52 @@ var lineChart_green = "#5bbc19";
 var lineChart_circleRadius = "6";
 var lineChart_strokeWidth = "2";
 // Temporary Input
-var lineDict = {
-    
-};
+var lineDict = {};
 var lineChart_circleDict = {};
-function LineChart(id, start, end, height, segWidth, maxVal, minVal, lines) {
+
+function LineChart(id, start, end, height, segWidth, minVal, maxVal, lines) {
     this.id             = id;
     this.startDate      = start;
     this.endDate        = end;
     this.pixelHeight    = height ? height : MAX_BAR_HEIGHT;
     this.segmentPixelWidth = segWidth ? segWidth : DEFAULT_CHART_SEGMENT_WIDTH;
-    this.maxValue       = maxVal ? maxVal : DEFAULT_MAX_SCALE;
-    this.minValue       = minVal ? minVal : 0;
     this.lines          = lines ? lines : new Array();
+
+    var minMax          = getMinMaxFromLines(lines);
+
+    this.minValue       = minVal ? minVal : minMax[0];
+    this.maxValue       = maxVal ? maxVal : minMax[1];
+}
+
+// params: lines - an array of Lines
+// return: a tuple where [0] = min from lines and
+//                       [1] = max from lines
+function getMinMaxFromLines(lines) {
+    var localMin = 0;
+    var localMax = DEFAULT_MAX_SCALE;
+
+    if (lines.length > 0) {
+        // loop through each line and determine if it
+        // has a min or a max
+        for (i in lines) {
+            if (lines[i].data != null && lines[i].data.length > 0) {
+                for (n in lines[i].data) {
+                    if (lines[i].data[n] < localMin) { localMin = lines[i].data[n]; }
+                    if (lines[i].data[n] > localMax) { localMax = lines[i].data[n]; }
+                }
+            } else {
+                console.log("WTF: printing weird line");
+                console.log(line);
+            }
+        }
+    // scale min and max values
+    var range = localMax - localMin;
+    var padding = Math.round(range / 10); // padding of 10% rounded
+    padding = padding > 10 ? padding : 10; // insure a minimum padding of 10
+    localMin = localMin - padding;
+    localMax = localMax + padding;
+    }
+    return [localMin, localMax];
 }
 
 // params: $target - the jQuery object to append the chart to
@@ -759,11 +792,11 @@ LineChart.prototype.appendChartTo = function($target) {
     var chartHeight         = 'height="' + this.pixelHeight + 'px"';
 
     // build opening/closing svg strings
-    var openSVGTag =    '<svg ' +
-                        getIdString(this.id) + ' ' + 
-                        basicSVGSettings + ' ' +
-                        chartWidth + ' ' +
-                        chartHeight + '>\n';
+    var openSVGTag =  '<svg ' +
+                       getIdString(this.id) + ' ' + 
+                       basicSVGSettings + ' ' +
+                       chartWidth + ' ' +
+                       chartHeight + '>\n';
     var closeSVGTag = '</svg>\n';
 
     // build chart body
@@ -789,11 +822,11 @@ LineChart.prototype.appendChartTo = function($target) {
 //         idName - the unique ID of this line (used for reference
 //         className - a class name to assign to this line for styling
 //         data - a string representation of the data points for this line
-function Line(parent, idName, className, data) {
-    this.parent     = parent;
+function Line(parentChart, idName, className, data) {
+    this.parentChart= parentChart;
     this.idName     = idName;
     this.className  = className;
-    this.data       = data;
+    this.data       = data ? data : null;
 }
 
 Line.prototype.getLineString = function() {
@@ -820,48 +853,47 @@ function formatLineData(parent, data) {
     return points.join(' ');
 }
 
+// params: parameter - the html tag parameter to get a string for
+//         value     - the value to assign to the html parameter
+// return: if value is not empty or null, will return the proper
+//         html formatted string, else returns the empty string.
+function getParameterString(parameter, value) {
+    if (value != null && value != "") {
+        return parameter + '="' + value + '"';
+    }
+    return "";
+}
+
 // params: id - a string id name
 // return: a string that is formatted as an html id attribute
 function getIdString(id) {
-    return 'id="' + id + '"';
+    return getParameterString("id", id);
 }
 // params: class - a string class name, or set of space seperated class names
 // return: a string that is formatted as an html class attribute
 function getClassString(className) {
-    return 'class="' + className + '"';
+    return getParameterString("class", className);
+}
+
+function getLineChartsFromID(parentNodeID) {
+    return filterCollectionForAttr($('#' + parentNodeID).children('svg'), 'rel');
+}
+
+function filterCollectionForAttr(collection, attrName) {
+    var ret = []
+    $(collection).each(function() {
+        if ($(this).attr(attrName) != undefined) {
+            ret.push(this);
+        }
+    });
+    return ret;
 }
 
 function startLineCharts() {
     if (TESTING) { console.log("<<<< Line Charts Starting >>>>"); }
-    // process chart data
-    var id      = "fakeID";
-    var start   = new Date(2012, 9, 3);
-    var end     = new Date(2012, 10, 3);
-    var height  = 300; 
-    var segWidth = 40;
-    var maxVal  = 300;
-    var minVal  = 0;
-    var lines   = new Array();
-
-    // create a fake chart
-    var testChart = new LineChart(id, start, end, height, segWidth, maxVal, minVal, lines);   
-    // create some fake lines
-    var lineData1 = [10, 20, 30];
-    var lineData2 = [30, 40, 50];
-    var lineData3 = [50, 70, 90];
-    var lineData4 = [90, 100, 200];
     
-    var aC = new Line(testChart, "aC", "cost", lineData1);
-    var pC = new Line(testChart, "pC", "projected-cost", lineData2);
-    var aR = new Line(testChart, "aR", "revenue", lineData3);
-    var pR = new Line(testChart, "pR", "projected-revenue", lineData4);
-    
-    // add lines to chart
-    testChart.lines.push(aC, pC, aR, pR);
-    // draw chart elements
-
-    // draw chart lines
-    testChart.appendChartTo($(".line-chart"));
+    $lineCharts = getLineChartsFromID('line-chart-set-01');
+    console.log($lineCharts);
 }
 
 function parseLineChartData($chart) {
