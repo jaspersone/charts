@@ -740,6 +740,7 @@ function LineChart(id, start, end, height, segWidth, minVal, maxVal, lines) {
     this.maxValue       = maxVal ? maxVal : minMax[1];
 }
 
+// TODO: REFACTOR
 // params: lines - an array of Lines
 // return: a tuple where [0] = min from lines and
 //                       [1] = max from lines
@@ -761,19 +762,20 @@ function getMinMaxFromLines(lines) {
                 console.log(line);
             }
         }
-    // scale min and max values
-    var range = localMax - localMin;
-    var padding = Math.round(range / 10); // padding of 10% rounded
-    padding = padding > 10 ? padding : 10; // insure a minimum padding of 10
-    localMin = localMin - padding;
-    localMax = localMax + padding;
+        // add 10% padding to min and max values
+        // TODO: Remove hard coded 10%
+        var padding = Math.round((localMax - localMin) / 10); // padding of 10% rounded
+        padding = padding > 10 ? padding : 10; // insure a minimum padding of 10
+        localMin = localMin - padding;
+        localMax = localMax + padding;
     }
     return [localMin, localMax];
 }
 
-// params: $target - the jQuery object to append the chart to
+// params: tar - the DOM object to append the chart to
 // return: none
-LineChart.prototype.appendChartTo = function($target) {
+LineChart.prototype.appendChartTo = function(tar) {
+    $target = $(tar)
     if (TESTING) {
         console.log("<<<< In Append Chart >>>>");
         console.log("Print to:      " + $target.html());

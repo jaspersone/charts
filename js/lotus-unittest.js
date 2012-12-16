@@ -522,4 +522,3 @@ function startTests() {
     run_calculateYPixel();
     run_LineTests();
 }
-
