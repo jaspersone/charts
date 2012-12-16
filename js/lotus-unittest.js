@@ -446,6 +446,96 @@ function test_calculateYPixel2() {
 }
 
 /************************************
+* Test LineChart                    *
+************************************/
+function run_LineChartTests() {
+    var testGroupName = "LineChart Tests ";
+    var resultsArray = [0, 0];
+
+    sumResult(resultsArray, test_createLineChart());
+    sumResult(resultsArray, test_createLineChart_single_line());
+    sumResult(resultsArray, test_createLineChart_no_lines());
+    sumResult(resultsArray, test_LineChart_retrieve_chart_data());
+    sumResult(resultsArray, test_LineChart_set_line_parent());
+
+    printGroupResults(testGroupName, resultsArray);
+}
+
+function test_createLineChart() {
+    var testName = "createLineChart() - create a new LineChart and testing parameters";
+    var expected;
+    var actual;
+    
+    expected = ["foo", 1980, 0, 500, 50, [-375,361]];
+    var line1 = new Line(null, "foo1", "bar", [1,2,3,4,5,6,7,8,9,10,11,23,45]);
+    var line2 = new Line(null, "foo2", "bar", [1,2,3,-20,-30,-314,20,40,108]);
+    var lines = [line1, line2];
+    var testLineChart = new LineChart("foo", "1980/11/24", "2012/1/1", 500, 50, lines);
+    actual = [testLineChart.id, testLineChart.startDate.getFullYear(), 
+              testLineChart.endDate.getMonth(), testLineChart.pixelHeight,
+              testLineChart.segmentPixelWidth, getMinMaxFromLines(testLineChart.lines)
+             ];
+    return printTest(testName, expected, actual);
+}
+
+function test_createLineChart_single_line() {
+    var testName = "createLineChart_single_line() - create a new LineChart and testing parameters";
+    var expected;
+    var actual;
+    
+    expected = ["foo", 1980, 0, 500, 50, [1,2,3,4,5,6,7,8,9,10,11,23,45]];
+    var line1 = new Line(null, "foo1", "bar", [1,2,3,4,5,6,7,8,9,10,11,23,45]);
+    var testLineChart = new LineChart("foo", "1980/11/24", "2012/1/1", 500, 50, line1);
+    actual = [testLineChart.id, testLineChart.startDate.getFullYear(), 
+              testLineChart.endDate.getMonth(), testLineChart.pixelHeight,
+              testLineChart.segmentPixelWidth, testLineChart.lines[0].data
+             ];
+    return printTest(testName, expected, actual);
+}
+
+function test_createLineChart_no_lines() {
+    var testName = "createLineChart_no_lines() - create a new LineChart and testing parameters";
+    var expected;
+    var actual;
+    
+    expected = ["foo", 1980, 0, 500, 50, 0];
+    var testLineChart = new LineChart("foo", "1980/11/24", "2012/1/1", 500, 50);
+    actual = [testLineChart.id, testLineChart.startDate.getFullYear(), 
+              testLineChart.endDate.getMonth(), testLineChart.pixelHeight,
+              testLineChart.segmentPixelWidth, testLineChart.lines.length
+             ];
+    return printTest(testName, expected, actual);
+}
+
+function test_LineChart_retrieve_chart_data() {
+    var testName = "test_LineChart_retrieve_chart_data() - do the lines store correct data";
+    var expected;
+    var actual;
+    
+    expected = [[1,2,3,4,5,6,7,8,9,10,11,23,45], [1,2,3,-20,-30,-314,20,40,108]];
+    var line1 = new Line(null, "foo1", "bar", [1,2,3,4,5,6,7,8,9,10,11,23,45]);
+    var line2 = new Line(null, "foo2", "bar", [1,2,3,-20,-30,-314,20,40,108]);
+    var lines = [line1, line2];
+    var testLineChart = new LineChart("foo", "1980/11/24", "2012/1/1", 500, 50, lines);
+    actual = [testLineChart.lines[0].data, testLineChart.lines[1].data];
+    return printTest(testName, expected, actual);
+}
+
+function test_LineChart_set_line_parent() {
+    var testName = "test_LineChart_set_line_parent() - do the lines get updated to have correct parent";
+    var expected;
+    var actual;
+    
+    var line1 = new Line(null, "foo1", "bar", [1,2,3,4,5,6,7,8,9,10,11,23,45]);
+    var line2 = new Line(null, "foo2", "bar", [1,2,3,-20,-30,-314,20,40,108]);
+    var lines = [line1, line2];
+    var testLineChart = new LineChart("lineChart1", "1980/11/24", "2012/1/1", 500, 50, lines);
+    expected = [testLineChart, testLineChart.id];
+    actual = [testLineChart.lines[0].parentChart, testLineChart.lines[1].parentChart.id];
+    return printTest(testName, expected, actual);
+}
+
+/************************************
 * Test Lines                        *
 ************************************/
 function run_LineTests() {
@@ -456,7 +546,7 @@ function run_LineTests() {
     sumResult(resultsArray, test_createLine_no_data());
     sumResult(resultsArray, test_createLine_with_data());
     sumResult(resultsArray, test_getMinMaxFromLines());
-
+    sumResult(resultsArray, test_Line_getLineString());
     printGroupResults(testGroupName, resultsArray);
 }
 
@@ -501,6 +591,19 @@ function test_getMinMaxFromLines() {
     return printTest(testName, expected, actual);
 }
 
+function test_Line_getLineString() {
+    var testName = "test_Line_getLineString() - get proper svg string from line"
+    var expected;
+    var actual;
+
+    expected = '<polyline class="foo" points="0,530 50,50" />'
+    var testLine = new Line(null, null, "foo", [20, 500]);
+    var testLineChart = new LineChart("lineChart1", "1980/11/24", "2012/1/1", 600, 50, testLine);
+    actual = testLine.getLineString();
+ 
+    return printTest(testName, expected, actual);
+}
+
 /************************************
 * Main                              *
 ************************************/
@@ -520,5 +623,6 @@ function startTests() {
     run_getChartScaleMax();
     run_getBestIncrement();
     run_calculateYPixel();
+    run_LineChartTests();
     run_LineTests();
 }

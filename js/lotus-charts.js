@@ -726,18 +726,80 @@ var lineChart_strokeWidth = "2";
 var lineDict = {};
 var lineChart_circleDict = {};
 
-function LineChart(id, start, end, height, segWidth, minVal, maxVal, lines) {
-    this.id             = id;
-    this.startDate      = start;
-    this.endDate        = end;
+// params: id       - the dom object id name
+//         start    - the start date, formatted as a date string (YYYY/MM/DD)
+//         end      - the end date, formatted as a date string(YYYY/MM/DD)
+//         height   - the height (in px) of the container for the Line Chart
+//         segWidth - the distance (in px) between data points on the graph
+//         linesIn  - an array of Line objects that represent the data of this chart
+// return: creates a new instance of a line chart
+function LineChart(id, start, end, height, segWidth, linesIn) {
+    this.id = id;
+
+    // Adding start and end dates, format to type date
+    if (!(start instanceof Date)) {
+        try {
+            this.startDate = new Date(Date.parse(start, "yyyy/MM/dd"));
+        } catch (e) {
+            console.log("********************************************************");
+            console.log("There has been an error while trying to parse start date");
+            console.log(e);
+            console.log("********************************************************");
+        }
+    } else {
+        this.startDate  = start;
+    }
+    
+    if (!(end instanceof Date)) {
+        try {
+            this.endDate = new Date(Date.parse(end, "yyyy/MM/dd"));
+        } catch (e) {
+            console.log("********************************************************");
+            console.log("There has been an error while trying to parse end date");
+            console.log(e);
+            console.log("********************************************************");
+        }
+    } else {
+        this.endDate    = end;
+    }
+
     this.pixelHeight    = height ? height : MAX_BAR_HEIGHT;
     this.segmentPixelWidth = segWidth ? segWidth : DEFAULT_CHART_SEGMENT_WIDTH;
-    this.lines          = lines ? lines : new Array();
 
-    var minMax          = getMinMaxFromLines(lines);
+    this.lines          = new Array();
 
-    this.minValue       = minVal ? minVal : minMax[0];
-    this.maxValue       = maxVal ? maxVal : minMax[1];
+    if (linesIn instanceof Array) {
+        for (n in linesIn) {
+            this.addLine(linesIn[n]);
+        }
+    } else if (linesIn instanceof Line) {
+        this.addLine(linesIn);
+    } else {
+        if (typeof(linesIn) != "undefined") {
+            console.log("LineChart Constructor Error: lines passed is not of type array or Line");
+            console.log("Type found: " + typeof(linesIn));
+        }
+    }
+
+    // if you add a lines, set their parent to this chart
+    for (n in this.lines) {
+        this.lines[n].parentChart = this;
+    }
+
+    var minMax          = getMinMaxFromLines(this.lines);
+
+    this.minValue       = minMax[0];
+    this.maxValue       = minMax[1];
+}
+
+LineChart.prototype.addLine = function(line) {
+    if (line instanceof Line) {
+        line.parentChart = this;
+        this.lines.push(line);
+    } else {
+        console.log("Error while trying to add line, passed line not found to be instance of Line")
+        console.log("Line pass is of type: " + typeof(line));
+    }
 }
 
 // TODO: REFACTOR
@@ -825,32 +887,39 @@ LineChart.prototype.appendChartTo = function(tar) {
 //         className - a class name to assign to this line for styling
 //         data - a string representation of the data points for this line
 function Line(parentChart, idName, className, data) {
-    this.parentChart= parentChart;
-    this.idName     = idName;
-    this.className  = className;
-    this.data       = data ? data : null;
+    this.parentChart= parentChart ? parentChart : null;
+    this.idName     = idName      ? idName      : null;
+    this.className  = className   ? className   : null;
+    this.data       = data        ? data        : null;
 }
 
 Line.prototype.getLineString = function() {
     var myId    = getIdString(this.idName);
     var myClass = getClassString(this.className);
-    var points  = 'points="' + formatLineData(this.parent, this.data) + '"';
-    return '<polyline ' + myId + ' ' + myClass + ' ' + points + ' />'
+    var points  = 'points="' + formatLineData(this.parentChart, this.data) + '"';
+    return '<polyline ' + myId + myClass + points + ' />'
 }
 
 // TODO: write this
-function formatLineData(parent, data) {
-    var chartMinValue = parent.minValue;
-    var chartMaxValue = parent.maxValue;
-    var chartHeight   = parent.pixelHeight;
-    var segWidth      = parent.segmentPixelWidth;
+function formatLineData(chart, data) {
+    var chartMinValue = chart.minValue;
+    var chartMaxValue = chart.maxValue;
+    var chartHeight   = chart.pixelHeight;
+    var segWidth      = chart.segmentPixelWidth;
     var points        = [];
     var value;
     var y; 
+
+    if(true) {
+        console.log("chartMinValue = " + chartMinValue);
+        console.log("chartMaxValue = " + chartMaxValue);
+        console.log("chartHeight   = " + chartHeight);
+    } 
+
     for (i = 0; i < data.length; i++) {
         value = data[i];
         y = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
-        points.push((segWidth * i).toString() + y.toString());
+        points.push((segWidth * i).toString() + "," + y.toString());
     }
     return points.join(' ');
 }
@@ -869,12 +938,18 @@ function getParameterString(parameter, value) {
 // params: id - a string id name
 // return: a string that is formatted as an html id attribute
 function getIdString(id) {
-    return getParameterString("id", id);
+    if (id != null && id != "" && typeof(id) === "string") {
+        return getParameterString("id", id) + " ";
+    }
+    return "";
 }
 // params: class - a string class name, or set of space seperated class names
 // return: a string that is formatted as an html class attribute
 function getClassString(className) {
-    return getParameterString("class", className);
+    if (className != null && className != "" && typeof(className) === "string") {
+        return getParameterString("class", className) + " ";
+    }
+    return "";
 }
 
 function getLineChartsFromID(parentNodeID) {
