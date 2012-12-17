@@ -886,18 +886,29 @@ LineChart.prototype.appendChartTo = function(tar) {
 //         idName - the unique ID of this line (used for reference
 //         className - a class name to assign to this line for styling
 //         data - a string representation of the data points for this line
-function Line(parentChart, idName, className, data) {
+function Line(parentChart, idName, className, data, radius) {
     this.parentChart= parentChart ? parentChart : null;
     this.idName     = idName      ? idName      : null;
     this.className  = className   ? className   : null;
     this.data       = data        ? data        : null;
+    this.circleRadius = radius    ? radius      : 6; // default radius TODO: fix this
 }
 
 Line.prototype.getLineString = function() {
     var myId    = getIdString(this.idName);
     var myClass = getClassString(this.className);
-    var points  = 'points="' + formatLineData(this.parentChart, this.data) + '"';
-    return '<polyline ' + myId + myClass + points + ' />'
+    var rawPoints = formatLineData(this.parentChart, this.data);
+    var points  = 'points="' + rawPoints.join(' ') + '"';
+    var lineString = ['<polyline ' + myId + myClass + points + ' />']
+    
+    var circle;
+    var coords;
+    for(i in rawPoints) {
+        coords = rawPoints[i].split(",");
+        lineString.push('<circle ' + myClass + 'cx="' + coords[0] + '" ' + 'cy="' + coords[1] + '" ' + 'r="' + this.circleRadius + '" />');
+    }
+    
+    return lineString.join("\n");
 }
 
 // TODO: write this
@@ -910,18 +921,12 @@ function formatLineData(chart, data) {
     var value;
     var y; 
 
-    if(true) {
-        console.log("chartMinValue = " + chartMinValue);
-        console.log("chartMaxValue = " + chartMaxValue);
-        console.log("chartHeight   = " + chartHeight);
-    } 
-
     for (i = 0; i < data.length; i++) {
         value = data[i];
         y = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
         points.push((segWidth * i).toString() + "," + y.toString());
     }
-    return points.join(' ');
+    return points;
 }
 
 // params: parameter - the html tag parameter to get a string for

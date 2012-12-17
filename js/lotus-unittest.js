@@ -596,7 +596,7 @@ function test_Line_getLineString() {
     var expected;
     var actual;
 
-    expected = '<polyline class="foo" points="0,530 50,50" />'
+    expected = '<polyline class="foo" points="0,530 50,50" />\n<circle class="foo" cx="0" cy="530" r="6" />\n<circle class="foo" cx="50" cy="50" r="6" />'
     var testLine = new Line(null, null, "foo", [20, 500]);
     var testLineChart = new LineChart("lineChart1", "1980/11/24", "2012/1/1", 600, 50, testLine);
     actual = testLine.getLineString();
