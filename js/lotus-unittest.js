@@ -548,6 +548,8 @@ function run_LineTests() {
     sumResult(resultsArray, test_getMinMaxFromLines());
     sumResult(resultsArray, test_Line_getLineString());
     sumResult(resultsArray, test_Line_getLineString_with_offset());
+    sumResult(resultsArray, test_parseData());
+    sumResult(resultsArray, test_parseData_with_no_data());
     printGroupResults(testGroupName, resultsArray);
 }
 
@@ -616,6 +618,32 @@ function test_Line_getLineString_with_offset() {
     actual = testLine.getLineString();
  
     return printTest(testName, expected, actual);
+}
+
+function test_parseData() {
+    var testName = "test_parseData() - test that data is properly parsed into a dictionary"
+    var expected;
+    var actual;
+
+    var data ="[\
+                {'ID'               :'line-graph-02'},\
+                {'START'            :'1980/11/24'},\
+                {'END'              :'2012/12/14'},\
+                {'WIDTH'            :'100%'},\
+                {'HEIGHT'           :'400px'},\
+                {'INCREMENT'        :'50'},\
+                {'RADIUS'           :'6'},\
+                {'cost'             :'20 50'},\
+                {'projected-cost'   :'(2) 50 30'},\
+                {'revenue'          :'120 150'},\
+                {'projected-revenue':'(2) 150 130'},\
+               ]"
+
+    return printTest(testName, expected, actual);
+}
+
+function test_parseData_with_no_data() {
+
 }
 
 /************************************

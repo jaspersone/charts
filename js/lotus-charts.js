@@ -977,40 +977,47 @@ function getLineCharts() {
                 console.log("data: " + data);
             }
             var dict = parseData(data);
-            // grab local copies of standard values from dict
-            var id          = dict["ID"];
-            var start       = dict["START"];
-            var end         = dict["END"];
-            var height      = dict["HEIGHT"];
-            var segWidth    = dict["INCREMENT"];
-            var radius      = dict["RADIUS"];
-            // remove standard values from dict
-            delete dict["ID"];       
-            delete dict["START"];    
-            delete dict["END"];      
-            delete dict["HEIGHT"];
-            delete dict["INCREMENT"];
-            delete dict["RADIUS"];
+            
+            if (dict) {
+                // grab local copies of standard values from dict
+                var id          = dict["ID"];
+                var start       = dict["START"];
+                var end         = dict["END"];
+                var height      = dict["HEIGHT"];
+                var segWidth    = dict["INCREMENT"];
+                var radius      = dict["RADIUS"];
+                // remove standard values from dict
+                delete dict["ID"];       
+                delete dict["START"];    
+                delete dict["END"];      
+                delete dict["HEIGHT"];
+                delete dict["INCREMENT"];
+                delete dict["RADIUS"];
 
-            // get lines from remaining items in dict
-            var linesIn = []
-            var keys = Object.keys(dict);
+                // get lines from remaining items in dict
+                var linesIn = []
+                var keys = Object.keys(dict);
 
-            var idName;
-            var className;
-            var data;
-            for (k in keys) {
-                idName = "line-" + k;
-                if (id) {
-                    idName = id + "-" + idName;
+                var idName;
+                var className;
+                var data;
+                for (k in keys) {
+                    idName = "line-" + k;
+                    if (id) {
+                        idName = id + "-" + idName;
+                    }
+                    className = keys[k];
+                    data = dict[className];
+                    linesIn.push(new Line(null, idName, className, data, radius)); 
                 }
-                className = keys[k];
-                data = dict[className];
-                linesIn.push(new Line(null, idName, className, data, radius)); 
-            }
 
-            var lc = new LineChart(id, start, end, height, segWidth, linesIn, $(this));
-            charts.push(lc);
+                var lc = new LineChart(id, start, end, height, segWidth, linesIn, $(this));
+                charts.push(lc);
+            } else {
+                if (TESTING) {
+                    console.log("Could not parse data");
+                }
+            }
         }
     });
     return charts;
@@ -1025,7 +1032,7 @@ function getLineCharts() {
 //    {'END'              :'2012/12/14'},
 //    {'WIDTH'            :'100%'},
 //    {'HEIGHT'           :'400px'},
-//    {'INCREMENT'        :50'},
+//    {'INCREMENT'        :'50'},
 //    {'RADIUS'           :'6'},
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< everything below would be custom lines
 //                                              with the keys being the line's class name
@@ -1038,9 +1045,81 @@ function getLineCharts() {
 // return: a dictionary with all elements to the left of the colon as keys
 //         and their associated values to the right of the colon.
 function parseData(data) {
-    var dict = {}
+    data = $.trim(data);
+    // ensure data begins and ends with "[" and "]"
+    if (data[0] != "[" && data[data.length - 1] != "]") {
+        if (TESTING) {
+            console.log("parseData() : data passed is not formatted properly");
+            console.log("data passed:\n" + data);
+        }
+        return null;
+    }
+    data = $.trim(data.substring(1, data.length - 1)); 
+    data = data.split(",");
+
+    var dict = {};
+    var pair;
+    var key;
+    var value;
+    // clean up any newlines, extra spaces, and "{}"
+    for (i in data) {
+        // validate data
+        data[i] = $.trim(data[i]);
+
+        if (data[i][0] != "{" && data[i][data.length - 1] != "}") {
+            if (TESTING) {
+                console.log("parseData() : data passed in not formatted properly");
+                console.log("              in set " + i + ". Expected to find '{}'");
+                console.log("data: " + data[i]);
+            }
+            return null;
+        }
+
+        // if data is ok, trim off the {}
+        pair = data[i].substring(1, data[i].length - 1).split(":");
+        // validate kv pair
+        if (pair.length != 2) {
+            if (TESTING) {
+                console.log("parseData() : data passed in not formatted properly");
+                console.log("              was expecting a key value pair separated by a ':'");
+                console.log("data: " + data[i]);
+            }
+            return null;
+        }
+        key   = stripQuoteMarks($.trim(pair[0]));
+        value = stripQuoteMarks($.trim(pair[1]));
+        // add sanitized kv pair into the dictionary
+        if (TESTING) {
+            if (dict[key]) {
+                console.log("Found a duplicate entry for: " + key);
+                console.log("Proceeding by overwritting previous entry.");
+            }
+        }
+        dict[key] = value;
+    }
+
     return dict;
 }
+
+// params: input - a string that needs to be stripped of its outer most set of quotes
+// return: a string stripped of all leading and trailing quotes and whitespace
+function stripQuoteMarks(input) {
+    input = $.trim(input);
+    var openQuote = input[0];
+    var closeQuote = input[input.length - 1];
+
+    if (TESTING) {
+        if (openQuote != closeQuote) {
+            console.log("stripQuoteMarks() : mismatched quotes");
+            console.log("open quote found  : " + openQuote);
+            console.log("close quote found : " + closeQuote);
+        }
+    }
+    var start = openQuote === "'" || openQuote === '"' ? 1 : 0;
+    var end   = closeQuote === "'" || closeQuote === '"' ? input.length - 1 : input.length;
+    return input.substring(start, end);
+}
+
 
 function filterCollectionForAttr(collection, attrName) {
     var ret = []
