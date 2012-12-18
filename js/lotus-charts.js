@@ -722,9 +722,6 @@ var lineChart_blue  = "#6dafe1";
 var lineChart_green = "#5bbc19";
 var lineChart_circleRadius = "6";
 var lineChart_strokeWidth = "2";
-// Temporary Input
-var lineDict = {};
-var lineChart_circleDict = {};
 
 // params: id       - the dom object id name
 //         start    - the start date, formatted as a date string (YYYY/MM/DD)
@@ -733,9 +730,9 @@ var lineChart_circleDict = {};
 //         segWidth - the distance (in px) between data points on the graph
 //         linesIn  - an array of Line objects that represent the data of this chart
 // return: creates a new instance of a line chart
-function LineChart(id, start, end, height, segWidth, linesIn) {
+function LineChart(id, start, end, height, segWidth, linesIn, parentNode) {
     this.id = id;
-
+    this.parentNode = parentNode ? parentNode : null;
     // Adding start and end dates, format to type date
     if (!(start instanceof Date)) {
         try {
@@ -836,8 +833,8 @@ function getMinMaxFromLines(lines) {
 
 // params: tar - the DOM object to append the chart to
 // return: none
-LineChart.prototype.appendChartTo = function(tar) {
-    $target = $(tar)
+LineChart.prototype.appendChartTo = function(target) {
+    $target = $(target)
     if (TESTING) {
         console.log("<<<< In Append Chart >>>>");
         console.log("Print to:      " + $target.html());
@@ -891,7 +888,7 @@ function Line(parentChart, idName, className, data, radius) {
     this.idName     = idName      ? idName      : null;
     this.className  = className   ? className   : null;
     this.data       = data        ? data        : null;
-    this.circleRadius = radius    ? radius      : 6; // default radius TODO: fix this
+    this.circleRadius = radius    ? radius      : lineChart_circleRadius; 
 }
 
 Line.prototype.getLineString = function() {
@@ -918,13 +915,19 @@ function formatLineData(chart, data) {
     var chartHeight   = chart.pixelHeight;
     var segWidth      = chart.segmentPixelWidth;
     var points        = [];
+    var offset        = 0;
     var value;
     var y; 
-
     for (i = 0; i < data.length; i++) {
         value = data[i];
-        y = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
-        points.push((segWidth * i).toString() + "," + y.toString());
+        if (value[0] === "(" || value[0] === "[" || value[0] === "{") {
+            // note subtract and extra 1 from the length to make up for
+            // i offset by his additional piece of information
+            offset = (value.substring(1, value.length - 1) - 1) * segWidth;
+        } else {
+            y = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
+            points.push((segWidth * i + offset).toString() + "," + y.toString());
+        }
     }
     return points;
 }
@@ -961,6 +964,84 @@ function getLineChartsFromID(parentNodeID) {
     return filterCollectionForAttr($('#' + parentNodeID).children('svg'), 'rel');
 }
 
+// params: none
+// return: an array of LineCharts
+function getLineCharts() {
+    // get charts from all
+    var charts = []
+    $(".lotus-charts.line-chart").each(function() {
+        var data = $(this).attr('rel');
+        if (data) {
+            if (TESTING) {
+                console.log("getLineCharts() - Found a LineChart section with data");
+                console.log("data: " + data);
+            }
+            var dict = parseData(data);
+            // grab local copies of standard values from dict
+            var id          = dict["ID"];
+            var start       = dict["START"];
+            var end         = dict["END"];
+            var height      = dict["HEIGHT"];
+            var segWidth    = dict["INCREMENT"];
+            var radius      = dict["RADIUS"];
+            // remove standard values from dict
+            delete dict["ID"];       
+            delete dict["START"];    
+            delete dict["END"];      
+            delete dict["HEIGHT"];
+            delete dict["INCREMENT"];
+            delete dict["RADIUS"];
+
+            // get lines from remaining items in dict
+            var linesIn = []
+            var keys = Object.keys(dict);
+
+            var idName;
+            var className;
+            var data;
+            for (k in keys) {
+                idName = "line-" + k;
+                if (id) {
+                    idName = id + "-" + idName;
+                }
+                className = keys[k];
+                data = dict[className];
+                linesIn.push(new Line(null, idName, className, data, radius)); 
+            }
+
+            var lc = new LineChart(id, start, end, height, segWidth, linesIn, $(this));
+            charts.push(lc);
+        }
+    });
+    return charts;
+}
+
+// TODO: Write this
+// params: data - a string which is formatted as follows:
+//
+//  [
+//    {'ID'               :'line-graph-02'},
+//    {'START'            :'1980/11/24'},
+//    {'END'              :'2012/12/14'},
+//    {'WIDTH'            :'100%'},
+//    {'HEIGHT'           :'400px'},
+//    {'INCREMENT'        :50'},
+//    {'RADIUS'           :'6'},
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< everything below would be custom lines
+//                                              with the keys being the line's class name
+//    {'cost'             :'20 50'},
+//    {'projected-cost'   :'(2) 50 30'},
+//    {'revenue'          :'120 150'},
+//    {'projected-revenue':'(2) 150 130'},
+//  ]
+//
+// return: a dictionary with all elements to the left of the colon as keys
+//         and their associated values to the right of the colon.
+function parseData(data) {
+    var dict = {}
+    return dict;
+}
+
 function filterCollectionForAttr(collection, attrName) {
     var ret = []
     $(collection).each(function() {
@@ -973,11 +1054,16 @@ function filterCollectionForAttr(collection, attrName) {
 
 function startLineCharts() {
     if (TESTING) { console.log("<<<< Line Charts Starting >>>>"); }
+    var lineCharts = getLineCharts();
     
-    $lineCharts = getLineChartsFromID('line-chart-set-01');
-    console.log($lineCharts);
+    for (i in lineCharts) {
+        lineCharts[i].appendChartTo(lineCharts[i].parentNode);    
+    }
+    //$lineCharts = getLineChartsFromID('line-chart-set-01');
+    //console.log($lineCharts);
 }
 
+// TODO: write this
 function parseLineChartData($chart) {
     var lineChart = null;
     if ($chart) {

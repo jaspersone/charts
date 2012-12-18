@@ -547,6 +547,7 @@ function run_LineTests() {
     sumResult(resultsArray, test_createLine_with_data());
     sumResult(resultsArray, test_getMinMaxFromLines());
     sumResult(resultsArray, test_Line_getLineString());
+    sumResult(resultsArray, test_Line_getLineString_with_offset());
     printGroupResults(testGroupName, resultsArray);
 }
 
@@ -598,6 +599,19 @@ function test_Line_getLineString() {
 
     expected = '<polyline class="foo" points="0,530 50,50" />\n<circle class="foo" cx="0" cy="530" r="6" />\n<circle class="foo" cx="50" cy="50" r="6" />'
     var testLine = new Line(null, null, "foo", [20, 500]);
+    var testLineChart = new LineChart("lineChart1", "1980/11/24", "2012/1/1", 600, 50, testLine);
+    actual = testLine.getLineString();
+ 
+    return printTest(testName, expected, actual);
+}
+
+function test_Line_getLineString_with_offset() {
+    var testName = "test_Line_getLineString_with_offset() - get proper svg string from line that has offset"
+    var expected;
+    var actual;
+
+    expected = '<polyline class="foo" points="100,530 150,50" />\n<circle class="foo" cx="100" cy="530" r="6" />\n<circle class="foo" cx="150" cy="50" r="6" />'
+    var testLine = new Line(null, null, "foo", ["(2)", 20, 500]);
     var testLineChart = new LineChart("lineChart1", "1980/11/24", "2012/1/1", 600, 50, testLine);
     actual = testLine.getLineString();
  
