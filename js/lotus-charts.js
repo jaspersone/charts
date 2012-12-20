@@ -793,6 +793,11 @@ LineChart.prototype.addLine = function(line) {
     if (line instanceof Line) {
         line.parentChart = this;
         this.lines.push(line);
+        // need to check min and max at this point
+        for (i in line.data) {
+            this.minValue = Math.min(this.minValue, line.data[i]);
+            this.maxValue = Math.max(this.maxValue, line.data[i]);
+        }
     } else {
         console.log("Error while trying to add line, passed line not found to be instance of Line")
         console.log("Line pass is of type: " + typeof(line));
@@ -831,7 +836,7 @@ function getMinMaxFromLines(lines) {
     return [localMin, localMax];
 }
 
-// params: tar - the DOM object to append the chart to
+// params: target - the DOM object to append the chart to
 // return: none
 LineChart.prototype.appendChartTo = function(target) {
     $target = $(target)
@@ -850,7 +855,7 @@ LineChart.prototype.appendChartTo = function(target) {
     // build basic chart components
     var basicSVGSettings    = 'xmlns="http://www.w3.org/2000/svg" version="1.1"';
     var chartWidth          = 'width="100%"'; // TODO: make this dynamic based on seg width
-    var chartHeight         = 'height="' + this.pixelHeight + 'px"';
+    var chartHeight         = 'height="' + this.pixelHeight + '"';
 
     // build opening/closing svg strings
     var openSVGTag =  '<svg ' +
@@ -868,8 +873,10 @@ LineChart.prototype.appendChartTo = function(target) {
     }
     for (i = 0; i < this.lines.length; i++) {
         var lineString = this.lines[i].getLineString();
-        console.log("Trying to add line: " + lineString);
-        console.log("Data:               " + this.lines[i].data);
+        if (TESTING) {
+            console.log("Trying to add line: " + lineString);
+            console.log("Data:               " + this.lines[i].data);
+        }
         chartBody.push(lineString);
     }
     if (TESTING) console.log("<<<< After lines loop >>>>");
@@ -895,21 +902,52 @@ Line.prototype.getLineString = function() {
     var myId    = getIdString(this.idName);
     var myClass = getClassString(this.className);
     var rawPoints = formatLineData(this.parentChart, this.data);
+    if (TESTING) {
+        console.log("<<<< GETTING RAW POINTS >>>>");
+        console.log("passing data:");
+        console.log(this.data);
+        console.log("raw points:");
+        console.log(rawPoints);
+    }
     var points  = 'points="' + rawPoints.join(' ') + '"';
     var lineString = ['<polyline ' + myId + myClass + points + ' />']
     
     var circle;
     var coords;
-    for(i in rawPoints) {
+    if (TESTING) {
+        console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        console.log("rawPoints:         " + rawPoints);
+        console.log("rawPoints length:  " + rawPoints.length);
+        console.log("typeof(rawPoints): " + typeof(rawPoints));
+        console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    }
+
+    // TODO: FIX THIS IMMEDIATELY!!!
+    //       causing infinite loop WTF!!!
+    for (var i; i < rawPoints.length; i++) {
         coords = rawPoints[i].split(",");
-        lineString.push('<circle ' + myClass + 'cx="' + coords[0] + '" ' + 'cy="' + coords[1] + '" ' + 'r="' + this.circleRadius + '" />');
+        lineString.push('<circle ' + myClass + 'cx="' + $.trim(coords[0]) + '" ' + 'cy="' + $.trim(coords[1]) + '" ' + 'r="' + this.circleRadius + '" />');
     }
     
     return lineString.join("\n");
 }
 
 // TODO: write this
-function formatLineData(chart, data) {
+// params: chart - the parent chart that the line data belongs to
+//         input - the string representation of the line data
+// return: the calculated points, based upon the chart dimensions
+function formatLineData(chart, input) {
+    var data = $.trim(input);
+    if (TESTING) {
+        console.log("<<<< IN FORMAT LINE DATA >>>>");
+        console.log("data passed:");
+        console.log(data);
+    }
+    data = data.split(new RegExp("\\s+"));
+    if (TESTING) {
+        console.log("split data:");
+        console.log(data);
+    }
     var chartMinValue = chart.minValue;
     var chartMaxValue = chart.maxValue;
     var chartHeight   = chart.pixelHeight;
@@ -928,6 +966,13 @@ function formatLineData(chart, data) {
             y = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
             points.push((segWidth * i + offset).toString() + "," + y.toString());
         }
+    }
+    if (TESTING) {
+        console.log("chartMinValue: " + chartMinValue);
+        console.log("chartMaxValue: " + chartMaxValue);
+        console.log("ChartHeight:   " + chartHeight);
+        console.log("segWidth:      " + segWidth);
+        console.log("Points: " + points);
     }
     return points;
 }
@@ -990,6 +1035,7 @@ function getLineCharts() {
                 delete dict["ID"];       
                 delete dict["START"];    
                 delete dict["END"];      
+                delete dict["WIDTH"];
                 delete dict["HEIGHT"];
                 delete dict["INCREMENT"];
                 delete dict["RADIUS"];
@@ -1031,7 +1077,7 @@ function getLineCharts() {
 //    {'START'            :'1980/11/24'},
 //    {'END'              :'2012/12/14'},
 //    {'WIDTH'            :'100%'},
-//    {'HEIGHT'           :'400px'},
+//    {'HEIGHT'           :'400'},
 //    {'INCREMENT'        :'50'},
 //    {'RADIUS'           :'6'},
 // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< everything below would be custom lines
@@ -1045,57 +1091,66 @@ function getLineCharts() {
 // return: a dictionary with all elements to the left of the colon as keys
 //         and their associated values to the right of the colon.
 function parseData(data) {
-    data = $.trim(data);
-    // ensure data begins and ends with "[" and "]"
-    if (data[0] != "[" && data[data.length - 1] != "]") {
-        if (TESTING) {
-            console.log("parseData() : data passed is not formatted properly");
-            console.log("data passed:\n" + data);
-        }
-        return null;
-    }
-    data = $.trim(data.substring(1, data.length - 1)); 
-    data = data.split(",");
-
+    // create dictionary object to hold kv pairs
     var dict = {};
     var pair;
     var key;
     var value;
-    // clean up any newlines, extra spaces, and "{}"
-    for (i in data) {
-        // validate data
-        data[i] = $.trim(data[i]);
 
-        if (data[i][0] != "{" && data[i][data.length - 1] != "}") {
-            if (TESTING) {
-                console.log("parseData() : data passed in not formatted properly");
-                console.log("              in set " + i + ". Expected to find '{}'");
-                console.log("data: " + data[i]);
-            }
-            return null;
-        }
+    if (!data) {
+        return dict;
+    }
 
-        // if data is ok, trim off the {}
-        pair = data[i].substring(1, data[i].length - 1).split(":");
-        // validate kv pair
-        if (pair.length != 2) {
-            if (TESTING) {
-                console.log("parseData() : data passed in not formatted properly");
-                console.log("              was expecting a key value pair separated by a ':'");
-                console.log("data: " + data[i]);
-            }
-            return null;
-        }
-        key   = stripQuoteMarks($.trim(pair[0]));
-        value = stripQuoteMarks($.trim(pair[1]));
-        // add sanitized kv pair into the dictionary
+    // get rid of white space
+    var input = $.trim(data);
+    // ensure data begins and ends with "[" and "]"
+    if (input[0] != "[" && input[input.length - 1] != "]") {
         if (TESTING) {
-            if (dict[key]) {
-                console.log("Found a duplicate entry for: " + key);
-                console.log("Proceeding by overwritting previous entry.");
-            }
+            console.log("parseData() : input passed is not formatted properly");
+            console.log("input:\n" + data);
         }
-        dict[key] = value;
+        return null;
+    }
+    // remove "[]" and external white space, then split on commas
+    // note at this point, input is no longer a string, but an array of strings
+    input = ($.trim(input.substring(1, input.length - 1))).split(","); 
+
+    // clean up any newlines, extra spaces, and "{}"
+    for (i in input) {
+        // validate input
+        input[i] = $.trim(input[i]);
+        if (input[i].length > 0) {
+            if (input[i][0] != "{" && input[i][input.length - 1] != "}") {
+                if (TESTING) {
+                    console.log("parseData() : input passed in not formatted properly");
+                    console.log("              in set " + i + ". Expected to find '{}'");
+                    console.log("input: " + input[i]);
+                }
+                return null;
+            }
+
+            // if input is ok, trim off the {}
+            pair = input[i].substring(1, input[i].length - 1).split(":");
+            // validate kv pair
+            if (pair.length != 2) {
+                if (TESTING) {
+                    console.log("parseData() : input passed in not formatted properly");
+                    console.log("              was expecting a key value pair separated by a ':'");
+                    console.log("input: " + input[i]);
+                }
+                return null;
+            }
+            key   = stripQuoteMarks($.trim(pair[0]));
+            value = stripQuoteMarks($.trim(pair[1]));
+            // add sanitized kv pair into the dictionary
+            if (TESTING) {
+                if (dict[key]) {
+                    console.log("Found a duplicate entry for: " + key);
+                    console.log("Proceeding by overwritting previous entry.");
+                }
+            }
+            dict[key] = value;
+        }
     }
 
     return dict;
@@ -1142,15 +1197,6 @@ function startLineCharts() {
     //console.log($lineCharts);
 }
 
-// TODO: write this
-function parseLineChartData($chart) {
-    var lineChart = null;
-    if ($chart) {
-
-    }
-    return lineChart;
-}
-
 // params: value - the value of the datapoint which will coordinate with the y value on the chart
 //         chartMinValue - the minimum value of the current chart
 //         chartMaxValue - the maximum value of the current chart
@@ -1165,6 +1211,16 @@ function calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight) {
     yPosition = chartHeight - getNearestPixel(chartHeight, totalRange, normalizedPosition);
     if (TESTING && totalRange < 0) {
         alert("Whoa, the chartMaxValue appears to be less than the chartMinValue in calculateYPixel!"); 
+    }
+    if (TESTING) {
+        console.log("<<<< IN CALCULATE Y PIXEL >>>>");
+        console.log("Input value:        " + value);
+        console.log("chartMinValue:      " + chartMinValue);
+        console.log("chartMaxValue:      " + chartMaxValue);
+        console.log("chartHeight:        " + chartHeight);
+        console.log("totalRange:         " + totalRange);
+        console.log("normalizedPosition: " + normalizedPosition);
+        console.log("Calculated Value:   " + yPosition);
     }
     return yPosition;
 }

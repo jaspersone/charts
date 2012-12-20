@@ -64,7 +64,9 @@ function sumArray(the_array) {
 // resultsArray[0] = number of tests passed
 // resultsArray[1] = total number of tests
 function sumResult(resultsArray, test) {
-    resultsArray[0] += test;
+    if (test == 0 || test == 1) {
+        resultsArray[0] += test;
+    }
     resultsArray[1] += 1;
 }
 
@@ -404,7 +406,7 @@ function run_calculateYPixel() {
     // tests
     sumResult(resultsArray, test_calculateYPixel1());
     sumResult(resultsArray, test_calculateYPixel2());
-    //sumResult(resultsArray, test_calculateYPixel3());
+    sumResult(resultsArray, test_calculateYPixel3());
     //sumResult(resultsArray, test_calculateYPixel4());
     //sumResult(resultsArray, test_calculateYPixel5());
 
@@ -440,6 +442,23 @@ function test_calculateYPixel2() {
 
     // you should assign expected and actual values here
     expected = 0;
+    actual = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
+
+    return printTest(testName, expected, actual);
+}
+
+function test_calculateYPixel3() {
+    var testName = "calculateYPixel() - simple case 3";
+    var expected;
+    var actual;
+
+    var value = 100;
+    var chartMinValue = -100;
+    var chartMaxValue = 300;
+    chartHeight = 100;
+
+    // you should assign expected and actual values here
+    expected = 50;
     actual = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
 
     return printTest(testName, expected, actual);
@@ -600,7 +619,8 @@ function test_Line_getLineString() {
     var actual;
 
     expected = '<polyline class="foo" points="0,530 50,50" />\n<circle class="foo" cx="0" cy="530" r="6" />\n<circle class="foo" cx="50" cy="50" r="6" />'
-    var testLine = new Line(null, null, "foo", [20, 500]);
+    var temp = "20 50";
+    var testLine = new Line(null, null, "foo", temp);
     var testLineChart = new LineChart("lineChart1", "1980/11/24", "2012/1/1", 600, 50, testLine);
     actual = testLine.getLineString();
  
@@ -630,7 +650,7 @@ function test_parseData() {
                 {'START'            :'1980/11/24'},\
                 {'END'              :'2012/12/14'},\
                 {'WIDTH'            :'100%'},\
-                {'HEIGHT'           :'400px'},\
+                {'HEIGHT'           :'400'},\
                 {'INCREMENT'        :'50'},\
                 {'RADIUS'           :'6'},\
                 {'cost'             :'20 50'},\
@@ -643,7 +663,16 @@ function test_parseData() {
 }
 
 function test_parseData_with_no_data() {
+    var testName = "test_parseData_with_no_data() - see if parse data properly returns empty dictionary if data is empty"
+    var expected;
+    var actual;
 
+    var empty = {}
+    var temp = parseData();
+    expected = [typeof(empty), Object.keys(empty).length];
+    actual   = [typeof(temp), Object.keys(temp).length];
+
+    return printTest(testName, expected, actual);
 }
 
 /************************************
