@@ -485,14 +485,14 @@ function test_createLineChart() {
     var expected;
     var actual;
     
-    expected = ["foo", 1980, 0, 500, 50, [-375,361]];
-    var line1 = new Line(null, "foo1", "bar", [1,2,3,4,5,6,7,8,9,10,11,23,45]);
-    var line2 = new Line(null, "foo2", "bar", [1,2,3,-20,-30,-314,20,40,108]);
+    expected = ["foo", 1980, 0, 500, 50, "-375 361"];
+    var line1 = new Line(null, "foo1", "bar", "1 2 3 4 5 6 7 8 9 10 11 23 45");
+    var line2 = new Line(null, "foo2", "bar", "1 2 3 -20 -30 -314 20 40 108");
     var lines = [line1, line2];
     var testLineChart = new LineChart("foo", "1980/11/24", "2012/1/1", 500, 50, lines);
     actual = [testLineChart.id, testLineChart.startDate.getFullYear(), 
               testLineChart.endDate.getMonth(), testLineChart.pixelHeight,
-              testLineChart.segmentPixelWidth, getMinMaxFromLines(testLineChart.lines)
+              testLineChart.segmentPixelWidth, [testLineChart.minValue, testLineChart.maxValue]
              ];
     return printTest(testName, expected, actual);
 }
@@ -502,8 +502,8 @@ function test_createLineChart_single_line() {
     var expected;
     var actual;
     
-    expected = ["foo", 1980, 0, 500, 50, [1,2,3,4,5,6,7,8,9,10,11,23,45]];
-    var line1 = new Line(null, "foo1", "bar", [1,2,3,4,5,6,7,8,9,10,11,23,45]);
+    expected = ["foo", 1980, 0, 500, 50, "1 2 3 4 5 6 7 8 9 10 11 23 45"];
+    var line1 = new Line(null, "foo1", "bar", "1 2 3 4 5 6 7 8 9 10 11 23 45");
     var testLineChart = new LineChart("foo", "1980/11/24", "2012/1/1", 500, 50, line1);
     actual = [testLineChart.id, testLineChart.startDate.getFullYear(), 
               testLineChart.endDate.getMonth(), testLineChart.pixelHeight,
@@ -531,9 +531,9 @@ function test_LineChart_retrieve_chart_data() {
     var expected;
     var actual;
     
-    expected = [[1,2,3,4,5,6,7,8,9,10,11,23,45], [1,2,3,-20,-30,-314,20,40,108]];
-    var line1 = new Line(null, "foo1", "bar", [1,2,3,4,5,6,7,8,9,10,11,23,45]);
-    var line2 = new Line(null, "foo2", "bar", [1,2,3,-20,-30,-314,20,40,108]);
+    expected = ["1 2 3 4 5 6 7 8 9 10 11 23 45", "1 2 3 -20 -30 -314 20 40 108"];
+    var line1 = new Line(null, "foo1", "bar", "1 2 3 4 5 6 7 8 9 10 11 23 45");
+    var line2 = new Line(null, "foo2", "bar", "1 2 3 -20 -30 -314 20 40 108");
     var lines = [line1, line2];
     var testLineChart = new LineChart("foo", "1980/11/24", "2012/1/1", 500, 50, lines);
     actual = [testLineChart.lines[0].data, testLineChart.lines[1].data];
@@ -545,8 +545,8 @@ function test_LineChart_set_line_parent() {
     var expected;
     var actual;
     
-    var line1 = new Line(null, "foo1", "bar", [1,2,3,4,5,6,7,8,9,10,11,23,45]);
-    var line2 = new Line(null, "foo2", "bar", [1,2,3,-20,-30,-314,20,40,108]);
+    var line1 = new Line(null, "foo1", "bar", "1 2 3 4 5 6 7 8 9 10 11 23 45");
+    var line2 = new Line(null, "foo2", "bar", "1 2 3 -20 -30 -314 20 40 108");
     var lines = [line1, line2];
     var testLineChart = new LineChart("lineChart1", "1980/11/24", "2012/1/1", 500, 50, lines);
     expected = [testLineChart, testLineChart.id];
@@ -564,7 +564,6 @@ function run_LineTests() {
     // tests
     sumResult(resultsArray, test_createLine_no_data());
     sumResult(resultsArray, test_createLine_with_data());
-    sumResult(resultsArray, test_getMinMaxFromLines());
     sumResult(resultsArray, test_Line_getLineString());
     sumResult(resultsArray, test_Line_getLineString_with_offset());
     sumResult(resultsArray, test_parseData());
@@ -589,27 +588,10 @@ function test_createLine_with_data() {
     var expected;
     var actual;
 
-    expected = [null, "foo", "bar", [1,2,3]];
-    var testLine = new Line(null, "foo", "bar", [1,2,3]);
+    expected = [null, "foo", "bar", "1 2 3"];
+    var testLine = new Line(null, "foo", "bar", "1 2 3");
     actual = [testLine.parentChart, testLine.idName, testLine.className, testLine.data];
 
-    return printTest(testName, expected, actual);
-}
-
-function test_getMinMaxFromLines() {
-    var testName = "getMinMaxFromLines() - create a few lines and find min and max";
-    var expected;
-    var actual;
-
-    var line1 = new Line(null, "foo1", "bar", [1,2,3,4,5,6,7,8,9,10,11,23,45]);
-    var line2 = new Line(null, "foo2", "bar", [1,2,3,-20,-30,-314,20,40,108]);
-    var line3 = new Line(null, "foo3", "bar", [45]);
-    var line4 = new Line(null, "foo4", "bar", [101,102,103,104,15]);
-    var line5 = new Line(null, "foo5", "bar", [301,1,2,3]);
-    var lines = [line1, line2, line3, line4, line5];
-
-    expected = [-376, 363];
-    actual   = getMinMaxFromLines(lines);
     return printTest(testName, expected, actual);
 }
 
@@ -633,7 +615,7 @@ function test_Line_getLineString_with_offset() {
     var actual;
 
     expected = '<polyline class="foo" points="100,530 150,50" />\n<circle class="foo" cx="100" cy="530" r="6" />\n<circle class="foo" cx="150" cy="50" r="6" />'
-    var testLine = new Line(null, null, "foo", ["(2)", 20, 500]);
+    var testLine = new Line(null, null, "foo", "(2) 20 500");
     var testLineChart = new LineChart("lineChart1", "1980/11/24", "2012/1/1", 600, 50, testLine);
     actual = testLine.getLineString();
  
@@ -658,7 +640,12 @@ function test_parseData() {
                 {'revenue'          :'120 150'},\
                 {'projected-revenue':'(2) 150 130'},\
                ]"
-
+    expected = ['line-graph-02', "1980/11/24", "2012/12/14", 
+                '100%', '400', '50', '6', '20 50', '(2) 50 30', '120 150', '(2) 150 130'];
+    var dict = parseData(data);
+    actual   = [dict['ID'], dict['START'], dict['END'], dict['WIDTH'],
+                dict['HEIGHT'], dict['INCREMENT'], dict['RADIUS'], dict['cost'],
+                dict['projected-cost'], dict['revenue'], dict['projected-revenue']];
     return printTest(testName, expected, actual);
 }
 

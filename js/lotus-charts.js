@@ -386,13 +386,11 @@ function animateHorizontalBar($chart, animationTime) {
 function findAndAssignMax($listToFindMaxFrom) {
     if (TESTING) {
         console.log("<<<< in findAndAssignMax() >>>>");
-        console.log("list: \n" + $listToFindMaxFrom.html());
     }
     // reset highest value
     verticalBarMaxValue = -1;
  
     ($listToFindMaxFrom).each(function(index) {
-        console.log("in list loop");
         var currValue = getBarValue($(this));
         if (TESTING) {
             console.log(" current max value: " + verticalBarMaxValue);
@@ -762,6 +760,8 @@ function LineChart(id, start, end, height, segWidth, linesIn, parentNode) {
 
     this.pixelHeight    = height ? height : MAX_BAR_HEIGHT;
     this.segmentPixelWidth = segWidth ? segWidth : DEFAULT_CHART_SEGMENT_WIDTH;
+    this.minValue;
+    this.maxValue;
 
     this.lines          = new Array();
 
@@ -782,21 +782,33 @@ function LineChart(id, start, end, height, segWidth, linesIn, parentNode) {
     for (n in this.lines) {
         this.lines[n].parentChart = this;
     }
-
-    var minMax          = getMinMaxFromLines(this.lines);
-
-    this.minValue       = minMax[0];
-    this.maxValue       = minMax[1];
 }
 
 LineChart.prototype.addLine = function(line) {
     if (line instanceof Line) {
         line.parentChart = this;
+        
+        // change line data from string to array of values
+        var temp = line.data.split(new RegExp("\\s+"));
+        var data = [];
+        var curr;
+        for (i in temp) {
+            curr = $.trim(temp[i]); 
+            if (curr != "") {
+                data.push(curr);
+            }
+        }
+        line.data = data; 
+        
+        // add the line
         this.lines.push(line);
+
         // need to check min and max at this point
-        for (i in line.data) {
-            this.minValue = Math.min(this.minValue, line.data[i]);
-            this.maxValue = Math.max(this.maxValue, line.data[i]);
+        var minMax = getMinMaxFromLine(line);
+        
+        if (minMax.length > 0) {
+            this.minValue = this.minValue ? Math.min(this.minValue, minMax[0]) : minMax[0];
+            this.maxValue = this.maxValue ? Math.max(this.maxValue, minMax[1]) : minMax[1];
         }
     } else {
         console.log("Error while trying to add line, passed line not found to be instance of Line")
@@ -804,36 +816,30 @@ LineChart.prototype.addLine = function(line) {
     }
 }
 
-// TODO: REFACTOR
-// params: lines - an array of Lines
-// return: a tuple where [0] = min from lines and
-//                       [1] = max from lines
-function getMinMaxFromLines(lines) {
-    var localMin = 0;
-    var localMax = DEFAULT_MAX_SCALE;
-
-    if (lines.length > 0) {
-        // loop through each line and determine if it
-        // has a min or a max
-        for (i in lines) {
-            if (lines[i].data != null && lines[i].data.length > 0) {
-                for (n in lines[i].data) {
-                    if (lines[i].data[n] < localMin) { localMin = lines[i].data[n]; }
-                    if (lines[i].data[n] > localMax) { localMax = lines[i].data[n]; }
-                }
-            } else {
-                console.log("WTF: printing weird line");
-                console.log(line);
+function getMinMaxFromLine(line) {
+    var result = [];
+    if (line.data.length > 0) {
+        var localMin;
+        var localMax;
+        var index = 0;
+        // check to see if there is an offset value for first of array
+        if (line.data[index][0] == "(") {
+            if (line.data.length > 1) {
+                index++;
             }
         }
-        // add 10% padding to min and max values
-        // TODO: Remove hard coded 10%
-        var padding = Math.round((localMax - localMin) / 10); // padding of 10% rounded
-        padding = padding > 10 ? padding : 10; // insure a minimum padding of 10
-        localMin = localMin - padding;
-        localMax = localMax + padding;
+        // set initial min/max value to the first element's value
+        localMin = parseInt(line.data[index]);
+        localMax = parseInt(line.data[index]);
+        // find local min and max
+        for (index; index < line.data.length; index++) {
+           localMin = Math.min(localMin, line.data[index]);
+           localMax = Math.max(localMax, line.data[index]);
+        }
+        result.push(localMin);
+        result.push(localMax);
     }
-    return [localMin, localMax];
+    return result;
 }
 
 // params: target - the DOM object to append the chart to
@@ -842,7 +848,6 @@ LineChart.prototype.appendChartTo = function(target) {
     $target = $(target)
     if (TESTING) {
         console.log("<<<< In Append Chart >>>>");
-        console.log("Print to:      " + $target.html());
         console.log("LineChart:     " + this.id);
         console.log("Start Date:    " + this.startDate);
         console.log("End Date:      " + this.endDate);
@@ -867,10 +872,6 @@ LineChart.prototype.appendChartTo = function(target) {
 
     // build chart body
     var chartBody = [];
-    if (TESTING) {
-        console.log("<<<< Before lines loop >>>> ");
-        console.log("Number of lines to loop through: " + this.lines.length);
-    }
     for (i = 0; i < this.lines.length; i++) {
         var lineString = this.lines[i].getLineString();
         if (TESTING) {
@@ -924,7 +925,7 @@ Line.prototype.getLineString = function() {
 
     // TODO: FIX THIS IMMEDIATELY!!!
     //       causing infinite loop WTF!!!
-    for (var i; i < rawPoints.length; i++) {
+    for (var i = 0; i < rawPoints.length; i++) {
         coords = rawPoints[i].split(",");
         lineString.push('<circle ' + myClass + 'cx="' + $.trim(coords[0]) + '" ' + 'cy="' + $.trim(coords[1]) + '" ' + 'r="' + this.circleRadius + '" />');
     }
@@ -936,17 +937,9 @@ Line.prototype.getLineString = function() {
 // params: chart - the parent chart that the line data belongs to
 //         input - the string representation of the line data
 // return: the calculated points, based upon the chart dimensions
-function formatLineData(chart, input) {
-    var data = $.trim(input);
-    if (TESTING) {
-        console.log("<<<< IN FORMAT LINE DATA >>>>");
-        console.log("data passed:");
-        console.log(data);
-    }
-    data = data.split(new RegExp("\\s+"));
-    if (TESTING) {
-        console.log("split data:");
-        console.log(data);
+function formatLineData(chart, data) {
+    if (!(data instanceof Array)) {
+        return null;
     }
     var chartMinValue = chart.minValue;
     var chartMaxValue = chart.maxValue;
