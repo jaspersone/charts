@@ -486,7 +486,7 @@ function test_createLineChart() {
     var expected;
     var actual;
     
-    expected = ["foo", 1980, 0, 500, 50, [-375,361]];
+    expected = ["foo", 1980, 0, 500, 50, [-345,139]];
     var line1 = new Line(null, "foo1", "bar", "1 2 3 4 5 6 7 8 9 10 11 23 45");
     var line2 = new Line(null, "foo2", "bar", "1 2 3 -20 -30 -314 20 40 108");
     var lines = [line1, line2];

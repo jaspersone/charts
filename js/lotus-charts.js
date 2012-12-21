@@ -7,6 +7,7 @@
 * Global Variables  	   	 	    *
 ************************************/
 var TESTING = true;
+var DEBUG   = false;
 var AJAX_ON = false;
 var MAX_BAR_HEIGHT = 300; // in pixels
 var DEFAULT_MAX_SCALE = 300; // vertical bar default Y access value (before resize)
@@ -308,7 +309,7 @@ function rescaleAxis($chart, chartMax) {
             $(this).children(".number").html(normalizedArray[0]);
             $(this).children(".metric").html(normalizedArray[1]);
 
-            if (TESTING) {
+            if (TESTING && DEBUG) {
                 console.log(index + ": " + $(this).html());
                 console.log("new value: " + normalizedArray[0] + normalizedArray[1]);
             }
@@ -326,7 +327,7 @@ function resizeBars($chart, chartMax) {
     ($chartBars).each(function(index) {
         // find new pixel to go to
         var newHeight = getNearestPixel(MAX_BAR_HEIGHT, chartMax, parseInt($(this).attr("rel"))) + "px";
-        if (TESTING) {
+        if (TESTING && DEBUG) {
             console.log("<<<< BAR " + index + " >>>>");
             console.log("Old height: " + $(this).height());
             console.log("new height: " + newHeight);
@@ -369,7 +370,7 @@ function animateHorizontalBar($chart, animationTime) {
     $marker.animate({left: valueString,}, animationTime, "swing");
     $bar.animate({width: valueString,}, animationTime, "swing");
 
-    if (TESTING) {
+    if (TESTING && DEBUG) {
         console.log("<<<< In Animate Horizontal Bar >>>>");
         console.log("maxPixels:     " + maxPixels);
         console.log("maxChartValue: " + maxChartValue);
@@ -385,15 +386,13 @@ function animateHorizontalBar($chart, animationTime) {
 //warning: this algorithm is potentially O(N^2) and will loop through entire list
 //         try to call it sparingly
 function findAndAssignMax($listToFindMaxFrom) {
-    if (TESTING) {
-        console.log("<<<< in findAndAssignMax() >>>>");
-    }
     // reset highest value
     verticalBarMaxValue = -1;
  
     ($listToFindMaxFrom).each(function(index) {
         var currValue = getBarValue($(this));
-        if (TESTING) {
+        if (TESTING && DEBUG) {
+            console.log("<<<< In findAndAssignMax() >>>>");
             console.log(" current max value: " + verticalBarMaxValue);
             console.log(" this bar value:    " + currValue);
         }
@@ -739,6 +738,7 @@ function LineChart(id, start, end, height, segWidth, linesIn, parentNode) {
         } catch (e) {
             console.log("********************************************************");
             console.log("There has been an error while trying to parse start date");
+            console.log("Start date passed: " + start);
             console.log(e);
             console.log("********************************************************");
         }
@@ -752,6 +752,7 @@ function LineChart(id, start, end, height, segWidth, linesIn, parentNode) {
         } catch (e) {
             console.log("********************************************************");
             console.log("There has been an error while trying to parse end date");
+            console.log("End date passed: " + end);
             console.log(e);
             console.log("********************************************************");
         }
@@ -772,22 +773,19 @@ function LineChart(id, start, end, height, segWidth, linesIn, parentNode) {
                 this.addLine(linesIn[n]);
             } else {
                 if (TESTING) {
-                    console.log("In LineChart constructor: passed array of linesIn, where not all elements are lines, at index: " + n);
+                    console.log("In LineChart constructor: passed array of linesIn, where not all elements are lines, failed at index: " + n);
                 }
             }
         }
     } else if (linesIn instanceof Line) {
         this.addLine(linesIn);
     } else {
+        console.log("LineChart Constructor Error: lines passed is not of type array or Line");
         if (typeof(linesIn) != "undefined") {
-            console.log("LineChart Constructor Error: lines passed is not of type array or Line");
             console.log("Type found: " + typeof(linesIn));
+        } else {
+            console.log("Type found: undefined");
         }
-    }
-
-    // if you add a lines, set their parent to this chart
-    for (n in this.lines) {
-        this.lines[n].parentChart = this;
     }
 }
 
@@ -795,12 +793,12 @@ LineChart.prototype.addLine = function(line) {
     if (line instanceof Line) {
         line.parentChart = this;
         
-        // change line data from string to array of values
+        // if data is not an array, fix it
         if (!(line.data instanceof Array)) {
             if (TESTING) {
-                console.log("!!!!!!!!!!!! WE HAVE PROBLEMS !!!!!!!!!!!!!!!!!!!");
                 console.log("Line data should have been an array");
             }
+            // change line data from string to array of values
             line.data = parseLineData(line.data); 
         }
         
@@ -813,6 +811,10 @@ LineChart.prototype.addLine = function(line) {
         if (minMax.length > 0) {
             this.minValue = this.minValue ? Math.min(this.minValue, minMax[0]) : minMax[0];
             this.maxValue = this.maxValue ? Math.max(this.maxValue, minMax[1]) : minMax[1];
+            if (TESTING) {
+                console.log("minValue set to: " + this.minValue);
+                console.log("maxValue set to: " + this.maxValue);
+            }
         }
     } else {
         console.log("Error while trying to add line, passed line not found to be instance of Line")
@@ -828,6 +830,7 @@ function parseLineData(dataString) {
     if (!dataString) {
         if (TESTING) {
             console.log("In parseLineData() : passed dataString is null or undefined");
+            console.log("Returning null.");
         }
         return null;
     }
@@ -881,8 +884,8 @@ function getMinMaxFromLine(line) {
 // return: none
 LineChart.prototype.appendChartTo = function(target) {
     $target = $(target)
-    if (TESTING) {
-        console.log("<<<< In Append Chart >>>>");
+    if (TESTING && DEBUG) {
+        console.log("<<<< In LineChart.appendChartTo() >>>>");
         console.log("LineChart:     " + this.id);
         console.log("Start Date:    " + this.startDate);
         console.log("End Date:      " + this.endDate);
@@ -915,14 +918,14 @@ LineChart.prototype.appendChartTo = function(target) {
     var chartBody = [];
     for (var i = 0; i < this.lines.length; i++) {
         var lineString = this.lines[i].getLineString();
-        if (TESTING) {
+        if (TESTING && DEBUG) {
             console.log("Trying to add line: " + lineString);
             console.log("Iteration i: " + i);
             console.log("Data for " + this.lines[i].className + ": " + this.lines[i].data);
         }
         chartBody.push(lineString);
     }
-    if (TESTING) console.log("<<<< After lines loop >>>>");
+    if (TESTING && DEBUG) console.log("<<<< After lines loop >>>>");
     chartBody = chartBody.join('\n') + '\n';
     // build chart string
     var chartString = openSVGTag + chartBody + closeSVGTag;
@@ -948,19 +951,17 @@ Line.prototype.getLineString = function() {
     var myId    = getIdString(this.idName);
     var myClass = getClassString(this.className);
     var rawPoints = formatLineData(this.parentChart, this.data);
-    if (TESTING) {
-        console.log("<<<< GETTING RAW POINTS >>>>");
-        console.log("passing data:");
-        console.log(this.data);
-        console.log("raw points:");
-        console.log(rawPoints);
-    }
     var points  = 'points="' + rawPoints.join(' ') + '"';
     var lineString = ['<polyline fill="none" ' + myId + myClass + points + ' />']
     
     var circle;
     var coords;
-    if (TESTING) {
+    if (TESTING && DEBUG) {
+        console.log("<<<< Getting raw points >>>>");
+        console.log("passing data:");
+        console.log(this.data);
+        console.log("raw points:");
+        console.log(rawPoints);
         console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
         console.log("rawPoints:         " + rawPoints);
         console.log("rawPoints length:  " + rawPoints.length);
@@ -1003,7 +1004,7 @@ function formatLineData(chart, data) {
             // subtract another 1 for the place taken by the offset value
             // total subtraction should be 2
             offset = (parseInt(value.replace(new RegExp(/[^\d]/g), "")) - 2) * segWidth;
-            if (TESTING) {
+            if (TESTING && DEBUG) {
                 console.log("<<<< FINDING OFFSET >>>>");
                 console.log("  Original value:         " + value);
                 console.log("  Found an offset amount: " + offset);
@@ -1013,7 +1014,7 @@ function formatLineData(chart, data) {
             points.push((segWidth * i + offset).toString() + "," + y.toString());
         }
     }
-    if (TESTING) {
+    if (TESTING && DEBUG) {
         console.log("chartMinValue: " + chartMinValue);
         console.log("chartMaxValue: " + chartMaxValue);
         console.log("ChartHeight:   " + chartHeight);
@@ -1063,7 +1064,7 @@ function getLineCharts() {
     $(".lotus-charts.line-chart").each(function() {
         var data = $(this).attr('rel');
         if (data) {
-            if (TESTING) {
+            if (TESTING && DEBUG) {
                 console.log("getLineCharts() - Found a LineChart section with data");
                 console.log("data: " + data);
             }
@@ -1093,7 +1094,7 @@ function getLineCharts() {
                 var idName;
                 var className;
                 var data;
-                if (TESTING) {
+                if (TESTING && DEBUG) {
                     console.log("<<<< ADDING KEYS: " + keys + " >>>>");
                 }
                 for (k in keys) {
@@ -1104,13 +1105,13 @@ function getLineCharts() {
                     className = keys[k];
                     data = dict[className];
                     var ln = new Line(null, idName, className, data, radius);
-                    if (TESTING) {
+                    if (TESTING && DEBUG) {
                         console.log("  << PUSHING LINE: " + ln.className + " " + ln.data + " >>");
                     }
                     linesIn.push(ln); 
                 }
 
-                if (TESTING) {
+                if (TESTING && DEBUG) {
                     console.log("  << linesIn contains: " + linesIn.length + " lines >>");
                 }
 
@@ -1244,7 +1245,7 @@ function filterCollectionForAttr(collection, attrName) {
 }
 
 function startLineCharts() {
-    if (TESTING) { console.log("<<<< Line Charts Starting >>>>"); }
+    if (TESTING && DEBUG) { console.log("<<<< Line Charts Starting >>>>"); }
     var lineCharts = getLineCharts();
     
     for (i in lineCharts) {
@@ -1267,10 +1268,13 @@ function calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight) {
     var normalizedPosition = value - chartMinValue;
     yPosition = chartHeight - getNearestPixel(chartHeight, totalRange, normalizedPosition);
     if (TESTING && totalRange < 0) {
-        alert("Whoa, the chartMaxValue appears to be less than the chartMinValue in calculateYPixel!"); 
+        console.log("<<<< In calculateYPixel() >>>>");
+        console.log("chartMaxValue appears to be less than the chartMinValue in calculateYPixel!"); 
+        console.log("chartMinValue: " + chartMinValue);
+        console.log("chartMaxValue: " + chartMaxValue);
     }
-    if (TESTING) {
-        console.log("<<<< IN CALCULATE Y PIXEL >>>>");
+    if (TESTING && DEBUG) {
+        console.log("<<<< In calculateYPixel() >>>>");
         console.log("Input value:        " + value);
         console.log("chartMinValue:      " + chartMinValue);
         console.log("chartMaxValue:      " + chartMaxValue);
