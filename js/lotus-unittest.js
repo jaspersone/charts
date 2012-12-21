@@ -51,6 +51,7 @@ function compare(expected, actual) {
         }
         return false; // both are arrays but lengths are different, don't compare
     }
+    // TODO: may need to make this more strict "==="
     return expected === actual; // simple comparison of if not array
 }
 
@@ -485,7 +486,7 @@ function test_createLineChart() {
     var expected;
     var actual;
     
-    expected = ["foo", 1980, 0, 500, 50, "-375 361"];
+    expected = ["foo", 1980, 0, 500, 50, [-375,361]];
     var line1 = new Line(null, "foo1", "bar", "1 2 3 4 5 6 7 8 9 10 11 23 45");
     var line2 = new Line(null, "foo2", "bar", "1 2 3 -20 -30 -314 20 40 108");
     var lines = [line1, line2];
@@ -502,7 +503,7 @@ function test_createLineChart_single_line() {
     var expected;
     var actual;
     
-    expected = ["foo", 1980, 0, 500, 50, "1 2 3 4 5 6 7 8 9 10 11 23 45"];
+    expected = ["foo", 1980, 0, 500, 50, [1,2,3,4,5,6,7,8,9,10,11,23,45]];
     var line1 = new Line(null, "foo1", "bar", "1 2 3 4 5 6 7 8 9 10 11 23 45");
     var testLineChart = new LineChart("foo", "1980/11/24", "2012/1/1", 500, 50, line1);
     actual = [testLineChart.id, testLineChart.startDate.getFullYear(), 
@@ -531,7 +532,9 @@ function test_LineChart_retrieve_chart_data() {
     var expected;
     var actual;
     
-    expected = ["1 2 3 4 5 6 7 8 9 10 11 23 45", "1 2 3 -20 -30 -314 20 40 108"];
+    var e1    = [1,2,3,4,5,6,7,8,9,10,11,23,45];
+    var e2    = [1,2,3,-20,-30,-314,20,40,108];
+    expected  = [e1, e2];
     var line1 = new Line(null, "foo1", "bar", "1 2 3 4 5 6 7 8 9 10 11 23 45");
     var line2 = new Line(null, "foo2", "bar", "1 2 3 -20 -30 -314 20 40 108");
     var lines = [line1, line2];
@@ -588,7 +591,7 @@ function test_createLine_with_data() {
     var expected;
     var actual;
 
-    expected = [null, "foo", "bar", "1 2 3"];
+    expected = [null, "foo", "bar", [1,2,3]];
     var testLine = new Line(null, "foo", "bar", "1 2 3");
     actual = [testLine.parentChart, testLine.idName, testLine.className, testLine.data];
 

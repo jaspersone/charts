@@ -825,12 +825,21 @@ LineChart.prototype.addLine = function(line) {
 // return: an array of data points for a Line object
 function parseLineData(dataString) {
     // change line data from string to array of values
+    if (!dataString) {
+        if (TESTING) {
+            console.log("In parseLineData() : passed dataString is null or undefined");
+        }
+        return null;
+    }
     var temp = dataString.split(new RegExp("\\s+"));
     var data = [];
     var curr;
     for (i in temp) {
         curr = $.trim(temp[i]); 
         if (curr != "") {
+            if (parseInt(curr)) {
+                curr = parseInt(curr);
+            }
             data.push(curr);
         }
     }
