@@ -844,6 +844,7 @@ function getMinMaxFromLine(line) {
         var localMax;
         var index = 0;
         // check to see if there is an offset value for first of array
+        // and ignore it if you find one
         if (line.data[index][0] == "(") {
             if (line.data.length > 1) {
                 index++;
@@ -990,7 +991,14 @@ function formatLineData(chart, data) {
         if (value[0] === "(" || value[0] === "[" || value[0] === "{") {
             // note subtract and extra 1 from the length to make up for
             // i offset by his additional piece of information
-            offset = (value.substring(1, value.length - 1) - 1) * segWidth;
+            // subtract another 1 for the place taken by the offset value
+            // total subtraction should be 2
+            offset = (parseInt(value.replace(new RegExp(/[^\d]/g), "")) - 2) * segWidth;
+            if (TESTING) {
+                console.log("<<<< FINDING OFFSET >>>>");
+                console.log("  Original value:         " + value);
+                console.log("  Found an offset amount: " + offset);
+            }
         } else {
             y = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
             points.push((segWidth * i + offset).toString() + "," + y.toString());
