@@ -12,6 +12,7 @@ var MAX_BAR_HEIGHT = 300; // in pixels
 var DEFAULT_MAX_SCALE = 300; // vertical bar default Y access value (before resize)
 var DEFAULT_CHART_SEGMENT_WIDTH = 40;
 
+
 var verticalBarScaleMax; // maximum size of the chart
 var verticalBarIncrement; // the size of the chart increments
 var verticalBarMaxValue; // the current maximum bar value within a chart (not the max size of the chart)
@@ -766,8 +767,14 @@ function LineChart(id, start, end, height, segWidth, linesIn, parentNode) {
     this.lines          = new Array();
 
     if (linesIn instanceof Array) {
-        for (n in linesIn) {
-            this.addLine(linesIn[n]);
+        for (var n = 0; n < linesIn.length; n++) {
+            if (linesIn[n] instanceof Line) {
+                this.addLine(linesIn[n]);
+            } else {
+                if (TESTING) {
+                    console.log("In LineChart constructor: passed array of linesIn, where not all elements are lines, at index: " + n);
+                }
+            }
         }
     } else if (linesIn instanceof Line) {
         this.addLine(linesIn);
@@ -789,16 +796,13 @@ LineChart.prototype.addLine = function(line) {
         line.parentChart = this;
         
         // change line data from string to array of values
-        var temp = line.data.split(new RegExp("\\s+"));
-        var data = [];
-        var curr;
-        for (i in temp) {
-            curr = $.trim(temp[i]); 
-            if (curr != "") {
-                data.push(curr);
+        if (!(line.data instanceof Array)) {
+            if (TESTING) {
+                console.log("!!!!!!!!!!!! WE HAVE PROBLEMS !!!!!!!!!!!!!!!!!!!");
+                console.log("Line data should have been an array");
             }
+            line.data = parseLineData(line.data); 
         }
-        line.data = data; 
         
         // add the line
         this.lines.push(line);
@@ -814,6 +818,23 @@ LineChart.prototype.addLine = function(line) {
         console.log("Error while trying to add line, passed line not found to be instance of Line")
         console.log("Line pass is of type: " + typeof(line));
     }
+}
+
+// TODO: write some tests
+// params: dataString - a string which holds the unparsed data for a line
+// return: an array of data points for a Line object
+function parseLineData(dataString) {
+    // change line data from string to array of values
+    var temp = dataString.split(new RegExp("\\s+"));
+    var data = [];
+    var curr;
+    for (i in temp) {
+        curr = $.trim(temp[i]); 
+        if (curr != "") {
+            data.push(curr);
+        }
+    }
+    return data; 
 }
 
 function getMinMaxFromLine(line) {
@@ -836,8 +857,12 @@ function getMinMaxFromLine(line) {
            localMin = Math.min(localMin, line.data[index]);
            localMax = Math.max(localMax, line.data[index]);
         }
-        result.push(localMin);
-        result.push(localMax);
+
+        // adjust min/max to have an additional 10% padding above and below 
+        var range = localMax - localMin;
+        var padding = Math.round(range / 10);
+        result.push(localMin - padding);
+        result.push(localMax + padding);
     }
     return result;
 }
@@ -853,9 +878,15 @@ LineChart.prototype.appendChartTo = function(target) {
         console.log("End Date:      " + this.endDate);
         console.log("Pixel Height:  " + this.pixelHeight);
         console.log("Segment Width: " + this.segmentPixelWidth);
+        console.log("Circle Radius: " + this.radius);
         console.log("Chart Max Val: " + this.maxValue);
         console.log("Chart Min Val: " + this.minValue);
-        console.log("Lines:         " + this.lines);
+        var l = []
+        for (i in this.lines) {
+            l.push(this.lines[i].className);
+        }
+        console.log("Line types:    " + this.lines);
+        console.log("Lines:         " + l);
     }
     // build basic chart components
     var basicSVGSettings    = 'xmlns="http://www.w3.org/2000/svg" version="1.1"';
@@ -872,11 +903,12 @@ LineChart.prototype.appendChartTo = function(target) {
 
     // build chart body
     var chartBody = [];
-    for (i = 0; i < this.lines.length; i++) {
+    for (var i = 0; i < this.lines.length; i++) {
         var lineString = this.lines[i].getLineString();
         if (TESTING) {
             console.log("Trying to add line: " + lineString);
-            console.log("Data:               " + this.lines[i].data);
+            console.log("Iteration i: " + i);
+            console.log("Data for " + this.lines[i].className + ": " + this.lines[i].data);
         }
         chartBody.push(lineString);
     }
@@ -896,6 +928,9 @@ function Line(parentChart, idName, className, data, radius) {
     this.idName     = idName      ? idName      : null;
     this.className  = className   ? className   : null;
     this.data       = data        ? data        : null;
+    if (!(this.data instanceof Array)) {
+        this.data = parseLineData(this.data);
+    }
     this.circleRadius = radius    ? radius      : lineChart_circleRadius; 
 }
 
@@ -911,7 +946,7 @@ Line.prototype.getLineString = function() {
         console.log(rawPoints);
     }
     var points  = 'points="' + rawPoints.join(' ') + '"';
-    var lineString = ['<polyline ' + myId + myClass + points + ' />']
+    var lineString = ['<polyline fill="none" ' + myId + myClass + points + ' />']
     
     var circle;
     var coords;
@@ -923,8 +958,6 @@ Line.prototype.getLineString = function() {
         console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
 
-    // TODO: FIX THIS IMMEDIATELY!!!
-    //       causing infinite loop WTF!!!
     for (var i = 0; i < rawPoints.length; i++) {
         coords = rawPoints[i].split(",");
         lineString.push('<circle ' + myClass + 'cx="' + $.trim(coords[0]) + '" ' + 'cy="' + $.trim(coords[1]) + '" ' + 'r="' + this.circleRadius + '" />');
@@ -935,10 +968,13 @@ Line.prototype.getLineString = function() {
 
 // TODO: write this
 // params: chart - the parent chart that the line data belongs to
-//         input - the string representation of the line data
+//         data  - an array representation of the line data
 // return: the calculated points, based upon the chart dimensions
 function formatLineData(chart, data) {
     if (!(data instanceof Array)) {
+        if (TESTING) {
+            console.log("!!!! FOUND AN LINE WITH DATA NOT REPRESENTED AS AN ARRAY !!!!");
+        }
         return null;
     }
     var chartMinValue = chart.minValue;
@@ -1040,6 +1076,9 @@ function getLineCharts() {
                 var idName;
                 var className;
                 var data;
+                if (TESTING) {
+                    console.log("<<<< ADDING KEYS: " + keys + " >>>>");
+                }
                 for (k in keys) {
                     idName = "line-" + k;
                     if (id) {
@@ -1047,7 +1086,15 @@ function getLineCharts() {
                     }
                     className = keys[k];
                     data = dict[className];
-                    linesIn.push(new Line(null, idName, className, data, radius)); 
+                    var ln = new Line(null, idName, className, data, radius);
+                    if (TESTING) {
+                        console.log("  << PUSHING LINE: " + ln.className + " " + ln.data + " >>");
+                    }
+                    linesIn.push(ln); 
+                }
+
+                if (TESTING) {
+                    console.log("  << linesIn contains: " + linesIn.length + " lines >>");
                 }
 
                 var lc = new LineChart(id, start, end, height, segWidth, linesIn, $(this));
