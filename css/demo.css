@@ -10,5 +10,53 @@ Version: 0.0
 /* Typography                       */
 /************************************/
 body {
-    
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+    margin: 0 20px;
 }
+
+h1, h2, h3 {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
+}
+
+h1 {
+    font-size: 3em;
+    margin-bottom: .5em;
+    margin-top: .75em;
+}
+h2 {
+    font-size: 2.5em;
+    margin-bottom: .3em;
+    margin-top: .4em;
+}
+h3 {
+    font-size: 2.25em;
+    margin-bottom: .2em;
+    margin-top: .3em;
+}
+ul {
+    font-size: 1.5em;
+    margin: 16px 0;
+}
+p {
+    font-size: 1.5em;
+    margin: 16px 0;
+}
+
+a, a:visited {
+    color: #53cdf2;
+    font-weight: 700;
+    text-decoration: none;
+}
+a:hover {
+    color: #31abc0;
+    text-decoration: underline;
+}
+
+.lotus-charts.horizontal-bar-chart,
+.lotus-charts.vertical-bar-chart,
+.lotus-charts.line-chart {
+    margin: 20px 0;
+}
+

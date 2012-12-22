@@ -6,6 +6,8 @@
     <link rel="stylesheet" type="text/css" href="../css/reset.css" />
     <link rel="stylesheet" type="text/css" href="../css/demo.css" />
     <link rel="stylesheet/less" type="text/css" href="../css/chart_style.less">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:700' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Lato:100,100italic' rel='stylesheet' type='text/css'>
     <script src="../js/less.js" type="text/javascript"></script>
     <!-- End demo page style sheets -->
 
@@ -52,6 +54,15 @@
         polyline.projected-cost, polyline.projected-revenue {
             stroke-dasharray: 8,4;
         }
+        rect.chart-bg {
+            fill: #fefefe; /* white color */
+            stroke: #f4f4f4;
+            stroke-width: 1px;
+        }
+        line.chart-grid {
+            stroke: #f4f4f4;
+            stroke-width: 1px;
+        }
         ]]>
     </style>
 </head>
@@ -61,12 +72,12 @@
     </header>
     <nav>
         <ul>
-            <li>Bar Fill Chart</li>
-            <li>Vertical Bar Chart</li>
-            <li>Chart type 3</li>
+            <li><a href="#bar-fill-chart">Bar Fill Chart</a></li>
+            <li><a href="#vertical-bar-chart">Vertical Bar Chart</a></li>
+            <li><a href="#line-chart">Line Chart</a></li>
         </ul>
     </nav>
-    <div>
+    <div id="bar-fill-chart">
         <h2>Bar Fill Chart</h2>
         <p>The chart description goes here</p>
         <div class="lotus-charts horizontal-bar-chart" rel="55000">
@@ -109,7 +120,7 @@
             <!-- End automatically generated code -->
         </div>
     </div>
-    <div>
+    <div id="vertical-bar-chart">
         <h2>Vertical Bar Charts</h2>
         <p>The chart description goes here</p>
         <div class="lotus-charts vertical-bar-chart" rel="300">
@@ -282,7 +293,7 @@
             </div>
         </div>
     </div>
-    <div>
+    <div id="line-chart">
         <h2>Line Chart</h2>
         <p>The chart description goes here</p>
         <div id="line-chart-set-01" class="lotus-charts line-chart">

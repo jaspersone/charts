@@ -811,7 +811,7 @@ LineChart.prototype.addLine = function(line) {
         if (minMax.length > 0) {
             this.minValue = this.minValue ? Math.min(this.minValue, minMax[0]) : minMax[0];
             this.maxValue = this.maxValue ? Math.max(this.maxValue, minMax[1]) : minMax[1];
-            if (TESTING) {
+            if (TESTING && DEBUG) {
                 console.log("minValue set to: " + this.minValue);
                 console.log("maxValue set to: " + this.maxValue);
             }
@@ -914,8 +914,14 @@ LineChart.prototype.appendChartTo = function(target) {
                        chartHeight + '>\n';
     var closeSVGTag = '</svg>\n';
 
+    // build chart bg and labels
+    // TODO: ADD background and labels here
+    var chartBG = '<rect class="chart-bg" x="0" y="0" width="100%" height="100%" />';
+    var chartGrids = "";
+    var chartLabels = "";
+
     // build chart body
-    var chartBody = [];
+    var chartBody = [chartBG];
     for (var i = 0; i < this.lines.length; i++) {
         var lineString = this.lines[i].getLineString();
         if (TESTING && DEBUG) {
@@ -923,7 +929,7 @@ LineChart.prototype.appendChartTo = function(target) {
             console.log("Iteration i: " + i);
             console.log("Data for " + this.lines[i].className + ": " + this.lines[i].data);
         }
-        chartBody.push(lineString);
+        chartBody.push('<g class="group-' + i + '">' +lineString + "</g>");
     }
     if (TESTING && DEBUG) console.log("<<<< After lines loop >>>>");
     chartBody = chartBody.join('\n') + '\n';
@@ -940,10 +946,7 @@ function Line(parentChart, idName, className, data, radius) {
     this.parentChart= parentChart ? parentChart : null;
     this.idName     = idName      ? idName      : null;
     this.className  = className   ? className   : null;
-    this.data       = data        ? data        : null;
-    if (!(this.data instanceof Array)) {
-        this.data = parseLineData(this.data);
-    }
+    this.data       = data && (this.data instanceof Array) ? data : parseLineData(data);
     this.circleRadius = radius    ? radius      : lineChart_circleRadius; 
 }
 
