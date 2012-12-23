@@ -24,6 +24,26 @@ var MOUSE_COORDS = [0,0]; // tracks user's mouse coordinates [x,y]
 var barIsEditable = false;
 var coordsOnMouseDown = [0,0];
 
+// TODO: Move this somewhere more permanent
+var innerShadowDef = "\
+<defs>\
+    <filter id='inner-shadow'>\
+    <!-- Shadow Offset -->\
+    <feOffset dx='0' dy='1'/>\
+    <!-- Shadow Blur -->\
+    <feGaussianBlur stdDeviation='2' result='offset-blur' />\
+    <!-- Invert the drop shadow to create an inner shadow -->\
+    <feComposite operator='out' in='SourceGraphic' in2='offset-blur' result='inverse' />\
+    <!-- Color & Opacity -->\
+    <feFlood flood-color='black' flood-opacity='0.3' result='color' />\
+    <!-- Clip color inside shadow -->\
+    <feComposite operator='in' in='color' in2='inverse' result='shadow' />\
+    <!-- Put shadow over original object -->\
+    <feComposite operator='over' in='shadow' in2='SourceGraphic' />\
+    </filter>\
+</defs>"
+
+
 /************************************
 * Screen Information  	   	 	    *
 ************************************/
@@ -911,17 +931,79 @@ LineChart.prototype.appendChartTo = function(target) {
                        getIdString(this.id) + ' ' + 
                        basicSVGSettings + ' ' +
                        chartWidth + ' ' +
-                       chartHeight + '>\n';
+                       chartHeight + '>\n' +
+                       innerShadowDef + '\n';
     var closeSVGTag = '</svg>\n';
 
     // build chart bg and labels
     // TODO: ADD background and labels here
+    var labelOffset = 4;
+    var minLabelSpace = 20;
     var chartBG = '<rect class="chart-bg" x="0" y="0" width="100%" height="100%" />';
-    var chartGrids = "";
-    var chartLabels = "";
+    var chartNeg = '';
+    var chartLabels = '';
+    var chartGrids;
+    var gridY;
+    var labelZeroPos;
+    var y = calculateYPixel(0, this.minValue, this.maxValue, this.pixelHeight);
+
+    // if we have min, max, and pixel height,calculate and draw negative area
+    if (this.minValue && this.minValue < 0 && this.maxValue & this.pixelHeight) {
+        if (TESTING) {
+            console.log("!!! Drawing negative rectangle !!!");
+            console.log("minValue:    " + this.minValue);
+            console.log("maxValue:    " + this.maxValue);
+            console.log("pixelHeight: " + this.pixelHeight);
+        }
+        
+        labelZeroPos = y - labelOffset;
+        // grid lines
+        gridY = y / 2;
+        // see if there is enough space to worry about a negative splitting line
+        if (y / this.pixelHeight < .7) {
+            var gridYNeg = y + Math.round(((this.pixelHeight - y) / 2));
+            var labelNegPos = gridYNeg - labelOffset;
+            var labelValue = Math.round(this.minValue / 2);
+            chartGrids += '<line class="chart-grid" x1="0" x2="100%" y1="' +
+                           gridYNeg + '" y2="' + gridYNeg + '" />';
+            chartLabels += '<text class="chart-label" x="4" y="' + labelNegPos + '">' +
+                            labelValue + '</text>';
+        }
+
+        var h = this.pixelHeight - y; 
+        chartNeg = '<rect class="chart-neg-bg" filter="url(#inner-shadow)" x="0" y="' +
+                    y + '" width="100%" height="' + h + 'px" />';
+    } else {
+        gridY = Math.round(this.pixelHeight / 2);
+        labelZeroPos = this.pixelHeight - labelOffset;
+    }
+    
+    // only draw positive half line if the positive portion of the chart
+    // takes more than 30% of the chart's space
+    if (y / this.pixelHeight > .3) {
+        var labelPos = gridY - labelOffset;
+        var labelValue = Math.round(this.maxValue / 2);
+        chartGrids += '<line class="chart-grid" x1="0" x2="100%" y1="' +
+                       gridY + '" y2="' + gridY + '" />';
+        chartLabels += '<text class="chart-label" x="4" y="' + labelPos + '">' +
+                        labelValue + '</text>';
+    }
+
+    // always label the zero line
+    chartLabels += '<text class="chart-label" x="4" y="' + labelZeroPos + '">0</text>';
+    
+    // TODO: FINISH WRITING THIS SECTION
+    // label min if there is enough space to do so
+    if (this.pixelHeight - y > minLabelSpace) {
+
+    }
+    // label max if there is enough space to do so
+    if (y > minLabelSpace) {
+
+    }
 
     // build chart body
-    var chartBody = [chartBG];
+    var chartBody = [chartBG, chartNeg, chartGrids, chartLabels];
     for (var i = 0; i < this.lines.length; i++) {
         var lineString = this.lines[i].getLineString();
         if (TESTING && DEBUG) {
