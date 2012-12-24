@@ -741,6 +741,9 @@ var lineChart_green = "#5bbc19";
 var lineChart_circleRadius = "6";
 var lineChart_strokeWidth = "2";
 
+var LABEL_OFFSET = 4;
+var MIN_LABEL_SPACE = getLineChartLabelHeight('chart-label') * 2;
+
 // params: id       - the dom object id name
 //         start    - the start date, formatted as a date string (YYYY/MM/DD)
 //         end      - the end date, formatted as a date string(YYYY/MM/DD)
@@ -936,9 +939,6 @@ LineChart.prototype.appendChartTo = function(target) {
     var closeSVGTag = '</svg>\n';
 
     // build chart bg and labels
-    // TODO: ADD background and labels here
-    var labelOffset = 4;
-    var minLabelSpace = 20;
     var chartBG = '<rect class="chart-bg" x="0" y="0" width="100%" height="100%" />';
     var chartNeg = '';
     var chartLabels = '';
@@ -956,13 +956,13 @@ LineChart.prototype.appendChartTo = function(target) {
             console.log("pixelHeight: " + this.pixelHeight);
         }
         
-        labelZeroPos = y - labelOffset;
+        labelZeroPos = y - LABEL_OFFSET;
         // grid lines
         gridY = y / 2;
         // see if there is enough space to worry about a negative splitting line
         if (y / this.pixelHeight < .7) {
             var gridYNeg = y + Math.round(((this.pixelHeight - y) / 2));
-            var labelNegPos = gridYNeg - labelOffset;
+            var labelNegPos = gridYNeg - LABEL_OFFSET;
             var labelValue = Math.round(this.minValue / 2);
             chartGrids += '<line class="chart-grid" x1="0" x2="100%" y1="' +
                            gridYNeg + '" y2="' + gridYNeg + '" />';
@@ -975,13 +975,13 @@ LineChart.prototype.appendChartTo = function(target) {
                     y + '" width="100%" height="' + h + 'px" />';
     } else {
         gridY = Math.round(this.pixelHeight / 2);
-        labelZeroPos = this.pixelHeight - labelOffset;
+        labelZeroPos = this.pixelHeight - LABEL_OFFSET;
     }
     
     // only draw positive half line if the positive portion of the chart
     // takes more than 30% of the chart's space
     if (y / this.pixelHeight > .3) {
-        var labelPos = gridY - labelOffset;
+        var labelPos = gridY - LABEL_OFFSET;
         var labelValue = Math.round(this.maxValue / 2);
         chartGrids += '<line class="chart-grid" x1="0" x2="100%" y1="' +
                        gridY + '" y2="' + gridY + '" />';
@@ -992,14 +992,21 @@ LineChart.prototype.appendChartTo = function(target) {
     // always label the zero line
     chartLabels += '<text class="chart-label" x="4" y="' + labelZeroPos + '">0</text>';
     
-    // TODO: FINISH WRITING THIS SECTION
     // label min if there is enough space to do so
-    if (this.pixelHeight - y > minLabelSpace) {
-
+    if (this.pixelHeight - y > MIN_LABEL_SPACE) {
+        var lineHeight = this.pixelHeight - LABEL_OFFSET; 
+        chartLabels += '<text class="chart-label" x="' + LABEL_OFFSET + '" y="' +
+                        lineHeight + '">' + this.minValue + '</text>';
     }
+    // TODO: see if there is a better way to do this
     // label max if there is enough space to do so
-    if (y > minLabelSpace) {
+    if (y > MIN_LABEL_SPACE) {
+        // get height
+        var tempHeight = getLineChartLabelHeight('chart-label'); 
+        var lineHeight = LABEL_OFFSET + tempHeight;
 
+        chartLabels += '<text class="chart-label" x="' + LABEL_OFFSET + '" y="' +
+                        lineHeight + '">' + this.maxValue + '</text>';
     }
 
     // build chart body
@@ -1020,6 +1027,18 @@ LineChart.prototype.appendChartTo = function(target) {
     $target.append(chartString);
 }
 
+// params: className - the className that identifies the label type
+// return: an integer that represents the label height
+// this function depends on the fact that the label size will be
+// determined either by the body 'font-size' css property or the
+// <text class="className" ...> 'font-size' properly
+function getLineChartLabelHeight(className) {
+    // get height
+    var $temp = $('<text class="' + className + '" x="0" y="0"></text>');
+    var tempHeight = parseInt($temp.css('font-size')) ? parseInt($temp.css('font-size')) : parseInt($('body').css('font-size')); 
+    delete $temp;
+    return tempHeight;
+}
 // params: parent - a LineChart object that owns this line
 //         idName - the unique ID of this line (used for reference
 //         className - a class name to assign to this line for styling
