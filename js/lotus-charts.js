@@ -1455,16 +1455,15 @@ $(document).ready(function() {
     $(".lotus-charts.horizontal-bar-chart").each(function() {
         zeroOutBars($(this));
     });
-
+    
+    // start up vertical bar charts
+    startVerticalBarCharts();
 });
 
 $(window).load(function() {
     // start up horizontal bar charts
     startHorizontalBarCharts();
  
-    // start up vertical bar charts
-    startVerticalBarCharts();
-
     // start up line charts
     startLineCharts();
 });
