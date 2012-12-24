@@ -127,7 +127,7 @@ function getCookie(name) {
     var cookieDict = document.cookie.split(';');
     for (var i = 0; i < cookieDict.length; i++) { 
         var current = cookieDict[i];
-        while (current.charAt(0)==' ') { // TODO: refactor this loop, replace with regex
+        while (current.charAt(0)==' ') { 
             current = current.substring(1,current.length);
         }
         if (current.indexOf(key) == 0) {
@@ -172,7 +172,12 @@ function getCurrentMouseCoords() {
     return [MOUSE_COORDS[0], MOUSE_COORDS[1]];
 }
 
-// TODO: write documentation
+// params: maxPixel      - chart's pixel height
+//         maxChartValue - chart's maximum value
+//         chartValue    - the value you are looking for the rounded pixel from
+// return: a rounded pixel location of the current point based upon the ratio
+//         between the chartValue to the maxChartValue
+// TODO: NOTE: this does not currently support negative values
 function getNearestPixel(maxPixels, maxChartValue, chartValue) {
     return Math.floor((chartValue / maxChartValue) * maxPixels);
 }
@@ -229,6 +234,7 @@ function setChartScaleMax($chart, newValue) {
 }
 
 // TODO: need to refactor for efficiency
+// TODO: write documentation
 function getBestIncrement(maxValue, pixels) {
     // get height of the container
     var power = Math.floor(Math.log(maxValue / pixels) / Math.log(10)); // TODO: figure out the math
@@ -236,12 +242,16 @@ function getBestIncrement(maxValue, pixels) {
 }
 
 // TODO: refactor and document
+// Normalized value
 function normalizeValue(value) {
     var normalizedValue;
     var metric;
-    if (value > 999999999999) { // trillions
+    if (value > 999999999999999) { // quadrillion
+        metric = "Q";
+        normalizedValue = value / 1000000000000000;
+    } else if (value > 999999999999) { // trillions
         metric = "T";
-        normalizedValue = value / 1000000000;
+        normalizedValue = value / 1000000000000;
     } else if (value > 999999999) { // billions
         metric = "G";
         normalizedValue = value / 1000000000;
@@ -313,7 +323,6 @@ function calculateNewMaxChartValue (currValue) {
 // params: $chart - the jquery object that represents the chart's outer wrapper
 //         chartMax - the adjusted max value of the chart
 // return: none
-// behavior: given the new chart
 function rescaleAxis($chart, chartMax) {
     debounce(function() {
         var $chartScaleSegments = ($chart).find(".chart-scale").children();
@@ -341,6 +350,9 @@ function rescaleAxis($chart, chartMax) {
     }, 500, "rescale vertical bar access");
 }
 
+// params: $chart - the jquery object that represents the chart's outer wrapper
+//         chartMax - the adjusted max value of the chart
+// return: none
 function resizeBars($chart, chartMax) {
     var animationTime = 1000;
     var $chartBars = ($chart).find(".bar");
@@ -384,8 +396,7 @@ function animateHorizontalBar($chart, animationTime) {
 
     var valueString = pixelWidth + "px";
     
-    $marker.css("left", "0px");
-    $bar.css("width", "0px");
+    zeroOutBars($chart);
 
     $marker.animate({left: valueString,}, animationTime, "swing");
     $bar.animate({width: valueString,}, animationTime, "swing");
@@ -400,6 +411,12 @@ function animateHorizontalBar($chart, animationTime) {
     }
 }
 
+function zeroOutBars($chart) {
+    var $marker = ($chart).find(".chart-marker");
+    var $bar    = ($chart).find(".fill");
+    $marker.css("left", "0px");
+    $bar.css("width", "0px");
+}
 /************************************
 * Vertical Bar Charts               *
 ************************************/
@@ -1084,7 +1101,6 @@ Line.prototype.getLineString = function() {
     return lineString.join("\n");
 }
 
-// TODO: write this
 // params: chart - the parent chart that the line data belongs to
 //         data  - an array representation of the line data
 // return: the calculated points, based upon the chart dimensions
@@ -1165,6 +1181,8 @@ function getLineChartsFromID(parentNodeID) {
 
 // params: none
 // return: an array of LineCharts
+// goes through dom and finds all line charts and creates object
+// representation of them
 function getLineCharts() {
     // get charts from all
     var charts = []
@@ -1201,9 +1219,7 @@ function getLineCharts() {
                 var idName;
                 var className;
                 var data;
-                if (TESTING && DEBUG) {
-                    console.log("<<<< ADDING KEYS: " + keys + " >>>>");
-                }
+
                 for (k in keys) {
                     idName = "line-" + k;
                     if (id) {
@@ -1219,6 +1235,7 @@ function getLineCharts() {
                 }
 
                 if (TESTING && DEBUG) {
+                    console.log("<<<< ADDING KEYS: " + keys + " >>>>");
                     console.log("  << linesIn contains: " + linesIn.length + " lines >>");
                 }
 
@@ -1234,7 +1251,6 @@ function getLineCharts() {
     return charts;
 }
 
-// TODO: Write this
 // params: data - a string which is formatted as follows:
 //
 //  [
@@ -1435,6 +1451,14 @@ $(document).ready(function() {
         makeClickableiOS();
     }
 
+    // zero out all horizontal bar charts
+    $(".lotus-charts.horizontal-bar-chart").each(function() {
+        zeroOutBars($(this));
+    });
+
+});
+
+$(window).load(function() {
     // start up horizontal bar charts
     startHorizontalBarCharts();
  
