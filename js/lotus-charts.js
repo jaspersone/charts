@@ -741,9 +741,6 @@ var lineChart_green = "#5bbc19";
 var lineChart_circleRadius = "6";
 var lineChart_strokeWidth = "2";
 
-var LABEL_OFFSET = 4;
-var MIN_LABEL_SPACE = getLineChartLabelHeight('chart-label') * 2;
-
 // params: id       - the dom object id name
 //         start    - the start date, formatted as a date string (YYYY/MM/DD)
 //         end      - the end date, formatted as a date string(YYYY/MM/DD)
@@ -812,6 +809,7 @@ function LineChart(id, start, end, height, segWidth, linesIn, parentNode) {
     }
 }
 
+// TODO: write documentation
 LineChart.prototype.addLine = function(line) {
     if (line instanceof Line) {
         line.parentChart = this;
@@ -872,6 +870,8 @@ function parseLineData(dataString) {
     return data; 
 }
 
+// params: line - a Line object that contains data points
+// return: a tuple array that contains the [min, max] int values
 function getMinMaxFromLine(line) {
     var result = [];
     if (line.data.length > 0) {
@@ -939,6 +939,9 @@ LineChart.prototype.appendChartTo = function(target) {
     var closeSVGTag = '</svg>\n';
 
     // build chart bg and labels
+    var LABEL_OFFSET = 4;
+    var MIN_LABEL_SPACE = getLineChartLabelHeight('chart-label') * 2;
+
     var chartBG = '<rect class="chart-bg" x="0" y="0" width="100%" height="100%" />';
     var chartNeg = '';
     var chartLabels = '';
