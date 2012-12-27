@@ -1,0 +1,50 @@
+polyline {
+    fill: none;
+    stroke-width: 2;
+    stroke: #ddd; /* default color */
+}
+circle {
+    stroke-width: 2;
+    stoke: #aaa; /* default color */
+}
+
+/* CUSTOM CLASSES */
+circle.cost {
+    fill: #6dafe1; /* blue color */
+}
+circle.revenue {
+    fill: #5bbc19;
+}
+circle.projected-cost, circle.projected-revenue {
+    fill: #fff; /* white color */
+}
+polyline.cost, circle.cost,
+polyline.projected-cost, circle.projected-cost {
+    stroke: #6dafe1; /* blue color */
+}
+polyline.revenue, circle.revenue,
+polyline.projected-revenue, circle.projected-revenue {
+    stroke: #5bbc19; /* green color */
+}
+polyline.projected-cost, circle.projected-cost,
+polyline.projected-revenue, circle.projected-revenue {
+    opacity: .5;
+}
+polyline.projected-cost, polyline.projected-revenue {
+    stroke-dasharray: 8,4;
+}
+rect.chart-bg {
+    fill: #fefefe; /* off-white color */
+    stroke: #f4f4f4;
+    stroke-width: 1px;
+}
+rect.chart-neg-bg {
+    fill: #fafafa; /* gray */
+}
+line.chart-grid {
+    stroke: #f4f4f4;
+    stroke-width: 1px;
+}
+text.chart-label {
+    fill: #aaa; /* gray */
+}

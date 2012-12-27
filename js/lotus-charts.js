@@ -824,6 +824,7 @@ function LineChart(id, start, end, height, segWidth, linesIn, parentNode) {
             console.log("Type found: undefined");
         }
     }
+    this.zeroPos = calculateYPixel(0, this.minValue, this.maxValue, this.pixelHeight);
 }
 
 // TODO: write documentation
@@ -965,23 +966,22 @@ LineChart.prototype.appendChartTo = function(target) {
     var chartGrids;
     var gridY;
     var labelZeroPos;
-    var y = calculateYPixel(0, this.minValue, this.maxValue, this.pixelHeight);
 
     // if we have min, max, and pixel height,calculate and draw negative area
     if (this.minValue && this.minValue < 0 && this.maxValue & this.pixelHeight) {
         if (TESTING) {
-            console.log("!!! Drawing negative rectangle !!!");
+            console.log("<<<< Drawing negative rectangle >>>>");
             console.log("minValue:    " + this.minValue);
             console.log("maxValue:    " + this.maxValue);
             console.log("pixelHeight: " + this.pixelHeight);
         }
         
-        labelZeroPos = y - LABEL_OFFSET;
+        labelZeroPos = this.zeroPos - LABEL_OFFSET;
         // grid lines
-        gridY = y / 2;
+        gridY = this.zeroPos / 2;
         // see if there is enough space to worry about a negative splitting line
-        if (y / this.pixelHeight < .7) {
-            var gridYNeg = y + Math.round(((this.pixelHeight - y) / 2));
+        if (this.zeroPos / this.pixelHeight < .7) {
+            var gridYNeg = this.zeroPos + Math.round(((this.pixelHeight - this.zeroPos) / 2));
             var labelNegPos = gridYNeg - LABEL_OFFSET;
             var labelValue = Math.round(this.minValue / 2);
             chartGrids += '<line class="chart-grid" x1="0" x2="100%" y1="' +
@@ -990,9 +990,9 @@ LineChart.prototype.appendChartTo = function(target) {
                             labelValue + '</text>';
         }
 
-        var h = this.pixelHeight - y; 
+        var h = this.pixelHeight - this.zeroPos; 
         chartNeg = '<rect class="chart-neg-bg" filter="url(#inner-shadow)" x="0" y="' +
-                    y + '" width="100%" height="' + h + 'px" />';
+                    this.zeroPos + '" width="100%" height="' + h + 'px" />';
     } else {
         gridY = Math.round(this.pixelHeight / 2);
         labelZeroPos = this.pixelHeight - LABEL_OFFSET;
@@ -1000,7 +1000,7 @@ LineChart.prototype.appendChartTo = function(target) {
     
     // only draw positive half line if the positive portion of the chart
     // takes more than 30% of the chart's space
-    if (y / this.pixelHeight > .3) {
+    if (this.zeroPos / this.pixelHeight > .3) {
         var labelPos = gridY - LABEL_OFFSET;
         var labelValue = Math.round(this.maxValue / 2);
         chartGrids += '<line class="chart-grid" x1="0" x2="100%" y1="' +
@@ -1013,14 +1013,14 @@ LineChart.prototype.appendChartTo = function(target) {
     chartLabels += '<text class="chart-label" x="4" y="' + labelZeroPos + '">0</text>';
     
     // label min if there is enough space to do so
-    if (this.pixelHeight - y > MIN_LABEL_SPACE) {
+    if (this.pixelHeight - this.zeroPos > MIN_LABEL_SPACE) {
         var lineHeight = this.pixelHeight - LABEL_OFFSET; 
         chartLabels += '<text class="chart-label" x="' + LABEL_OFFSET + '" y="' +
                         lineHeight + '">' + this.minValue + '</text>';
     }
     // TODO: see if there is a better way to do this
     // label max if there is enough space to do so
-    if (y > MIN_LABEL_SPACE) {
+    if (this.zeroPos > MIN_LABEL_SPACE) {
         // get height
         var tempHeight = getLineChartLabelHeight('chart-label'); 
         var lineHeight = LABEL_OFFSET + tempHeight;
@@ -1072,12 +1072,23 @@ function Line(parentChart, idName, className, data, radius) {
 }
 
 Line.prototype.getLineString = function() {
-    var myId    = getIdString(this.idName);
-    var myClass = getClassString(this.className);
-    var rawPoints = formatLineData(this.parentChart, this.data);
-    var points  = 'points="' + rawPoints.join(' ') + '"';
-    var lineString = ['<polyline fill="none" ' + myId + myClass + points + ' />']
+    var myId        = getIdString(this.idName);
+    var myClass     = getClassString(this.className);
+    var rawPoints   = formatLineData(this.parentChart, this.data);
+    var rawZeroPoints = formatZeroLineData(this.parentChart, this.data);
+    var points      = rawPoints.join(' ');
+    var zeroPoints  = rawZeroPoints.join(' ');
+    var lineString  = ['<polyline fill="none" ' + myId + myClass + 'points="' + zeroPoints + '">']
     
+    var animateString = '<animate attributeName="points"\
+                                  attributeType="XML"\
+                                  calcMode="linear"\
+                                  begin="0s" dur="5s"\
+                                  fill="freeze"\
+                                  repeatCount="1"\
+                                  to="' + points + '" />';
+    lineString.push(animateString);
+    lineString.push('</polyline>');
     var circle;
     var coords;
     if (TESTING && DEBUG) {
@@ -1135,6 +1146,48 @@ function formatLineData(chart, data) {
         } else {
             y = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
             points.push((segWidth * i + offset).toString() + "," + y.toString());
+        }
+    }
+    if (TESTING && DEBUG) {
+        console.log("chartMinValue: " + chartMinValue);
+        console.log("chartMaxValue: " + chartMaxValue);
+        console.log("ChartHeight:   " + chartHeight);
+        console.log("segWidth:      " + segWidth);
+        console.log("Points: " + points);
+    }
+    return points;
+}
+
+function formatZeroLineData(chart, data) {
+    if (!(data instanceof Array)) {
+        if (TESTING) {
+            console.log("!!!! FOUND AN LINE WITH DATA NOT REPRESENTED AS AN ARRAY !!!!");
+        }
+        return null;
+    }
+    var chartMinValue = chart.minValue;
+    var chartMaxValue = chart.maxValue;
+    var chartHeight   = chart.pixelHeight;
+    var segWidth      = chart.segmentPixelWidth;
+    var zeroP         = chart.zeroPos;
+    var points        = [];
+    var offset        = 0;
+    var value;
+    for (i = 0; i < data.length; i++) {
+        value = data[i];
+        if (value[0] === "(" || value[0] === "[" || value[0] === "{") {
+            // note subtract and extra 1 from the length to make up for
+            // i offset by his additional piece of information
+            // subtract another 1 for the place taken by the offset value
+            // total subtraction should be 2
+            offset = (parseInt(value.replace(new RegExp(/[^\d]/g), "")) - 2) * segWidth;
+            if (TESTING && DEBUG) {
+                console.log("<<<< FINDING OFFSET >>>>");
+                console.log("  Original value:         " + value);
+                console.log("  Found an offset amount: " + offset);
+            }
+        } else {
+            points.push((segWidth * i + offset).toString() + "," + zeroP.toString());
         }
     }
     if (TESTING && DEBUG) {
@@ -1412,7 +1465,6 @@ function calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight) {
 /************************************
 * Main                              *
 ************************************/
-// Main function calls
 $(document).ready(function() {
 
 	// get screen information
