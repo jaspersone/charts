@@ -625,29 +625,29 @@ function setupBubbleLabels() {
 }
 
 function setBubbleLabel($bubble) {
-        var $bar    = $bubble.closest(".bar");
-        var $chart  = $bar.closest(".vertical-bar-chart");
-        var value = parseInt($bubble.children(".edit-bubble").children("input").val().replace(/[^0-9\.]+/g, ''));
-        // TODO: send value to db
-        
-        // update bubble label
-        updateBubbleLabelFromValue($bubble, value);
+    var $bar    = $bubble.closest(".bar");
+    var $chart  = $bar.closest(".vertical-bar-chart");
+    var value = parseInt($bubble.children(".edit-bubble").children("input").val().replace(/[^0-9\.]+/g, ''));
+    // TODO: send value to db
+    
+    // update bubble label
+    updateBubbleLabelFromValue($bubble, value);
 
-        // update bar value
-        setBarValue($bar, value);
-        if (value > verticalBarScaleMax) {
-            $bar.removeClass("edited-bar").addClass("edited-bar");
-            findAndAssignMax(($chart).find(".bar"));
-            rescaleChart($chart);
-        } else {
-            findAndAssignMax(($chart).find(".bar"));
-            doRescale($chart);
-        }
+    // update bar value
+    setBarValue($bar, value);
+    if (value > verticalBarScaleMax) {
+        $bar.removeClass("edited-bar").addClass("edited-bar");
+        findAndAssignMax(($chart).find(".bar"));
+        rescaleChart($chart);
+    } else {
+        findAndAssignMax(($chart).find(".bar"));
+        doRescale($chart);
+    }
 
-        $bubble.fadeOut(100);
-        window.setTimeout(function() {
-            $bubble.removeClass("open").fadeIn(100);
-        }, 100);
+    $bubble.fadeOut(100);
+    window.setTimeout(function() {
+        $bubble.removeClass("open").fadeIn(100);
+    }, 100);
 }
 
 function updateBubbleLabelFromValue($bubble, value) {
@@ -1078,8 +1078,6 @@ Line.prototype.getLineString = function() {
     var rawZeroPoints = formatZeroLineData(this.parentChart, this.data);
     var points      = rawPoints.join(' ');
     var zeroPoints  = rawZeroPoints.join(' ');
-    var lineString  = ['<polyline fill="none" ' + myId + myClass + 'points="' + zeroPoints + '">']
-    
     var animateString = '<animate attributeName="points"\
                                   attributeType="XML"\
                                   calcMode="linear"\
@@ -1087,8 +1085,12 @@ Line.prototype.getLineString = function() {
                                   fill="freeze"\
                                   repeatCount="1"\
                                   to="' + points + '" />';
+
+    // TODO: FIX THIS SECTION TO HAVE POINTS START OUT AT zeroPoints and then move to points
+    var lineString  = ['<polyline fill="none" ' + myId + myClass + 'points="' + points + '">']
     lineString.push(animateString);
     lineString.push('</polyline>');
+    
     var circle;
     var coords;
     if (TESTING && DEBUG) {
