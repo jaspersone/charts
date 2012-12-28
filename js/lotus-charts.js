@@ -1078,16 +1078,17 @@ Line.prototype.getLineString = function() {
     var rawZeroPoints = formatZeroLineData(this.parentChart, this.data);
     var points      = rawPoints.join(' ');
     var zeroPoints  = rawZeroPoints.join(' ');
-    var animateString = '<animate attributeName="points"\
-                                  attributeType="XML"\
-                                  calcMode="linear"\
-                                  begin="0s" dur="5s"\
-                                  fill="freeze"\
-                                  repeatCount="1"\
-                                  to="' + points + '" />';
 
     // TODO: FIX THIS SECTION TO HAVE POINTS START OUT AT zeroPoints and then move to points
-    var lineString  = ['<polyline fill="none" ' + myId + myClass + 'points="' + points + '">']
+    var lineString  = ['<polyline fill="none" ' + myId + myClass + 'points="' + zeroPoints + '">']
+    var animateString = '<animate attributeName="points" \
+                                  attributeType="XML" \
+                                  calcMode="linear" \
+                                  begin="0s" dur="1.5s" \
+                                  fill="freeze" \
+                                  repeatCount="1" \
+                                  from="' + zeroPoints + '" \
+                                  to="' + points + '" />';
     lineString.push(animateString);
     lineString.push('</polyline>');
     
@@ -1108,7 +1109,17 @@ Line.prototype.getLineString = function() {
 
     for (var i = 0; i < rawPoints.length; i++) {
         coords = rawPoints[i].split(",");
-        lineString.push('<circle ' + myClass + 'cx="' + $.trim(coords[0]) + '" ' + 'cy="' + $.trim(coords[1]) + '" ' + 'r="' + this.circleRadius + '" />');
+        lineString.push('<circle ' + myClass + 'cx="' + $.trim(coords[0]) + '" ' + 'cy="' + $.trim(coords[1]) + '" ' + 'r="' + this.circleRadius + '">');
+        animateString = '<animate attributeName="cy" \
+                                  attributeType="XML" \
+                                  calcMode="linear" \
+                                  begin="0s" dur="1.5s" \
+                                  fill="freeze" \
+                                  repeatCount="1" \
+                                  from="' + this.parentChart.zeroPos + '" \
+                                  to="' + $.trim(coords[1]) + '" />';
+        lineString.push(animateString);
+        lineString.push('</circle>');
     }
     
     return lineString.join("\n");
