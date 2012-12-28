@@ -89,8 +89,7 @@ function run_() {
 /*
 function test_() {
     var testName = "";
-    var expected;
-    var actual;
+    var expected, actual;
 
     // you should assign expected and actual values here
 
@@ -121,8 +120,7 @@ function run_getNearestValueTests() {
 
 function test_getNearestValue1() {
     var testName = "getNearestValue() - Basic rounding down";
-    var expected;
-    var actual;
+    var expected, actual;
 
     var maxPixel = 300;
     var maxChartValue = 300;
@@ -136,8 +134,7 @@ function test_getNearestValue1() {
 
 function test_getNearestValue2() {
     var testName = "getNearestValue() - Basic no rounding needed";
-    var expected;
-    var actual;
+    var expected, actual;
 
     // you should assign expected and actual values here
     var maxPixel = 300;
@@ -153,8 +150,7 @@ function test_getNearestValue2() {
 
 function test_getNearestValue3() {
     var testName = "getNearestValue() - Basic rounding needed";
-    var expected;
-    var actual;
+    var expected, actual;
 
     // you should assign expected and actual values here
     var maxPixel = 300;
@@ -184,8 +180,7 @@ function run_getNearestPixel() {
 
 function test_getNearestPixel1() {
     var testName = "getNearestPixel() - Basic no rounding needed, one to one scale";
-    var expected;
-    var actual;
+    var expected, actual;
 
     // you should assign expected and actual values here
     var maxPixel = 300;
@@ -200,8 +195,7 @@ function test_getNearestPixel1() {
 
 function test_getNearestPixel2() {
     var testName = "getNearestPixel() - Basic no rounding needed, double scale";
-    var expected;
-    var actual;
+    var expected, actual;
 
     // you should assign expected and actual values here
     var maxPixel = 300;
@@ -216,8 +210,7 @@ function test_getNearestPixel2() {
 
 function test_getNearestPixel3() {
     var testName = "getNearestPixel() - Basic rounding needed";
-    var expected;
-    var actual;
+    var expected, actual;
 
     // you should assign expected and actual values here
     var maxPixel = 300;
@@ -324,8 +317,7 @@ function run_getBestIncrement() {
 
 function test_getBestIncrement1() {
     var testName = "getBestIncrement() - less than 1 to 1";
-    var expected;
-    var actual;
+    var expected, actual;
 
     var maxValue = 100;
     var pixelHeight = 300;
@@ -339,8 +331,7 @@ function test_getBestIncrement1() {
 
 function test_getBestIncrement2() {
     var testName = "getBestIncrement() - basic 1 to 1";
-    var expected;
-    var actual;
+    var expected, actual;
 
     var maxValue = 300;
     var pixelHeight = 300;
@@ -354,8 +345,7 @@ function test_getBestIncrement2() {
 
 function test_getBestIncrement3() {
     var testName = "getBestIncrement() - basic 1 to 10";
-    var expected;
-    var actual;
+    var expected, actual;
 
     var maxValue = 3000;
     var pixelHeight = 300;
@@ -369,8 +359,7 @@ function test_getBestIncrement3() {
 
 function test_getBestIncrement4() {
     var testName = "getBestIncrement() - large numbers";
-    var expected;
-    var actual;
+    var expected, actual;
 
     var maxValue = 5450000;
     var pixelHeight = 300;
@@ -384,8 +373,7 @@ function test_getBestIncrement4() {
 
 function test_getBestIncrement5() {
     var testName = "getBestIncrement() - very large and complicated numbers";
-    var expected;
-    var actual;
+    var expected, actual;
 
     var maxValue = 123748975632347;
     var pixelHeight = 300;
@@ -416,8 +404,7 @@ function run_calculateYPixel() {
 
 function test_calculateYPixel1() {
     var testName = "calculateYPixel() - simple case";
-    var expected;
-    var actual;
+    var expected, actual;
 
     var value = 0;
     var chartMinValue = 0;
@@ -433,8 +420,7 @@ function test_calculateYPixel1() {
 
 function test_calculateYPixel2() {
     var testName = "calculateYPixel() - simple case 2";
-    var expected;
-    var actual;
+    var expected, actual;
 
     var value = 100;
     var chartMinValue = 0;
@@ -450,8 +436,7 @@ function test_calculateYPixel2() {
 
 function test_calculateYPixel3() {
     var testName = "calculateYPixel() - simple case 3";
-    var expected;
-    var actual;
+    var expected, actual;
 
     var value = 100;
     var chartMinValue = -100;
@@ -483,8 +468,7 @@ function run_LineChartTests() {
 
 function test_createLineChart() {
     var testName = "createLineChart() - create a new LineChart and testing parameters";
-    var expected;
-    var actual;
+    var expected, actual;
     
     expected = ["foo", 1980, 0, 500, 50, [-356,150]];
     var line1 = new Line(null, "foo1", "bar", "1 2 3 4 5 6 7 8 9 10 11 23 45");
@@ -500,8 +484,7 @@ function test_createLineChart() {
 
 function test_createLineChart_single_line() {
     var testName = "createLineChart_single_line() - create a new LineChart and testing parameters";
-    var expected;
-    var actual;
+    var expected, actual;
     
     expected = ["foo", 1980, 0, 500, 50, [1,2,3,4,5,6,7,8,9,10,11,23,45]];
     var line1 = new Line(null, "foo1", "bar", "1 2 3 4 5 6 7 8 9 10 11 23 45");
@@ -515,8 +498,7 @@ function test_createLineChart_single_line() {
 
 function test_createLineChart_no_lines() {
     var testName = "createLineChart_no_lines() - create a new LineChart and testing parameters";
-    var expected;
-    var actual;
+    var expected, actual;
     
     expected = ["foo", 1980, 0, 500, 50, 0];
     var testLineChart = new LineChart("foo", "1980/11/24", "2012/1/1", 500, 50);
@@ -529,8 +511,7 @@ function test_createLineChart_no_lines() {
 
 function test_LineChart_retrieve_chart_data() {
     var testName = "test_LineChart_retrieve_chart_data() - do the lines store correct data";
-    var expected;
-    var actual;
+    var expected, actual;
     
     var e1    = [1,2,3,4,5,6,7,8,9,10,11,23,45];
     var e2    = [1,2,3,-20,-30,-314,20,40,108];
@@ -545,8 +526,7 @@ function test_LineChart_retrieve_chart_data() {
 
 function test_LineChart_set_line_parent() {
     var testName = "test_LineChart_set_line_parent() - do the lines get updated to have correct parent";
-    var expected;
-    var actual;
+    var expected, actual;
     
     var line1 = new Line(null, "foo1", "bar", "1 2 3 4 5 6 7 8 9 10 11 23 45");
     var line2 = new Line(null, "foo2", "bar", "1 2 3 -20 -30 -314 20 40 108");
@@ -576,8 +556,7 @@ function run_LineTests() {
 
 function test_createLine_no_data() {
     var testName = "createLine_no_data() - create a new line without data";
-    var expected;
-    var actual;
+    var expected, actual;
     
     expected = [null, "foo", "bar", null];
     var testLine = new Line(null, "foo", "bar");
@@ -588,8 +567,7 @@ function test_createLine_no_data() {
 
 function test_createLine_with_data() {
     var testName = "createLine_with_data() - create a new line with data";
-    var expected;
-    var actual;
+    var expected, actual;
 
     expected = [null, "foo", "bar", [1,2,3]];
     var testLine = new Line(null, "foo", "bar", "1 2 3");
@@ -600,8 +578,7 @@ function test_createLine_with_data() {
 
 function test_Line_getLineString() {
     var testName = "test_Line_getLineString() - get proper svg string from line"
-    var expected;
-    var actual;
+    var expected, actual;
 
     expected = '<polyline class="foo" points="0,530 50,50" />\n<circle class="foo" cx="0" cy="530" r="6" />\n<circle class="foo" cx="50" cy="50" r="6" />'
     var temp = "20 50";
@@ -614,8 +591,7 @@ function test_Line_getLineString() {
 
 function test_Line_getLineString_with_offset() {
     var testName = "test_Line_getLineString_with_offset() - get proper svg string from line that has offset"
-    var expected;
-    var actual;
+    var expected, actual;
 
     expected = '<polyline class="foo" points="100,530 150,50" />\n<circle class="foo" cx="100" cy="530" r="6" />\n<circle class="foo" cx="150" cy="50" r="6" />'
     var testLine = new Line(null, null, "foo", "(2) 20 500");
@@ -627,8 +603,7 @@ function test_Line_getLineString_with_offset() {
 
 function test_parseData() {
     var testName = "test_parseData() - test that data is properly parsed into a dictionary"
-    var expected;
-    var actual;
+    var expected, actual;
 
     var data ="[\
                 {'ID'               :'line-graph-02'},\
@@ -654,8 +629,7 @@ function test_parseData() {
 
 function test_parseData_with_no_data() {
     var testName = "test_parseData_with_no_data() - see if parse data properly returns empty dictionary if data is empty"
-    var expected;
-    var actual;
+    var expected, actual;
 
     var empty = {}
     var temp = parseData();
@@ -663,6 +637,24 @@ function test_parseData_with_no_data() {
     actual   = [typeof(temp), Object.keys(temp).length];
 
     return printTest(testName, expected, actual);
+}
+
+/************************************
+* SVG Tween Tests                   *
+************************************/
+function run_svgTweenTests() {
+    var testGroupName = "SVG Tween Tests ";
+    var resultsArray = [0, 0];
+
+    // tests
+    sumResult(resultsArray, test_getTweenValues_null_values());
+    printGroupResults(testGroupName, resultsArray);
+}
+
+function test_getTweenValues_basic_null_values() {
+    var testName = "test_getTweenValues_basic_null_values()"
+    var expected, actual;
+    
 }
 
 /************************************
@@ -686,4 +678,5 @@ function startTests() {
     run_calculateYPixel();
     run_LineChartTests();
     run_LineTests();
+    run_svgTweenTests();
 }

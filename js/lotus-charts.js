@@ -1071,6 +1071,53 @@ function Line(parentChart, idName, className, data, radius) {
     this.circleRadius = radius    ? radius      : lineChart_circleRadius; 
 }
 
+// params: from - a string representation of the from values that the
+//                chart starts at
+//         to   - a string representation of the to values that the 
+//                chart ends at
+//         duration - the time in milliseconds for the animation to occur
+// return: an array of the tween values
+var LOTUS_FRAMES_PER_SECOND = 24;
+function getTweenValues(from, to, duration) {
+    if (TESTING) {
+        console.log("<<<< In getTweenValues() >>>>");
+        console.log("Frames per sec: " + FRAMES_PER_SECOND);
+        console.log("From values:    " + from);
+        console.log("To values:      " + to);
+        console.log("Duration:       " + duration);
+    }
+
+    // sanity checks
+    if (from && to) {
+        // type checking
+        if (typeof(from) != typeof(to)) {
+            if (TESTING) {
+                console.log("!!!! ERROR In getTweenValues: mismatched types, 'from' and 'to' not the same !!!!");
+                console.log("from type: " + typeof(from));
+                console.log("to type:   " + typeof(to));
+            }
+            return null;
+        }
+    } else {
+        if (TESTING) {
+            console.log("!!!! ERROR In getTweenValues: must provide values for from and to !!!!");
+        }
+    }
+
+    // type of 'from' and 'to' match
+    // handle strings
+
+    // expect from here on out arrays
+    
+
+    // convert arrays to strings
+
+    var tweenValues = [];
+    
+
+    return tweenValues; 
+}
+
 Line.prototype.getLineString = function() {
     var myId        = getIdString(this.idName);
     var myClass     = getClassString(this.className);
@@ -1080,17 +1127,19 @@ Line.prototype.getLineString = function() {
     var zeroPoints  = rawZeroPoints.join(' ');
 
     // TODO: FIX THIS SECTION TO HAVE POINTS START OUT AT zeroPoints and then move to points
-    var lineString  = ['<polyline fill="none" ' + myId + myClass + 'points="' + zeroPoints + '">']
-    var animateString = '<animate attributeName="points" \
-                                  attributeType="XML" \
-                                  calcMode="linear" \
-                                  begin="0s" dur="1.5s" \
-                                  fill="freeze" \
-                                  repeatCount="1" \
-                                  from="' + zeroPoints + '" \
-                                  to="' + points + '" />';
-    lineString.push(animateString);
-    lineString.push('</polyline>');
+    var lineString  = ['<polyline fill="none" ' + myId + myClass + 'points="' + zeroPoints + '" to="' + points  + '" />']
+
+    // This only works for Mozilla browsers and Opera
+    //var animateString = '<animate attributeName="points" \
+    //                              attributeType="XML" \
+    //                              calcMode="linear" \
+    //                              begin="0s" dur="1.5s" \
+    //                              fill="freeze" \
+    //                              repeatCount="1" \
+    //                              from="' + zeroPoints + '" \
+    //                              to="' + points + '" />';
+    //lineString.push(animateString);
+    //lineString.push('</polyline>');
     
     var circle;
     var coords;
@@ -1474,6 +1523,10 @@ function calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight) {
     }
     return yPosition;
 }
+
+/************************************
+* SVG Animation                     *
+************************************/
 
 /************************************
 * Main                              *
