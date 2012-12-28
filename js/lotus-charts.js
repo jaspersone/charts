@@ -1079,15 +1079,15 @@ function Line(parentChart, idName, className, data, radius) {
 // return: an array of the tween values
 var LOTUS_FRAMES_PER_SECOND = 24;
 function getTweenValues(from, to, duration) {
-    if (TESTING) {
+    if (TESTING && DEBUG) {
         console.log("<<<< In getTweenValues() >>>>");
-        console.log("Frames per sec: " + FRAMES_PER_SECOND);
+        console.log("Frames per sec: " + LOTUS_FRAMES_PER_SECOND);
         console.log("From values:    " + from);
         console.log("To values:      " + to);
         console.log("Duration:       " + duration);
     }
 
-    // sanity checks
+    // sanity check
     if (from && to) {
         // type checking
         if (typeof(from) != typeof(to)) {
@@ -1102,18 +1102,70 @@ function getTweenValues(from, to, duration) {
         if (TESTING) {
             console.log("!!!! ERROR In getTweenValues: must provide values for from and to !!!!");
         }
+        return null;
+    }
+    // type of 'from' and 'to' match
+    // handle strings by converting to array
+    if (typeof(from) === "string") {
+        // split on spaces
+        var _from = $.trim(from).split(new RegExp("\\s+"));
+        var _to   = $.trim(to).split(new RegExp("\\s+"));
+        
+        // strip out blank array elements
+        from = [];
+        var elem;
+        for (var i = 0; i < _from.length; i++) {
+            elem = $.trim(_from[i]);
+            if (elem != "") {
+                from.push(elem);
+            }
+        }
+        
+        to = [];
+        for (var i = 0; i < _to.length; i++) {
+            elem = $.trim(_to[i]);
+            if (elem != "") {
+                to.push(elem);
+            }
+        }
+        // make sure that 'from' and 'to' are same length
+        if (from.length != to.length) {
+            if (TESTING) {
+                console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must be of same length !!!!");
+                console.log("from: " + from);
+                console.log("to:   " + to);
+            }
+            return null;
+        }
+        
+        // make sure that 'from' and 'to' have elements
+        if (from.length > 0 && to.length > 0) {
+            if (TESTING) {
+                console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must have values !!!!");
+                console.log("from: " + from);
+                console.log("to:   " + to);
+            }
+            return null;
+        }
+
+        // from and to are of same length and have elements, now in array form
+        // check for commas
+        var hasCommas = from[0].split(",").length > 1;
+
+        if (hasCommas) {
+            // replace in place elements and convert to number values
+            for (var i = 0; i < from.length; i++) {
+                // TODO: finish writing this!
+            }
+        }
+        
     }
 
-    // type of 'from' and 'to' match
-    // handle strings
-
     // expect from here on out arrays
-    
 
     // convert arrays to strings
 
     var tweenValues = [];
-    
 
     return tweenValues; 
 }
@@ -1158,17 +1210,18 @@ Line.prototype.getLineString = function() {
 
     for (var i = 0; i < rawPoints.length; i++) {
         coords = rawPoints[i].split(",");
-        lineString.push('<circle ' + myClass + 'cx="' + $.trim(coords[0]) + '" ' + 'cy="' + $.trim(coords[1]) + '" ' + 'r="' + this.circleRadius + '">');
-        animateString = '<animate attributeName="cy" \
-                                  attributeType="XML" \
-                                  calcMode="linear" \
-                                  begin="0s" dur="1.5s" \
-                                  fill="freeze" \
-                                  repeatCount="1" \
-                                  from="' + this.parentChart.zeroPos + '" \
-                                  to="' + $.trim(coords[1]) + '" />';
-        lineString.push(animateString);
-        lineString.push('</circle>');
+        lineString.push('<circle ' + myClass + 'cx="' + $.trim(coords[0]) + '" ' + 'cy="' + $.trim(coords[1]) + '" ' + 'r="' + this.circleRadius + '" />');
+        // This only works for Mozilla browsers and Opera
+        //animateString = '<animate attributeName="cy" \
+        //                          attributeType="XML" \
+        //                          calcMode="linear" \
+        //                          begin="0s" dur="1.5s" \
+        //                          fill="freeze" \
+        //                          repeatCount="1" \
+        //                          from="' + this.parentChart.zeroPos + '" \
+        //                          to="' + $.trim(coords[1]) + '" />';
+        //lineString.push(animateString);
+        //lineString.push('</circle>');
     }
     
     return lineString.join("\n");

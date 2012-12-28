@@ -16,7 +16,7 @@ function printTest(testName, expected, actual) {
     console.log("Testing: " + testName);
     console.log("--------------------------------------------------------");
     
-    if (expected == null || actual == null) {
+    if (expected === undefined || actual === undefined) {
         console.log(">>>> test failed <<<< Test has not been completely written.");
         return 0;
     }
@@ -648,13 +648,39 @@ function run_svgTweenTests() {
 
     // tests
     sumResult(resultsArray, test_getTweenValues_null_values());
+    sumResult(resultsArray, test_getTweenValues_mismatched_values());
+    sumResult(resultsArray, test_getTweenValues_different_lengths());
     printGroupResults(testGroupName, resultsArray);
 }
 
-function test_getTweenValues_basic_null_values() {
-    var testName = "test_getTweenValues_basic_null_values()"
+function test_getTweenValues_null_values() {
+    var testName = "test_getTweenValues_null_values()";
     var expected, actual;
     
+    expected = null;
+    actual = getTweenValues(null, null, 300);
+    
+    return printTest(testName, expected, actual);
+}
+
+function test_getTweenValues_mismatched_values() {
+    var testName = "test_getTweenValues_mismatched_values()";
+    var expected, actual;
+    
+    expected = null;
+    actual = getTweenValues("1 2 3", [1, 2, 3], 300);
+    
+    return printTest(testName, expected, actual);
+}
+
+function test_getTweenValues_different_lengths() {
+    var testName = "test_getTweenValues_different_lengths()"; 
+    var expected, actual;
+    
+    expected = null;
+    actual = getTweenValues("1 2 3", "1 2 3 4", 300);
+    
+    return printTest(testName, expected, actual);
 }
 
 /************************************
