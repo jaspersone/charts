@@ -689,6 +689,9 @@ function run_svgTweenTests() {
     sumResult(resultsArray, test_getTweenValues_null_values());
     sumResult(resultsArray, test_getTweenValues_mismatched_values());
     sumResult(resultsArray, test_getTweenValues_different_lengths());
+    sumResult(resultsArray, test_linearTween_basic());
+    sumResult(resultsArray, test_linearTween_negative_tween());
+    sumResult(resultsArray, test_linearTween_negative_values());
     printGroupResults(testGroupName, resultsArray);
 }
 
@@ -718,6 +721,36 @@ function test_getTweenValues_different_lengths() {
     
     expected = null;
     actual = getTweenValues("1 2 3", "1 2 3 4", 300);
+    
+    return printTest(testName, expected, actual);
+}
+
+function test_linearTween_basic() {
+    var testName = "test_linearTween_basic()"; 
+    var expected, actual;
+    
+    expected = [2,3,4];
+    actual = linearTween(1,5,3);
+    
+    return printTest(testName, expected, actual);
+}
+
+function test_linearTween_negative_tween() {
+    var testName = "test_linearTween_negative_tween()"; 
+    var expected, actual;
+    
+    expected = [4,3,2];
+    actual = linearTween(5,1,3);
+    
+    return printTest(testName, expected, actual);
+}
+
+function test_linearTween_negative_values() {
+    var testName = "test_linearTween_negative_values()"; 
+    var expected, actual;
+    
+    expected = [5,0,-5];
+    actual = linearTween(10,-10,3);
     
     return printTest(testName, expected, actual);
 }

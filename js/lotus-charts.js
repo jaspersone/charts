@@ -1237,7 +1237,7 @@ function getTweenValues(from, to, duration) {
     return tweenValues; 
 }
 
-function getTweenValuesFromTo(fromVal, toVal, frameCount) {
+function getTweenValuesFromTo(tweenFunc, fromVal, toVal, frameCount) {
     // make sure that frameCount is odd
     var frames = null;
     if (frameCount % 2 != 1) {
@@ -1258,23 +1258,43 @@ function getTweenValuesFromTo(fromVal, toVal, frameCount) {
                 frames.push(fromVal);
             }
         } else {
-            frames = [fromVal];
             // frames to calculate = frame count - 3 (don't count fromVal, midVal,
             // and toVal). Divide by 2 for each half:
             // [fromVal -> midVal] and [midVal -> toVal]
             var numFramesToCalculatePerHalf = (frameCount - 3) / 2;
             var midVal     = Math.round((fromVal + toVal) / 2);
-            var MULTIPLIER = 2; // this is the base in which growth function changes by,
-                                // can be adjusted later, but must find a new pattern
-                                // pattern: (n + 1)^2
-            var intervals  = Math.pow((numFramesToCalculatePerHalf + 1), MULTIPLIER);
-            var unit       = (midVal - fromVal) / intervals; 
-            // ease out to midVal
+
+            // add fromVal
+            frames = [fromVal];
+
+            // add from fromVal to midVal
+            var tweens = tweenFunc(fromVal, midVal, numFramesToCalculatePerHalf);
+            for (var i = 0; i < tweens.length; i++) {
+                frames.push(tweens[i]);
+            }
+            // add midVal
+            frames.push(midVal);
             
-            // ease in to toVal
+            // add from midVal to toVal
+            tweens = tweenFunc(midVal, toVal, numFramesToCalculatePerHalf);
+            for (var i = 0; i < tweens.length; i++) {
+                frames.push(tweens[i]);
+            }
+ 
+            // add toVal
+            frames.push(toVal);
+
+            if (frames.length != frameCount) {
+                if (TESTING) {
+                    console.log("In getTweenValuesFromTo(): not enough values calculated by tween functions");
+                    console.log("Expected frame count: " + frameCount);
+                    console.log("Actual frame count:   " + frames.length);
+                    console.log("Frames:               " + frames);
+                }
+                return null;
+            }
         }
     }
-
     return frames;
 }
 
@@ -1283,8 +1303,14 @@ function getTweenValuesFromTo(fromVal, toVal, frameCount) {
 //         numTweenFrames - the number of frames between the start and end
 // return: an array with the pixel values for the tween locations
 // behavior: even distribute points between start and end
-function getTweenLinear(start, end, numTweenFrames) {
-
+// TODO: write unit tests
+function linearTween(start, end, numTweenFrames) {
+    var unit = Math.floor((end - start) / (numTweenFrames + 1));
+    var frames = [];
+    for (var i = 1; i <= numTweenFrames; i++) {
+        frames.push(start + (i * unit));
+    }
+    return frames;
 }
 
 // params: start          - the starting pixel location (int)
@@ -1292,8 +1318,14 @@ function getTweenLinear(start, end, numTweenFrames) {
 //         numTweenFrames - the number of frames between the start and end
 // return: an array with the pixel values for the tween locations
 // behavior: start out slow, then move faster to end point
-function getTweenEaseIn(start, end, numTweenFrames) {
-
+// TODO: write this and unit tests
+function easeInTween(start, end, numTweenFrames) {
+    var MULTIPLIER = 2; // this is the base in which growth function changes by,
+                        // can be adjusted later, but must find a new pattern
+                        // pattern: (n + 1)^2
+    var intervals  = Math.pow((numTweenFrames + 1), MULTIPLIER);
+    var unit       = (end - start) / intervals; 
+    return null;
 }
 
 // params: start          - the starting pixel location (int)
@@ -1301,8 +1333,14 @@ function getTweenEaseIn(start, end, numTweenFrames) {
 //         numTweenFrames - the number of frames between the start and end
 // return: an array with the pixel values for the tween locations
 // behavior: start out fast, then slow down as you reach the end point
-function getTweenPointsEaseOut(start, end, numTweenFrames) {
-
+// TODO: write this and unit tests
+function easeOutTween(start, end, numTweenFrames) {
+    var MULTIPLIER = 2; // this is the base in which growth function changes by,
+                        // can be adjusted later, but must find a new pattern
+                        // pattern: (n + 1)^2
+    var intervals  = Math.pow((numTweenFrames + 1), MULTIPLIER);
+    var unit       = (end - start) / intervals; 
+    return null;
 }
 
 // params: a - an array or string
