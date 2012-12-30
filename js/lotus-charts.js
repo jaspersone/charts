@@ -1080,9 +1080,9 @@ function Line(parentChart, idName, className, data, radius) {
     this.circleRadius = radius    ? radius      : lineChart_circleRadius; 
 }
 
-// params: from - a string representation of the from values that the
-//                chart starts at
-//         to   - a string representation of the to values that the 
+// params: from - a string representation of the from pixel values that
+//                the chart starts at
+//         to   - a string representation of the to pixel values that the 
 //                chart ends at
 //         duration - the time in milliseconds for the animation to occur
 // return: an array of the tween values
@@ -1161,22 +1161,163 @@ function getTweenValues(from, to, duration) {
         // check for commas
         var hasCommas = from[0].split(",").length > 1;
 
+        // extract numbers from pairs
         if (hasCommas) {
+            var fromCount = 0;
+            var toCount = 0;
             // replace in place elements and convert to number values
             for (var i = 0; i < from.length; i++) {
                 // TODO: finish writing this!
+                from[i] = from[i].split(",")
+                // loop through each and strip each element of outside
+                // white spaces and convert from string to number
+                for (var j = 0; j < from[i].length; j++) {
+                    from[i][j] = parseInt($.trim(from[i][j]))
+                    fromCount++;
+                }
+                fromCount++;
+            }
+            for (var i = 0; i < to.length; i++) {
+                to[i] = to[i].split(",")
+                // loop through each and strip each element of outside
+                // white spaces and convert from string to number
+                for (var j = 0; j < to[i].length; j++) {
+                    to[i][j] = parseInt($.trim(to[i][j]))
+                    toCount++;
+                }
+                toCount++;
+            }
+            // double check to make sure from and to are still the same length
+            if (fromCount != toCount) {
+                if (TESTING) {
+                    console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must have same number of values !!!!");
+                    console.log("from: " + from);
+                    console.log("to:   " + to);
+                }
+                return null;
             }
         }
-        
+    } else { // was not a string, check if it is an array
+        if (from instanceof Array && to instanceof Array) {
+            // if both arrays, make sure that values are ints
+            convertToInts(from);
+            convertToInts(to);
+        } else {
+            if (TESTING) {
+                console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must either be a string or instance of array !!!!");
+                console.log("from: " + from);
+                console.log("to:   " + to);
+            }
+            return null;
+        }
+    }
+
+    // calculate total animation frames to make for duration
+    // NOTE: duration should be given in milliseconds
+    var frameCount = Math.round((LOTUS_FRAMES_PER_SECOND / 1000) * duration);
+    // make sure it is an odd number
+    if (frameCount % 2 === 0) {
+        frameCount++;
     }
 
     // expect from here on out arrays
+    // note the different types of forms expected:
+    //   [1,5,3,2,4,...]
+    //   [[0,101],[50,43],[100,23],...]
+    //   32
+    var valuesArray = []; // will be populated by the results in array form
+                          // NOTE: each subarray will be of length frameCount
 
+     
+    
     // convert arrays to strings
 
     var tweenValues = [];
 
     return tweenValues; 
+}
+
+function getTweenValuesFromTo(fromVal, toVal, frameCount) {
+    // make sure that frameCount is odd
+    var frames = null;
+    if (frameCount % 2 != 1) {
+        if (TESTING) {
+            console.log("In getTweenValuesFromTo(): frameCount must be odd");
+            console.log("Frame count: " + frameCount);
+        }
+    } else if (frameCount < 3) {
+        if (TESITNG) {
+            console.log("In getTweenValuesFromTo(): must have 3 or more frames to get values");
+            console.log("Frame count: " + frameCount);
+        }
+    } else { // enough frames to start
+        // check if moving positive or negative
+        frames = [];
+        if (fromVal === toVal) {
+            for (var n = 0; n < frameCount; n++) {
+                frames.push(fromVal);
+            }
+        } else {
+            frames = [fromVal];
+            // frames to calculate = frame count - 3 (don't count fromVal, midVal,
+            // and toVal). Divide by 2 for each half:
+            // [fromVal -> midVal] and [midVal -> toVal]
+            var numFramesToCalculatePerHalf = (frameCount - 3) / 2;
+            var midVal     = Math.round((fromVal + toVal) / 2);
+            var MULTIPLIER = 2; // this is the base in which growth function changes by,
+                                // can be adjusted later, but must find a new pattern
+                                // pattern: (n + 1)^2
+            var intervals  = Math.pow((numFramesToCalculatePerHalf + 1), MULTIPLIER);
+            var unit       = (midVal - fromVal) / intervals; 
+            // ease out to midVal
+            
+            // ease in to toVal
+        }
+    }
+
+    return frames;
+}
+
+// params: start          - the starting pixel location (int)
+//         end            - the ending pixel location (int)
+//         numTweenFrames - the number of frames between the start and end
+// return: an array with the pixel values for the tween locations
+// behavior: even distribute points between start and end
+function getTweenLinear(start, end, numTweenFrames) {
+
+}
+
+// params: start          - the starting pixel location (int)
+//         end            - the ending pixel location (int)
+//         numTweenFrames - the number of frames between the start and end
+// return: an array with the pixel values for the tween locations
+// behavior: start out slow, then move faster to end point
+function getTweenEaseIn(start, end, numTweenFrames) {
+
+}
+
+// params: start          - the starting pixel location (int)
+//         end            - the ending pixel location (int)
+//         numTweenFrames - the number of frames between the start and end
+// return: an array with the pixel values for the tween locations
+// behavior: start out fast, then slow down as you reach the end point
+function getTweenPointsEaseOut(start, end, numTweenFrames) {
+
+}
+
+// params: a - an array or string
+// return: a single int or an array composed of ints
+// note: if an empty string is passed, or if the string does not
+//       convert to an int, this function will return null
+function convertToInts(a) {
+    if (!(a instanceof Array)) {
+        return isNaN(parseInt(a)) ? null : parseInt(a);
+    } else {
+        for (var i = 0; i < a.length; i++) {
+            a[i] = convertToInts(a[i]);
+        }
+        return a;
+    }
 }
 
 Line.prototype.getLineString = function() {

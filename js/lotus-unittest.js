@@ -100,8 +100,47 @@ function test_() {
 /************************************
 * Test Charts General               *
 ************************************/
+function run_general_tests() {
+    var testGroupName = "General Function Tests ";
+    var resultsArray = [0, 0];
 
+    // tests
+    sumResult(resultsArray, test_convertToInts_string_to_int());
+    sumResult(resultsArray, test_convertToInts_basic_all_ints());
+    sumResult(resultsArray, test_convertToInts_advanced());
 
+    printGroupResults(testGroupName, resultsArray);
+}
+
+function test_convertToInts_string_to_int() {
+    var testName = "Convert string to int using convertToInts()";
+    var expected, actual;
+
+    expected = 3;
+    actual = convertToInts("3");
+
+    return printTest(testName, expected, actual);
+}
+
+function test_convertToInts_basic_all_ints() {
+    var testName = "Convert array of strings to array of ints";
+    var expected, actual;
+
+    expected = [1,2,3,4,5];
+    actual = convertToInts(["1", "2", "3", "4", "5"]);
+
+    return printTest(testName, expected, actual);
+}
+
+function test_convertToInts_advanced() {
+    var testName = "Convert complicated array of arrays of strings";
+    var expected, actual;
+
+    expected = [[1,2,3,4,5],[null, null, -7],[10,11,12]];
+    actual = convertToInts([["1", "2", "3", "4", "5"], ["a", "b", "-7"], [10, 11, "12"]]);
+
+    return printTest(testName, expected, actual);
+}
 
 /************************************
 * Test Get Nearest Value            *
@@ -697,6 +736,7 @@ function startTests() {
     var totalTests = 0;
     var totalPassed = 0;
     
+    run_general_tests()
     run_getNearestValueTests();
     run_getNearestPixel();
     run_getChartScaleMax();
