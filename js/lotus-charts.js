@@ -241,7 +241,10 @@ function getBestIncrement(maxValue, pixels) {
     return power < 0 ? 1 : Math.pow(10, power);  
 }
 
-// TODO: refactor and document
+// TODO: refactor and find a way to make it less like a switch statement
+// params: value - a numeric value to normalize
+// return: a pair [normalized numeric value (single digit before decimal),
+//                 metric (an abbreviation for the units)]
 // Normalized value
 function normalizeValue(value) {
     var normalizedValue;
@@ -268,11 +271,10 @@ function normalizeValue(value) {
     return [normalizedValue, metric];
 }
 
-// TODO: finish function
 // params: $chart - chart to rescale
 // return: true if chart rescaled, false otherwise
-// behavior: checks for elements inside chart with class edited-bar then checks their value to determine
-//           if they need to be rescaled
+// behavior: checks for elements inside chart with class edited-bar
+//           then checks their value to determine if they need to be rescaled
 function rescaleChart($chart) {
     // only get the bar that has been edited last
     var $editedBar = ($chart).find(".edited-bar");
@@ -827,7 +829,8 @@ function LineChart(id, start, end, height, segWidth, linesIn, parentNode) {
     this.zeroPos = calculateYPixel(0, this.minValue, this.maxValue, this.pixelHeight);
 }
 
-// TODO: write documentation
+// params: line - a Line object to be added to a LineChart object
+// return: true if adding line was a success, false otherwise
 LineChart.prototype.addLine = function(line) {
     if (line instanceof Line) {
         line.parentChart = this;
@@ -854,10 +857,16 @@ LineChart.prototype.addLine = function(line) {
                 console.log("minValue set to: " + this.minValue);
                 console.log("maxValue set to: " + this.maxValue);
             }
+        } else {
+            return false;
         }
+        return true;
     } else {
-        console.log("Error while trying to add line, passed line not found to be instance of Line")
-        console.log("Line pass is of type: " + typeof(line));
+        if (TESTING) {
+            console.log("Error while trying to add line, passed line not found to be instance of Line");
+            console.log("Line pass is of type: " + typeof(line));
+        }
+        return false;
     }
 }
 
