@@ -93,6 +93,68 @@ var debounce = (function() {
     };
 })();
 
+// params: a - an array or string
+// return: a single int or an array composed of ints
+// note: if an empty string is passed, or if the string does not
+//       convert to an int, this function will return null
+function convertToInts(a) {
+    if (!(a instanceof Array)) {
+        return isNaN(parseInt(a)) ? null : parseInt(a);
+    } else {
+        for (var i = 0; i < a.length; i++) {
+            a[i] = convertToInts(a[i]);
+        }
+        return a;
+    }
+}
+
+// params: parameter - the html tag parameter to get a string for
+//         value     - the value to assign to the html parameter
+// return: if value is not empty or null, will return the proper
+//         html formatted string, else returns the empty string.
+function getParameterString(parameter, value) {
+    if (value != null && value != "") {
+        return parameter + '="' + value + '"';
+    }
+    return "";
+}
+
+// params: id - a string id name
+// return: a string that is formatted as an html id attribute
+function getIdString(id) {
+    if (id != null && id != "" && typeof(id) === "string") {
+        return getParameterString("id", id) + " ";
+    }
+    return "";
+}
+// params: class - a string class name, or set of space seperated class names
+// return: a string that is formatted as an html class attribute
+function getClassString(className) {
+    if (className != null && className != "" && typeof(className) === "string") {
+        return getParameterString("class", className) + " ";
+    }
+    return "";
+}
+
+// params: input - a string that needs to be stripped of its outer most set of quotes
+// return: a string stripped of all leading and trailing quotes and whitespace
+function stripQuoteMarks(input) {
+    input = $.trim(input);
+    var openQuote = input[0];
+    var closeQuote = input[input.length - 1];
+
+    if (TESTING) {
+        if (openQuote != closeQuote) {
+            console.log("stripQuoteMarks() : mismatched quotes");
+            console.log("open quote found  : " + openQuote);
+            console.log("close quote found : " + closeQuote);
+        }
+    }
+    var start = openQuote === "'" || openQuote === '"' ? 1 : 0;
+    var end   = closeQuote === "'" || closeQuote === '"' ? input.length - 1 : input.length;
+    return input.substring(start, end);
+}
+
 /************************************
 * Cookies                           *
 ************************************/
@@ -753,7 +815,7 @@ function changeLabelValue($bar, maxChartValue, currPixel, increment) {
 }
 
 /************************************
-* Line Charts                       *
+* Line Chart Object                 *
 ************************************/
 var lineChart_blue  = "#6dafe1";
 var lineChart_green = "#5bbc19";
@@ -868,66 +930,6 @@ LineChart.prototype.addLine = function(line) {
         }
         return false;
     }
-}
-
-// TODO: write some tests
-// params: dataString - a string which holds the unparsed data for a line
-// return: an array of data points for a Line object
-function parseLineData(dataString) {
-    // change line data from string to array of values
-    if (!dataString) {
-        if (TESTING) {
-            console.log("In parseLineData() : passed dataString is null or undefined");
-            console.log("Returning null.");
-        }
-        return null;
-    }
-    var temp = dataString.split(new RegExp("\\s+"));
-    var data = [];
-    var curr;
-    for (i in temp) {
-        curr = $.trim(temp[i]); 
-        if (curr != "") {
-            if (parseInt(curr)) {
-                curr = parseInt(curr);
-            }
-            data.push(curr);
-        }
-    }
-    return data; 
-}
-
-// params: line - a Line object that contains data points
-// return: a tuple array that contains the [min, max] int values
-function getMinMaxFromLine(line) {
-    var result = [];
-    if (line.data.length > 0) {
-        var localMin;
-        var localMax;
-        var index = 0;
-        // check to see if there is an offset value for first of array
-        // and ignore it if you find one
-        if (line.data[index][0] == "(") {
-            if (line.data.length > 1) {
-                index++;
-            }
-        }
-        // set initial min/max value to the first element's value
-        localMin = parseInt(line.data[index]);
-        localMax = parseInt(line.data[index]);
-        // find local min and max
-        for (index; index < line.data.length; index++) {
-           localMin = Math.min(localMin, line.data[index]);
-           localMax = Math.max(localMax, line.data[index]);
-        }
-
-        // adjust min/max to have an additional 10% padding above and below 
-        var range = localMax - localMin;
-        var padding = Math.round(range / 10);
-        result.push(localMin - padding);
-        result.push(localMax + padding);
-    }
-    return result;
 }
 
 // params: target - the DOM object to append the chart to
@@ -1056,6 +1058,18 @@ LineChart.prototype.appendChartTo = function(target) {
     $target.append(chartString);
 }
 
+
+
+/************************************
+* Line Chart Static Functions       *
+************************************/
+// params: parentNodeID - the id name of the parent node to search from
+// return: a jquery array of svg node's rel values, these will be used to
+//         construct automatically generated svg charts
+function getLineChartsFromID(parentNodeID) {
+    return filterCollectionForAttr($('#' + parentNodeID).children('svg'), 'rel');
+}
+
 // params: className - the className that identifies the label type
 // return: an integer that represents the label height
 // this function depends on the fact that the label size will be
@@ -1067,516 +1081,6 @@ function getLineChartLabelHeight(className) {
     var tempHeight = parseInt($temp.css('font-size')) ? parseInt($temp.css('font-size')) : parseInt($('body').css('font-size')); 
     delete $temp;
     return tempHeight;
-}
-// params: parent - a LineChart object that owns this line
-//         idName - the unique ID of this line (used for reference
-//         className - a class name to assign to this line for styling
-//         data - a string representation of the data points for this line
-function Line(parentChart, idName, className, data, radius) {
-    this.parentChart= parentChart ? parentChart : null;
-    this.idName     = idName      ? idName      : null;
-    this.className  = className   ? className   : null;
-    this.data       = data && (this.data instanceof Array) ? data : parseLineData(data);
-    this.circleRadius = radius    ? radius      : lineChart_circleRadius; 
-}
-
-// params: from - a string representation of the from pixel values that
-//                the chart starts at
-//         to   - a string representation of the to pixel values that the 
-//                chart ends at
-//         duration - the time in milliseconds for the animation to occur
-// return: an array of the tween values
-var LOTUS_FRAMES_PER_SECOND = 24;
-function getTweenValues(from, to, duration) {
-    if (TESTING && DEBUG) {
-        console.log("<<<< In getTweenValues() >>>>");
-        console.log("Frames per sec: " + LOTUS_FRAMES_PER_SECOND);
-        console.log("From values:    " + from);
-        console.log("To values:      " + to);
-        console.log("Duration:       " + duration);
-    }
-
-    // sanity check
-    if (from && to) {
-        // type checking
-        if (typeof(from) != typeof(to)) {
-            if (TESTING) {
-                console.log("!!!! ERROR In getTweenValues: mismatched types, 'from' and 'to' not the same !!!!");
-                console.log("from type: " + typeof(from));
-                console.log("to type:   " + typeof(to));
-            }
-            return null;
-        }
-    } else {
-        if (TESTING) {
-            console.log("!!!! ERROR In getTweenValues: must provide values for from and to !!!!");
-        }
-        return null;
-    }
-    // type of 'from' and 'to' match
-    // handle strings by converting to array
-    if (typeof(from) === "string") {
-        // split on spaces
-        var _from = $.trim(from).split(new RegExp("\\s+"));
-        var _to   = $.trim(to).split(new RegExp("\\s+"));
-        
-        // strip out blank array elements
-        from = [];
-        var elem;
-        for (var i = 0; i < _from.length; i++) {
-            elem = $.trim(_from[i]);
-            if (elem != "") {
-                from.push(elem);
-            }
-        }
-        
-        to = [];
-        for (var i = 0; i < _to.length; i++) {
-            elem = $.trim(_to[i]);
-            if (elem != "") {
-                to.push(elem);
-            }
-        }
-        // make sure that 'from' and 'to' are same length
-        if (from.length != to.length) {
-            if (TESTING) {
-                console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must be of same length !!!!");
-                console.log("from: " + from);
-                console.log("to:   " + to);
-            }
-            return null;
-        }
-        
-        // make sure that 'from' and 'to' have elements
-        if (from.length > 0 && to.length > 0) {
-            if (TESTING) {
-                console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must have values !!!!");
-                console.log("from: " + from);
-                console.log("to:   " + to);
-            }
-            return null;
-        }
-
-        // from and to are of same length and have elements, now in array form
-        // check for commas
-        var hasCommas = from[0].split(",").length > 1;
-
-        // extract numbers from pairs
-        if (hasCommas) {
-            var fromCount = 0;
-            var toCount = 0;
-            // replace in place elements and convert to number values
-            for (var i = 0; i < from.length; i++) {
-                // TODO: finish writing this!
-                from[i] = from[i].split(",")
-                // loop through each and strip each element of outside
-                // white spaces and convert from string to number
-                for (var j = 0; j < from[i].length; j++) {
-                    from[i][j] = parseInt($.trim(from[i][j]))
-                    fromCount++;
-                }
-                fromCount++;
-            }
-            for (var i = 0; i < to.length; i++) {
-                to[i] = to[i].split(",")
-                // loop through each and strip each element of outside
-                // white spaces and convert from string to number
-                for (var j = 0; j < to[i].length; j++) {
-                    to[i][j] = parseInt($.trim(to[i][j]))
-                    toCount++;
-                }
-                toCount++;
-            }
-            // double check to make sure from and to are still the same length
-            if (fromCount != toCount) {
-                if (TESTING) {
-                    console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must have same number of values !!!!");
-                    console.log("from: " + from);
-                    console.log("to:   " + to);
-                }
-                return null;
-            }
-        }
-    } else { // was not a string, check if it is an array
-        if (from instanceof Array && to instanceof Array) {
-            // if both arrays, make sure that values are ints
-            convertToInts(from);
-            convertToInts(to);
-        } else {
-            if (TESTING) {
-                console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must either be a string or instance of array !!!!");
-                console.log("from: " + from);
-                console.log("to:   " + to);
-            }
-            return null;
-        }
-    }
-
-    // calculate total animation frames to make for duration
-    // NOTE: duration should be given in milliseconds
-    var frameCount = Math.round((LOTUS_FRAMES_PER_SECOND / 1000) * duration);
-    // make sure it is an odd number
-    if (frameCount % 2 === 0) {
-        frameCount++;
-    }
-
-    // expect from here on out arrays
-    // note the different types of forms expected:
-    //   [1,5,3,2,4,...]
-    //   [[0,101],[50,43],[100,23],...]
-    //   32
-    var valuesArray = []; // will be populated by the results in array form
-                          // NOTE: each subarray will be of length frameCount
-
-     
-    
-    // convert arrays to strings
-    
-
-    // select from 4 types of tweens of tweens
-    // send tweenFunction as an array of length 1 or 2
-    // if the array is of length two, it will divide the
-    // tween in half and apply the first tween type for
-    // the first half and apply the second tween to the
-    // second half.
-
-    var tweenValues = [];
-
-    return tweenValues; 
-}
-
-function getTweenValuesFromTo(tweenFuncs, fromVal, toVal, frameCount) {
-    // make sure that frameCount is odd
-    var frames = null;
-    if (frameCount % 2 != 1) {
-        if (TESTING) {
-            console.log("In getTweenValuesFromTo(): frameCount must be odd");
-            console.log("Frame count: " + frameCount);
-        }
-    } else if (frameCount < 3) {
-        if (TESITNG) {
-            console.log("In getTweenValuesFromTo(): must have 3 or more frames to get values");
-            console.log("Frame count: " + frameCount);
-        }
-    } else { // enough frames to start
-        // check if moving positive or negative
-        frames = [];
-        if (fromVal === toVal) {
-            for (var n = 0; n < frameCount; n++) {
-                frames.push(fromVal);
-            }
-        } else { // from val and to val are different, need to calculate tween values
-            // frames to calculate = frame count - 3 (don't count fromVal, midVal,
-            // and toVal). Divide by 2 for each half:
-            // [fromVal -> midVal] and [midVal -> toVal]
-            var numFramesToCalculatePerHalf = (frameCount - 3) / 2;
-
-            // add fromVal
-            frames = [fromVal];
-            var tweens;
-            // determine if tweens
-            // NOTE: tweenFuncs should be of max length 2
-            if (tweenFuncs instanceof Function || tweenFuncs.length === 1) {
-                // make sure that you have a function
-                var tweenFunc;
-                if (tweenFuncs instanceof Array) {
-                    tweenFunc = tweenFuncs[0];
-                else {
-                    tweenFunc = tweenFuncs;
-                }
-                if (tweenFunc instanceof Function) {
-                    // NOTE: these tween values will be added below
-                    tweens = tweenFunc(fromVal, toVal, numFramesToCalculatePerHalf * 2 + 1);
-                } else {
-                    if (TESTING) {
-                        console.log("In getTweenValuesFromTo(): tweenFuncs parameter passed is not a Function");
-                        console.log("typeof(tweenFunc): " + typeof(tweenFunc));
-                    }
-                    return null;
-                }
-            } else if (tweenFuncs.length === 2) {
-                if (tweenFuncs[0] instanceof Function && tweenFuncs[1] instanceof Function) {
-                    var midVal = Math.round((fromVal + toVal) / 2);
-
-                    // add from fromVal to midVal
-                    tweens = tweenFuncs[0](fromVal, midVal, numFramesToCalculatePerHalf);
-                    for (var i = 0; i < tweens.length; i++) {
-                        frames.push(tweens[i]);
-                    }
-                    // add midVal
-                    frames.push(midVal);
-                    // get from midVal to toVal
-                    // NOTE: these tween values will be added below
-                    tweens = tweenFuncs[1](midVal, toVal, numFramesToCalculatePerHalf);
-                } else {
-
-                }
-            } else { // tweenFuncs is not of length 1 or 2
-                if (TESTING) {
-                    console.log("In getTweenValuesFromTo(): tweenFuncs parameter formatted improperly");
-                    console.log("Expecting: <1st tween function> [optional , <2nd tween function>]");
-                    console.log("Value passed: " + tweenFuncs);
-                }
-                return null;
-            }
-            
-            // add middle frames set by above tween assignments
-            for (var i = 0; i < tweens.length; i++) {
-                frames.push(tweens[i]);
-            }
- 
-            // add toVal
-            frames.push(toVal);
-
-            if (frames.length != frameCount) {
-                if (TESTING) {
-                    console.log("In getTweenValuesFromTo(): not enough values calculated by tween functions");
-                    console.log("Expected frame count: " + frameCount);
-                    console.log("Actual frame count:   " + frames.length);
-                    console.log("Frames:               " + frames);
-                }
-                return null;
-            }
-        }
-    }
-    return frames;
-}
-
-// params: start          - the starting pixel location (int)
-//         end            - the ending pixel location (int)
-//         numTweenFrames - the number of frames between the start and end
-// return: an array with the pixel values for the tween locations
-// behavior: even distribute points between start and end
-// TODO: write unit tests
-function linearTween(start, end, numTweenFrames) {
-    var unit = Math.floor((end - start) / (numTweenFrames + 1));
-    var frames = [];
-    for (var i = 1; i <= numTweenFrames; i++) {
-        frames.push(start + (i * unit));
-    }
-    return frames;
-}
-
-// params: start          - the starting pixel location (int)
-//         end            - the ending pixel location (int)
-//         numTweenFrames - the number of frames between the start and end
-// return: an array with the pixel values for the tween locations
-// behavior: start out slow, then move faster to end point
-// TODO: write this and unit tests
-function easeInTween(start, end, numTweenFrames) {
-    var MULTIPLIER = 2; // this is the base in which growth function changes by,
-                        // can be adjusted later, but must find a new pattern
-                        // pattern: (n + 1)^2
-    var intervals  = Math.pow((numTweenFrames + 1), MULTIPLIER);
-    var unit       = (end - start) / intervals; 
-    return null;
-}
-
-// params: start          - the starting pixel location (int)
-//         end            - the ending pixel location (int)
-//         numTweenFrames - the number of frames between the start and end
-// return: an array with the pixel values for the tween locations
-// behavior: start out fast, then slow down as you reach the end point
-// TODO: write this and unit tests
-function easeOutTween(start, end, numTweenFrames) {
-    var MULTIPLIER = 2; // this is the base in which growth function changes by,
-                        // can be adjusted later, but must find a new pattern
-                        // pattern: (n + 1)^2
-    var intervals  = Math.pow((numTweenFrames + 1), MULTIPLIER);
-    var unit       = (end - start) / intervals; 
-    return null;
-}
-
-// params: a - an array or string
-// return: a single int or an array composed of ints
-// note: if an empty string is passed, or if the string does not
-//       convert to an int, this function will return null
-function convertToInts(a) {
-    if (!(a instanceof Array)) {
-        return isNaN(parseInt(a)) ? null : parseInt(a);
-    } else {
-        for (var i = 0; i < a.length; i++) {
-            a[i] = convertToInts(a[i]);
-        }
-        return a;
-    }
-}
-
-Line.prototype.getLineString = function() {
-    var myId        = getIdString(this.idName);
-    var myClass     = getClassString(this.className);
-    var rawPoints   = formatLineData(this.parentChart, this.data);
-    var rawZeroPoints = formatZeroLineData(this.parentChart, this.data);
-    var points      = rawPoints.join(' ');
-    var zeroPoints  = rawZeroPoints.join(' ');
-
-    // TODO: FIX THIS SECTION TO HAVE POINTS START OUT AT zeroPoints and then move to points
-    var lineString  = ['<polyline fill="none" ' + myId + myClass + 'points="' + zeroPoints + '" to="' + points  + '" />']
-
-    // This only works for Mozilla browsers and Opera
-    //var animateString = '<animate attributeName="points" \
-    //                              attributeType="XML" \
-    //                              calcMode="linear" \
-    //                              begin="0s" dur="1.5s" \
-    //                              fill="freeze" \
-    //                              repeatCount="1" \
-    //                              from="' + zeroPoints + '" \
-    //                              to="' + points + '" />';
-    //lineString.push(animateString);
-    //lineString.push('</polyline>');
-    
-    var circle;
-    var coords;
-    if (TESTING && DEBUG) {
-        console.log("<<<< Getting raw points >>>>");
-        console.log("passing data:");
-        console.log(this.data);
-        console.log("raw points:");
-        console.log(rawPoints);
-        console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-        console.log("rawPoints:         " + rawPoints);
-        console.log("rawPoints length:  " + rawPoints.length);
-        console.log("typeof(rawPoints): " + typeof(rawPoints));
-        console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-    }
-
-    for (var i = 0; i < rawPoints.length; i++) {
-        coords = rawPoints[i].split(",");
-        lineString.push('<circle ' + myClass + 'cx="' + $.trim(coords[0]) + '" ' + 'cy="' + $.trim(coords[1]) + '" ' + 'r="' + this.circleRadius + '" />');
-        // This only works for Mozilla browsers and Opera
-        //animateString = '<animate attributeName="cy" \
-        //                          attributeType="XML" \
-        //                          calcMode="linear" \
-        //                          begin="0s" dur="1.5s" \
-        //                          fill="freeze" \
-        //                          repeatCount="1" \
-        //                          from="' + this.parentChart.zeroPos + '" \
-        //                          to="' + $.trim(coords[1]) + '" />';
-        //lineString.push(animateString);
-        //lineString.push('</circle>');
-    }
-    
-    return lineString.join("\n");
-}
-
-// params: chart - the parent chart that the line data belongs to
-//         data  - an array representation of the line data
-// return: the calculated points, based upon the chart dimensions
-function formatLineData(chart, data) {
-    if (!(data instanceof Array)) {
-        if (TESTING) {
-            console.log("!!!! FOUND AN LINE WITH DATA NOT REPRESENTED AS AN ARRAY !!!!");
-        }
-        return null;
-    }
-    var chartMinValue = chart.minValue;
-    var chartMaxValue = chart.maxValue;
-    var chartHeight   = chart.pixelHeight;
-    var segWidth      = chart.segmentPixelWidth;
-    var points        = [];
-    var offset        = 0;
-    var value;
-    var y; 
-    for (i = 0; i < data.length; i++) {
-        value = data[i];
-        if (value[0] === "(" || value[0] === "[" || value[0] === "{") {
-            // note subtract and extra 1 from the length to make up for
-            // i offset by his additional piece of information
-            // subtract another 1 for the place taken by the offset value
-            // total subtraction should be 2
-            offset = (parseInt(value.replace(new RegExp(/[^\d]/g), "")) - 2) * segWidth;
-            if (TESTING && DEBUG) {
-                console.log("<<<< FINDING OFFSET >>>>");
-                console.log("  Original value:         " + value);
-                console.log("  Found an offset amount: " + offset);
-            }
-        } else {
-            y = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
-            points.push((segWidth * i + offset).toString() + "," + y.toString());
-        }
-    }
-    if (TESTING && DEBUG) {
-        console.log("chartMinValue: " + chartMinValue);
-        console.log("chartMaxValue: " + chartMaxValue);
-        console.log("ChartHeight:   " + chartHeight);
-        console.log("segWidth:      " + segWidth);
-        console.log("Points: " + points);
-    }
-    return points;
-}
-
-function formatZeroLineData(chart, data) {
-    if (!(data instanceof Array)) {
-        if (TESTING) {
-            console.log("!!!! FOUND AN LINE WITH DATA NOT REPRESENTED AS AN ARRAY !!!!");
-        }
-        return null;
-    }
-    var chartMinValue = chart.minValue;
-    var chartMaxValue = chart.maxValue;
-    var chartHeight   = chart.pixelHeight;
-    var segWidth      = chart.segmentPixelWidth;
-    var zeroP         = chart.zeroPos;
-    var points        = [];
-    var offset        = 0;
-    var value;
-    for (i = 0; i < data.length; i++) {
-        value = data[i];
-        if (value[0] === "(" || value[0] === "[" || value[0] === "{") {
-            // note subtract and extra 1 from the length to make up for
-            // i offset by his additional piece of information
-            // subtract another 1 for the place taken by the offset value
-            // total subtraction should be 2
-            offset = (parseInt(value.replace(new RegExp(/[^\d]/g), "")) - 2) * segWidth;
-            if (TESTING && DEBUG) {
-                console.log("<<<< FINDING OFFSET >>>>");
-                console.log("  Original value:         " + value);
-                console.log("  Found an offset amount: " + offset);
-            }
-        } else {
-            points.push((segWidth * i + offset).toString() + "," + zeroP.toString());
-        }
-    }
-    if (TESTING && DEBUG) {
-        console.log("chartMinValue: " + chartMinValue);
-        console.log("chartMaxValue: " + chartMaxValue);
-        console.log("ChartHeight:   " + chartHeight);
-        console.log("segWidth:      " + segWidth);
-        console.log("Points: " + points);
-    }
-    return points;
-}
-
-// params: parameter - the html tag parameter to get a string for
-//         value     - the value to assign to the html parameter
-// return: if value is not empty or null, will return the proper
-//         html formatted string, else returns the empty string.
-function getParameterString(parameter, value) {
-    if (value != null && value != "") {
-        return parameter + '="' + value + '"';
-    }
-    return "";
-}
-
-// params: id - a string id name
-// return: a string that is formatted as an html id attribute
-function getIdString(id) {
-    if (id != null && id != "" && typeof(id) === "string") {
-        return getParameterString("id", id) + " ";
-    }
-    return "";
-}
-// params: class - a string class name, or set of space seperated class names
-// return: a string that is formatted as an html class attribute
-function getClassString(className) {
-    if (className != null && className != "" && typeof(className) === "string") {
-        return getParameterString("class", className) + " ";
-    }
-    return "";
-}
-
-function getLineChartsFromID(parentNodeID) {
-    return filterCollectionForAttr($('#' + parentNodeID).children('svg'), 'rel');
 }
 
 // params: none
@@ -1737,24 +1241,571 @@ function parseData(data) {
     return dict;
 }
 
-// params: input - a string that needs to be stripped of its outer most set of quotes
-// return: a string stripped of all leading and trailing quotes and whitespace
-function stripQuoteMarks(input) {
-    input = $.trim(input);
-    var openQuote = input[0];
-    var closeQuote = input[input.length - 1];
-
-    if (TESTING) {
-        if (openQuote != closeQuote) {
-            console.log("stripQuoteMarks() : mismatched quotes");
-            console.log("open quote found  : " + openQuote);
-            console.log("close quote found : " + closeQuote);
+// params: chart - the parent chart that the line data belongs to
+//         data  - an array representation of the line data
+// return: the calculated points, based upon the chart dimensions
+function formatLineData(chart, data) {
+    if (!(data instanceof Array)) {
+        if (TESTING) {
+            console.log("!!!! FOUND AN LINE WITH DATA NOT REPRESENTED AS AN ARRAY !!!!");
+        }
+        return null;
+    }
+    var chartMinValue = chart.minValue;
+    var chartMaxValue = chart.maxValue;
+    var chartHeight   = chart.pixelHeight;
+    var segWidth      = chart.segmentPixelWidth;
+    var points        = [];
+    var offset        = 0;
+    var value;
+    var y; 
+    for (i = 0; i < data.length; i++) {
+        value = data[i];
+        if (value[0] === "(" || value[0] === "[" || value[0] === "{") {
+            // note subtract and extra 1 from the length to make up for
+            // i offset by his additional piece of information
+            // subtract another 1 for the place taken by the offset value
+            // total subtraction should be 2
+            offset = (parseInt(value.replace(new RegExp(/[^\d]/g), "")) - 2) * segWidth;
+            if (TESTING && DEBUG) {
+                console.log("<<<< FINDING OFFSET >>>>");
+                console.log("  Original value:         " + value);
+                console.log("  Found an offset amount: " + offset);
+            }
+        } else {
+            y = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
+            points.push((segWidth * i + offset).toString() + "," + y.toString());
         }
     }
-    var start = openQuote === "'" || openQuote === '"' ? 1 : 0;
-    var end   = closeQuote === "'" || closeQuote === '"' ? input.length - 1 : input.length;
-    return input.substring(start, end);
+    if (TESTING && DEBUG) {
+        console.log("chartMinValue: " + chartMinValue);
+        console.log("chartMaxValue: " + chartMaxValue);
+        console.log("ChartHeight:   " + chartHeight);
+        console.log("segWidth:      " + segWidth);
+        console.log("Points: " + points);
+    }
+    return points;
 }
+
+// TODO: document
+function formatZeroLineData(chart, data) {
+    if (!(data instanceof Array)) {
+        if (TESTING) {
+            console.log("!!!! FOUND AN LINE WITH DATA NOT REPRESENTED AS AN ARRAY !!!!");
+        }
+        return null;
+    }
+    var chartMinValue = chart.minValue;
+    var chartMaxValue = chart.maxValue;
+    var chartHeight   = chart.pixelHeight;
+    var segWidth      = chart.segmentPixelWidth;
+    var zeroP         = chart.zeroPos;
+    var points        = [];
+    var offset        = 0;
+    var value;
+    for (i = 0; i < data.length; i++) {
+        value = data[i];
+        if (value[0] === "(" || value[0] === "[" || value[0] === "{") {
+            // note subtract and extra 1 from the length to make up for
+            // i offset by his additional piece of information
+            // subtract another 1 for the place taken by the offset value
+            // total subtraction should be 2
+            offset = (parseInt(value.replace(new RegExp(/[^\d]/g), "")) - 2) * segWidth;
+            if (TESTING && DEBUG) {
+                console.log("<<<< FINDING OFFSET >>>>");
+                console.log("  Original value:         " + value);
+                console.log("  Found an offset amount: " + offset);
+            }
+        } else {
+            points.push((segWidth * i + offset).toString() + "," + zeroP.toString());
+        }
+    }
+    if (TESTING && DEBUG) {
+        console.log("chartMinValue: " + chartMinValue);
+        console.log("chartMaxValue: " + chartMaxValue);
+        console.log("ChartHeight:   " + chartHeight);
+        console.log("segWidth:      " + segWidth);
+        console.log("Points: " + points);
+    }
+    return points;
+}
+
+/************************************
+* Line Object                       *
+************************************/
+// params: parent - a LineChart object that owns this line
+//         idName - the unique ID of this line (used for reference
+//         className - a class name to assign to this line for styling
+//         data - a string representation of the data points for this line
+function Line(parentChart, idName, className, data, radius) {
+    this.parentChart= parentChart ? parentChart : null;
+    this.idName     = idName      ? idName      : null;
+    this.className  = className   ? className   : null;
+    this.data       = data && (this.data instanceof Array) ? data : parseLineData(data);
+    this.circleRadius = radius    ? radius      : lineChart_circleRadius; 
+}
+
+Line.prototype.getLineString = function() {
+    var myId        = getIdString(this.idName);
+    var myClass     = getClassString(this.className);
+    var rawPoints   = formatLineData(this.parentChart, this.data);
+    var rawZeroPoints = formatZeroLineData(this.parentChart, this.data);
+    var points      = rawPoints.join(' ');
+    var zeroPoints  = rawZeroPoints.join(' ');
+
+    // TODO: FIX THIS SECTION TO HAVE POINTS START OUT AT zeroPoints and then move to points
+    var lineString  = ['<polyline fill="none" ' + myId + myClass + 'points="' + points + '" from="' + zeroPoints + '" to="' + points  + '" />']
+
+    // This only works for Mozilla browsers and Opera
+    //var animateString = '<animate attributeName="points" \
+    //                              attributeType="XML" \
+    //                              calcMode="linear" \
+    //                              begin="0s" dur="1.5s" \
+    //                              fill="freeze" \
+    //                              repeatCount="1" \
+    //                              from="' + zeroPoints + '" \
+    //                              to="' + points + '" />';
+    //lineString.push(animateString);
+    //lineString.push('</polyline>');
+    
+    var circle;
+    var coords;
+    if (TESTING && DEBUG) {
+        console.log("<<<< Getting raw points >>>>");
+        console.log("passing data:");
+        console.log(this.data);
+        console.log("raw points:");
+        console.log(rawPoints);
+        console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+        console.log("rawPoints:         " + rawPoints);
+        console.log("rawPoints length:  " + rawPoints.length);
+        console.log("typeof(rawPoints): " + typeof(rawPoints));
+        console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+    }
+
+    for (var i = 0; i < rawPoints.length; i++) {
+        coords = rawPoints[i].split(",");
+        lineString.push('<circle ' + myClass + 'cx="' + $.trim(coords[0]) + '" ' + 'cy="' + $.trim(coords[1]) + '" ' + 'r="' + this.circleRadius + '" />');
+        // This only works for Mozilla browsers and Opera
+        //animateString = '<animate attributeName="cy" \
+        //                          attributeType="XML" \
+        //                          calcMode="linear" \
+        //                          begin="0s" dur="1.5s" \
+        //                          fill="freeze" \
+        //                          repeatCount="1" \
+        //                          from="' + this.parentChart.zeroPos + '" \
+        //                          to="' + $.trim(coords[1]) + '" />';
+        //lineString.push(animateString);
+        //lineString.push('</circle>');
+    }
+    
+    return lineString.join("\n");
+}
+
+/************************************
+* Line Object Static Functions      *
+************************************/
+// TODO: write some tests
+// params: dataString - a string which holds the unparsed data for a line
+// return: an array of data points for a Line object
+function parseLineData(dataString) {
+    // change line data from string to array of values
+    if (!dataString) {
+        if (TESTING) {
+            console.log("In parseLineData() : passed dataString is null or undefined");
+            console.log("Returning null.");
+        }
+        return null;
+    }
+    var temp = dataString.split(new RegExp("\\s+"));
+    var data = [];
+    var curr;
+    for (i in temp) {
+        curr = $.trim(temp[i]); 
+        if (curr != "") {
+            if (parseInt(curr)) {
+                curr = parseInt(curr);
+            }
+            data.push(curr);
+        }
+    }
+    return data; 
+}
+
+// params: line - a Line object that contains data points
+// return: a tuple array that contains the [min, max] int values
+function getMinMaxFromLine(line) {
+    var result = [];
+    if (line.data.length > 0) {
+        var localMin;
+        var localMax;
+        var index = 0;
+        // check to see if there is an offset value for first of array
+        // and ignore it if you find one
+        if (line.data[index][0] == "(") {
+            if (line.data.length > 1) {
+                index++;
+            }
+        }
+        // set initial min/max value to the first element's value
+        localMin = parseInt(line.data[index]);
+        localMax = parseInt(line.data[index]);
+        // find local min and max
+        for (index; index < line.data.length; index++) {
+           localMin = Math.min(localMin, line.data[index]);
+           localMax = Math.max(localMax, line.data[index]);
+        }
+
+        // adjust min/max to have an additional 10% padding above and below 
+        var range = localMax - localMin;
+        var padding = Math.round(range / 10);
+        result.push(localMin - padding);
+        result.push(localMax + padding);
+    }
+    return result;
+}
+
+
+/************************************
+* SVG Animation                     *
+************************************/
+var LOTUS_FRAMES_PER_SECOND = 24;
+
+// params: from - a string representation of the from pixel values that
+//                the chart starts at
+//         to   - a string representation of the to pixel values that the 
+//                chart ends at
+//         duration - the time in milliseconds for the animation to occur
+// return: an array of the tween values
+function getTweenValues(from, to, duration) {
+    if (TESTING && DEBUG) {
+        console.log("<<<< In getTweenValues() >>>>");
+        console.log("Frames per sec: " + LOTUS_FRAMES_PER_SECOND);
+        console.log("From values:    " + from);
+        console.log("To values:      " + to);
+        console.log("Duration:       " + duration);
+    }
+
+    // sanity check
+    if (from && to) {
+        // type checking
+        if (typeof(from) != typeof(to)) {
+            if (TESTING) {
+                console.log("!!!! ERROR In getTweenValues: mismatched types, 'from' and 'to' not the same !!!!");
+                console.log("from type: " + typeof(from));
+                console.log("to type:   " + typeof(to));
+            }
+            return null;
+        }
+    } else {
+        if (TESTING) {
+            console.log("!!!! ERROR In getTweenValues: must provide values for from and to !!!!");
+        }
+        return null;
+    }
+    // type of 'from' and 'to' match
+    // handle strings by converting to array
+    if (typeof(from) === "string") {
+        // split on spaces
+        var _from = $.trim(from).split(new RegExp("\\s+"));
+        var _to   = $.trim(to).split(new RegExp("\\s+"));
+        
+        // strip out blank array elements
+        from = [];
+        var elem;
+        for (var i = 0; i < _from.length; i++) {
+            elem = $.trim(_from[i]);
+            if (elem != "") {
+                from.push(elem);
+            }
+        }
+        
+        to = [];
+        for (var i = 0; i < _to.length; i++) {
+            elem = $.trim(_to[i]);
+            if (elem != "") {
+                to.push(elem);
+            }
+        }
+        // make sure that 'from' and 'to' are same length
+        if (from.length != to.length) {
+            if (TESTING) {
+                console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must be of same length !!!!");
+                console.log("from: " + from);
+                console.log("to:   " + to);
+            }
+            return null;
+        }
+        
+        // make sure that 'from' and 'to' have elements
+        if (from.length > 0 && to.length > 0) {
+            if (TESTING) {
+                console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must have values !!!!");
+                console.log("from: " + from);
+                console.log("to:   " + to);
+            }
+            return null;
+        }
+
+        // from and to are of same length and have elements, now in array form
+        // check for commas
+        var hasCommas = from[0].split(",").length > 1;
+
+        // extract numbers from pairs
+        if (hasCommas) {
+            var fromCount = 0;
+            var toCount = 0;
+            // replace in place elements and convert to number values
+            for (var i = 0; i < from.length; i++) {
+                // TODO: finish writing this!
+                from[i] = from[i].split(",")
+                // loop through each and strip each element of outside
+                // white spaces and convert from string to number
+                for (var j = 0; j < from[i].length; j++) {
+                    from[i][j] = parseInt($.trim(from[i][j]))
+                    fromCount++;
+                }
+                fromCount++;
+            }
+            for (var i = 0; i < to.length; i++) {
+                to[i] = to[i].split(",")
+                // loop through each and strip each element of outside
+                // white spaces and convert from string to number
+                for (var j = 0; j < to[i].length; j++) {
+                    to[i][j] = parseInt($.trim(to[i][j]))
+                    toCount++;
+                }
+                toCount++;
+            }
+            // double check to make sure from and to are still the same length
+            if (fromCount != toCount) {
+                if (TESTING) {
+                    console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must have same number of values !!!!");
+                    console.log("from: " + from);
+                    console.log("to:   " + to);
+                }
+                return null;
+            }
+        }
+    } else { // was not a string, check if it is an array
+        if (from instanceof Array && to instanceof Array) {
+            // if both arrays, make sure that values are ints
+            convertToInts(from);
+            convertToInts(to);
+        } else {
+            if (TESTING) {
+                console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must either be a string or instance of array !!!!");
+                console.log("from: " + from);
+                console.log("to:   " + to);
+            }
+            return null;
+        }
+    }
+
+    // calculate total animation frames to make for duration
+    // NOTE: duration should be given in milliseconds
+    var frameCount = Math.round((LOTUS_FRAMES_PER_SECOND / 1000) * duration);
+    // make sure it is an odd number
+    if (frameCount % 2 === 0) {
+        frameCount++;
+    }
+
+    // expect from here on out arrays
+    // note the different types of forms expected:
+    //   [1,5,3,2,4,...]
+    //   [[0,101],[50,43],[100,23],...]
+    //   32
+    var valuesArray = []; // will be populated by the results in array form
+                          // NOTE: each subarray will be of length frameCount
+    
+    // send tweenFunction as an array of length 1 or 2
+    // if the array is of length two, it will divide the
+    // tween in half and apply the first tween type for
+    // the first half and apply the second tween to the
+    // second half.
+    // options (linearTween, easeInTween, easeOutTween)
+    var tweenFuncs = [linearTween]
+
+    // recursively get values for array
+    getValuesRecursive(valuesArray, tweenFuncs, from, to, frameCount); 
+    
+    // convert arrays to strings
+    
+
+
+    return tweenValues; 
+}
+
+function getValuesRecursive(valuesArray, tweenFuncs, from, to, frameCount) {
+    if (typeof(from) === "number" && typeof(to) === "number") {
+        valuesArray.push(getTweenValuesFromTo(tweenFuncs, from, to, frameCount)); 
+    } else if (from instanceof Array && to instanceof Array) {
+        var tempValues = [];
+        for (var i = 0; i < from.length; i++) {
+            getValuesRecursive(tempValues, tweenFuncs, from[i], to[i], frameCount);
+        }
+        // loop through populated temp values, and add them to valuesArray
+        for (var i = 0; i < tempValues.length; i++) {
+            valuesArray.push(tempValues[i]);
+        }
+    } else {
+        if (TESTING) {
+            console.log("In getValuesRecursive(): from and to must both be numbers or arrays");
+            console.log("From: " + from);
+            console.log("To:   " + to);
+        }
+        return null;
+    }
+}
+
+// params: tweenFuncs - an array of tweening functions of length 1 or 2
+//         fromVal    - the starting pixel value of the tween
+//         toVal      - the ending pixel value of the tween
+//         frameCount - the number of total frames needed in the animation
+//                      inclusive of the from and to values
+// return: an array of numbers that range from fromVal to toVal using the
+//         tween functions defined in the tweenFuncs array to determine
+//         any easing or linear function used to scale tween values
+function getTweenValuesFromTo(tweenFuncs, fromVal, toVal, frameCount) {
+    // make sure that frameCount is odd
+    var frames = null;
+    if (frameCount % 2 != 1) {
+        if (TESTING) {
+            console.log("In getTweenValuesFromTo(): frameCount must be odd");
+            console.log("Frame count: " + frameCount);
+        }
+    } else if (frameCount < 3) {
+        if (TESITNG) {
+            console.log("In getTweenValuesFromTo(): must have 3 or more frames to get values");
+            console.log("Frame count: " + frameCount);
+        }
+    } else { // enough frames to start
+        // check if moving positive or negative
+        frames = [];
+        if (fromVal === toVal) {
+            for (var n = 0; n < frameCount; n++) {
+                frames.push(fromVal);
+            }
+        } else { // from val and to val are different, need to calculate tween values
+            // frames to calculate = frame count - 3 (don't count fromVal, midVal,
+            // and toVal). Divide by 2 for each half:
+            // [fromVal -> midVal] and [midVal -> toVal]
+            var numFramesToCalculatePerHalf = (frameCount - 3) / 2;
+
+            // add fromVal
+            frames = [fromVal];
+            var tweens;
+            // determine if tweens
+            // NOTE: tweenFuncs should be of max length 2
+            if (tweenFuncs instanceof Function || tweenFuncs.length === 1) {
+                // make sure that you have a function
+                var tweenFunc = tweenFuncs instanceof Array ? tweenFuncs[0] : tweenFuncs;
+                if (tweenFunc instanceof Function) {
+                    // NOTE: these tween values will be added below
+                    tweens = tweenFunc(fromVal, toVal, numFramesToCalculatePerHalf * 2 + 1);
+                } else {
+                    if (TESTING) {
+                        console.log("In getTweenValuesFromTo(): tweenFuncs parameter passed is not a Function");
+                        console.log("typeof(tweenFunc): " + typeof(tweenFunc));
+                    }
+                    return null;
+                }
+            } else if (tweenFuncs.length === 2) {
+                if (tweenFuncs[0] instanceof Function && tweenFuncs[1] instanceof Function) {
+                    var midVal = Math.round((fromVal + toVal) / 2);
+
+                    // add from fromVal to midVal
+                    tweens = tweenFuncs[0](fromVal, midVal, numFramesToCalculatePerHalf);
+                    for (var i = 0; i < tweens.length; i++) {
+                        frames.push(tweens[i]);
+                    }
+                    // add midVal
+                    frames.push(midVal);
+                    // get from midVal to toVal
+                    // NOTE: these tween values will be added below
+                    tweens = tweenFuncs[1](midVal, toVal, numFramesToCalculatePerHalf);
+                } else {
+
+                }
+            } else { // tweenFuncs is not of length 1 or 2
+                if (TESTING) {
+                    console.log("In getTweenValuesFromTo(): tweenFuncs parameter formatted improperly");
+                    console.log("Expecting: <1st tween function> [optional , <2nd tween function>]");
+                    console.log("Value passed: " + tweenFuncs);
+                }
+                return null;
+            }
+            
+            // add middle frames set by above tween assignments
+            for (var i = 0; i < tweens.length; i++) {
+                frames.push(tweens[i]);
+            }
+ 
+            // add toVal
+            frames.push(toVal);
+
+            if (frames.length != frameCount) {
+                if (TESTING) {
+                    console.log("In getTweenValuesFromTo(): not enough values calculated by tween functions");
+                    console.log("Expected frame count: " + frameCount);
+                    console.log("Actual frame count:   " + frames.length);
+                    console.log("Frames:               " + frames);
+                }
+                return null;
+            }
+        }
+    }
+    return frames;
+}
+
+/************************************
+* Tween Definitions                 *
+************************************/
+// params: start          - the starting pixel location (int)
+//         end            - the ending pixel location (int)
+//         numTweenFrames - the number of frames between the start and end
+// return: an array with the pixel values for the tween locations
+// behavior: even distribute points between start and end
+function linearTween(start, end, numTweenFrames) {
+    var unit = Math.floor((end - start) / (numTweenFrames + 1));
+    var frames = [];
+    for (var i = 1; i <= numTweenFrames; i++) {
+        frames.push(start + (i * unit));
+    }
+    return frames;
+}
+
+// params: start          - the starting pixel location (int)
+//         end            - the ending pixel location (int)
+//         numTweenFrames - the number of frames between the start and end
+// return: an array with the pixel values for the tween locations
+// behavior: start out slow, then move faster to end point
+// TODO: write this and unit tests
+function easeInTween(start, end, numTweenFrames) {
+    var MULTIPLIER = 2; // this is the base in which growth function changes by,
+                        // can be adjusted later, but must find a new pattern
+                        // pattern: (n + 1)^2
+    var intervals  = Math.pow((numTweenFrames + 1), MULTIPLIER);
+    var unit       = (end - start) / intervals; 
+    return null;
+}
+
+// params: start          - the starting pixel location (int)
+//         end            - the ending pixel location (int)
+//         numTweenFrames - the number of frames between the start and end
+// return: an array with the pixel values for the tween locations
+// behavior: start out fast, then slow down as you reach the end point
+// TODO: write this and unit tests
+function easeOutTween(start, end, numTweenFrames) {
+    var MULTIPLIER = 2; // this is the base in which growth function changes by,
+                        // can be adjusted later, but must find a new pattern
+                        // pattern: (n + 1)^2
+    var intervals  = Math.pow((numTweenFrames + 1), MULTIPLIER);
+    var unit       = (end - start) / intervals; 
+    return null;
+}
+
+
 
 
 function filterCollectionForAttr(collection, attrName) {
@@ -1808,10 +1859,6 @@ function calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight) {
     }
     return yPosition;
 }
-
-/************************************
-* SVG Animation                     *
-************************************/
 
 /************************************
 * Main                              *
