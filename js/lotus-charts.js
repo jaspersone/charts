@@ -1231,13 +1231,21 @@ function getTweenValues(from, to, duration) {
      
     
     // convert arrays to strings
+    
+
+    // select from 4 types of tweens of tweens
+    // send tweenFunction as an array of length 1 or 2
+    // if the array is of length two, it will divide the
+    // tween in half and apply the first tween type for
+    // the first half and apply the second tween to the
+    // second half.
 
     var tweenValues = [];
 
     return tweenValues; 
 }
 
-function getTweenValuesFromTo(tweenFunc, fromVal, toVal, frameCount) {
+function getTweenValuesFromTo(tweenFuncs, fromVal, toVal, frameCount) {
     // make sure that frameCount is odd
     var frames = null;
     if (frameCount % 2 != 1) {
@@ -1257,26 +1265,56 @@ function getTweenValuesFromTo(tweenFunc, fromVal, toVal, frameCount) {
             for (var n = 0; n < frameCount; n++) {
                 frames.push(fromVal);
             }
-        } else {
+        } else { // from val and to val are different, need to calculate tween values
             // frames to calculate = frame count - 3 (don't count fromVal, midVal,
             // and toVal). Divide by 2 for each half:
             // [fromVal -> midVal] and [midVal -> toVal]
             var numFramesToCalculatePerHalf = (frameCount - 3) / 2;
-            var midVal     = Math.round((fromVal + toVal) / 2);
 
             // add fromVal
             frames = [fromVal];
+            var tweens;
+            // determine if tweens
+            // NOTE: tweenFuncs should be of max length 2
+            if (tweenFuncs.length === 1) {
+                // make sure that you have a function
+                if (tweenFuncs[0] instanceof Function) {
+                    // NOTE: these tween values will be added below
+                    tweens = tweenFuncs[0](fromVal, toVal, numFramesToCalculatePerHalf * 2 + 1);
+                } else {
+                    if (TESTING) {
+                        console.log("In getTweenValuesFromTo(): tweenFuncs parameter passed is not a Function"
+                        console.log("typeof(tweenFuncs[0]: " + typeof(tweenFuncs[0]));
+                    }
+                    return null;
+                }
+            } else if (tweenFuncs.length === 2) {
+                if (tweenFuncs[0] instanceof Function && tweenFuncs[1] instanceof Function) {
+                    var midVal = Math.round((fromVal + toVal) / 2);
 
-            // add from fromVal to midVal
-            var tweens = tweenFunc(fromVal, midVal, numFramesToCalculatePerHalf);
-            for (var i = 0; i < tweens.length; i++) {
-                frames.push(tweens[i]);
+                    // add from fromVal to midVal
+                    tweens = tweenFuncs[0](fromVal, midVal, numFramesToCalculatePerHalf);
+                    for (var i = 0; i < tweens.length; i++) {
+                        frames.push(tweens[i]);
+                    }
+                    // add midVal
+                    frames.push(midVal);
+                    // get from midVal to toVal
+                    // NOTE: these tween values will be added below
+                    tweens = tweenFuncs[1](midVal, toVal, numFramesToCalculatePerHalf);
+                } else {
+
+                }
+            } else { // tweenFuncs is not of length 1 or 2
+                if (TESTING) {
+                    console.log("In getTweenValuesFromTo(): tweenFuncs parameter formatted improperly"
+                    console.log("Expecting: <1st tween function> [optional , <2nd tween function>]");
+                    console.log("Value passed: " + tweenFuncs);
+                }
+                return null;
             }
-            // add midVal
-            frames.push(midVal);
             
-            // add from midVal to toVal
-            tweens = tweenFunc(midVal, toVal, numFramesToCalculatePerHalf);
+            // add middle frames set by above tween assignments
             for (var i = 0; i < tweens.length; i++) {
                 frames.push(tweens[i]);
             }
