@@ -1666,14 +1666,6 @@ function getTweenValues(from, to, duration) {
         frameCount++;
     }
 
-    // expect from here on out arrays
-    // note the different types of forms expected:
-    //   [1,5,3,2,4,...]
-    //   [[0,101],[50,43],[100,23],...]
-    //   32
-    var valuesArray = []; // will be populated by the results in array form
-                          // NOTE: each subarray will be of length frameCount
-    
     // send tweenFunction as an array of length 1 or 2
     // if the array is of length two, it will divide the
     // tween in half and apply the first tween type for
@@ -1682,28 +1674,36 @@ function getTweenValues(from, to, duration) {
     // options (linearTween, easeInTween, easeOutTween)
     var tweenFuncs = [linearTween]
 
+
+    // expect from here on out arrays
+    // note the different types of forms expected:
+    //   [1,5,3,2,4,...]
+    //   [[0,101],[50,43],[100,23],...]
+    //   32
+    
     // recursively get values for array
-    getValuesRecursive(valuesArray, tweenFuncs, from, to, frameCount); 
+    var valuesArray = getValuesRecursive(tweenFuncs, from, to, frameCount); 
     
     // convert arrays to strings
-    
-
-
-    return tweenValues; 
+    return convertToTweenString(valuesArray); 
 }
 
-function getValuesRecursive(valuesArray, tweenFuncs, from, to, frameCount) {
+// params: tweenFuncs - an array of length 1 or 2 containing tween functions
+//         from       - a starting number or array of numbers 
+//         to         - an ending number or array of numbers
+//         frameCount - the number of frames to be included per each animation
+// return: an array of numbers or a recursive array of arrays containing numbers
+//         which are the tween values
+// TODO: write tests
+function getValuesRecursive(tweenFuncs, from, to, frameCount) {
     if (typeof(from) === "number" && typeof(to) === "number") {
-        valuesArray.push(getTweenValuesFromTo(tweenFuncs, from, to, frameCount)); 
+        return getTweenValuesFromTo(tweenFuncs, from, to, frameCount); 
     } else if (from instanceof Array && to instanceof Array) {
-        var tempValues = [];
+        var valuesArray = [];
         for (var i = 0; i < from.length; i++) {
-            getValuesRecursive(tempValues, tweenFuncs, from[i], to[i], frameCount);
+            valuesArray.push(getValuesRecursive(tweenFuncs, from[i], to[i], frameCount));
         }
-        // loop through populated temp values, and add them to valuesArray
-        for (var i = 0; i < tempValues.length; i++) {
-            valuesArray.push(tempValues[i]);
-        }
+        return valuesArray;
     } else {
         if (TESTING) {
             console.log("In getValuesRecursive(): from and to must both be numbers or arrays");
@@ -1812,6 +1812,13 @@ function getTweenValuesFromTo(tweenFuncs, fromVal, toVal, frameCount) {
         }
     }
     return frames;
+}
+
+// params: valuesArray - an array of numbers or an array of arrays of numbers
+// return: an array of tween strings properly formatted for svg animations of
+//         either points or x y values
+function convertToTweenString(valuesArray) {
+    // TODO: write this
 }
 
 /************************************

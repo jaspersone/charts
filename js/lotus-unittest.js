@@ -427,22 +427,22 @@ function test_getBestIncrement5() {
 /************************************
 * Test Calculate Y Pixel            *
 ************************************/
-function run_calculateYPixel() {
+function run_calculatePixel() {
     var testGroupName = "Calculate Y Pixel Tests ";
     var resultsArray = [0, 0];
 
     // tests
-    sumResult(resultsArray, test_calculateYPixel1());
-    sumResult(resultsArray, test_calculateYPixel2());
-    sumResult(resultsArray, test_calculateYPixel3());
-    //sumResult(resultsArray, test_calculateYPixel4());
-    //sumResult(resultsArray, test_calculateYPixel5());
+    sumResult(resultsArray, test_calculatePixel1());
+    sumResult(resultsArray, test_calculatePixel2());
+    sumResult(resultsArray, test_calculatePixel3());
+    //sumResult(resultsArray, test_calculatePixel4());
+    //sumResult(resultsArray, test_calculatePixel5());
 
     printGroupResults(testGroupName, resultsArray);
 }
 
-function test_calculateYPixel1() {
-    var testName = "calculateYPixel() - simple case";
+function test_calculatePixel1() {
+    var testName = "calculatePixel() - simple case";
     var expected, actual;
 
     var value = 0;
@@ -452,13 +452,13 @@ function test_calculateYPixel1() {
 
     // you should assign expected and actual values here
     expected = 100;
-    actual = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
+    actual = calculatePixel(value, chartMinValue, chartMaxValue, chartHeight);
 
     return printTest(testName, expected, actual);
 }
 
-function test_calculateYPixel2() {
-    var testName = "calculateYPixel() - simple case 2";
+function test_calculatePixel2() {
+    var testName = "calculatePixel() - simple case 2";
     var expected, actual;
 
     var value = 100;
@@ -468,13 +468,13 @@ function test_calculateYPixel2() {
 
     // you should assign expected and actual values here
     expected = 0;
-    actual = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
+    actual = calculatePixel(value, chartMinValue, chartMaxValue, chartHeight);
 
     return printTest(testName, expected, actual);
 }
 
-function test_calculateYPixel3() {
-    var testName = "calculateYPixel() - simple case 3";
+function test_calculatePixel3() {
+    var testName = "calculatePixel() - simple case 3";
     var expected, actual;
 
     var value = 100;
@@ -484,7 +484,7 @@ function test_calculateYPixel3() {
 
     // you should assign expected and actual values here
     expected = 50;
-    actual = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
+    actual = calculatePixel(value, chartMinValue, chartMaxValue, chartHeight);
 
     return printTest(testName, expected, actual);
 }
@@ -692,6 +692,7 @@ function run_svgTweenTests() {
     sumResult(resultsArray, test_linearTween_basic());
     sumResult(resultsArray, test_linearTween_negative_tween());
     sumResult(resultsArray, test_linearTween_negative_values());
+    sumResult(resultsArray, test_getValuesRecursive_basic());
     printGroupResults(testGroupName, resultsArray);
 }
 
@@ -755,6 +756,25 @@ function test_linearTween_negative_values() {
     return printTest(testName, expected, actual);
 }
 
+function test_getValuesRecursive_basic() {
+    var testName = "test_getValuesRecursive_basic()"; 
+    var expected, actual;
+    
+    var tweenFuncs = [linearTween];
+    var from       = [-10,-20,-30,-40,-50];
+    var to         = [10,20,30,40,50];
+    var frameCount = 5;
+
+    expected = [[-10,  -5, 0,  5, 10],
+                [-20, -10, 0, 10, 20],
+                [-30, -15, 0, 15, 30],
+                [-40, -20, 0, 20, 40],
+                [-50, -25, 0, 25, 50]];
+    actual = getValuesRecursive(tweenFuncs, from, to, frameCount);
+    
+    return printTest(testName, expected, actual);
+
+}
 /************************************
 * Main                              *
 ************************************/
@@ -774,7 +794,7 @@ function startTests() {
     run_getNearestPixel();
     run_getChartScaleMax();
     run_getBestIncrement();
-    run_calculateYPixel();
+    run_calculatePixel();
     run_LineChartTests();
     run_LineTests();
     run_svgTweenTests();
