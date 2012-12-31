@@ -108,6 +108,37 @@ function convertToInts(a) {
     }
 }
 
+// params: value - the value of the datapoint which will coordinate with the y value on the chart
+//         chartMinValue - the minimum value of the current chart
+//         chartMaxValue - the maximum value of the current chart
+//         chartHeight - the height of the chart in pixels
+// return: an integer representing the proper y offset from the top of the chart (for SVG)
+function calculatePixel(value, chartMinValue, chartMaxValue, chartHeight) {
+    var position = 0;
+    // entire range of the chart
+    var totalRange = chartMaxValue - chartMinValue;
+    // position of the value relative to the bottom of the chart
+    var normalizedPosition = value - chartMinValue;
+    position = chartHeight - getNearestPixel(chartHeight, totalRange, normalizedPosition);
+    if (TESTING && totalRange < 0) {
+        console.log("<<<< In calculatePixel() >>>>");
+        console.log("chartMaxValue appears to be less than the chartMinValue in calculatePixel!"); 
+        console.log("chartMinValue: " + chartMinValue);
+        console.log("chartMaxValue: " + chartMaxValue);
+    }
+    if (TESTING && DEBUG) {
+        console.log("<<<< In calculatePixel() >>>>");
+        console.log("Input value:        " + value);
+        console.log("chartMinValue:      " + chartMinValue);
+        console.log("chartMaxValue:      " + chartMaxValue);
+        console.log("chartHeight:        " + chartHeight);
+        console.log("totalRange:         " + totalRange);
+        console.log("normalizedPosition: " + normalizedPosition);
+        console.log("Calculated Value:   " + position);
+    }
+    return position;
+}
+
 // params: parameter - the html tag parameter to get a string for
 //         value     - the value to assign to the html parameter
 // return: if value is not empty or null, will return the proper
@@ -153,6 +184,20 @@ function stripQuoteMarks(input) {
     var start = openQuote === "'" || openQuote === '"' ? 1 : 0;
     var end   = closeQuote === "'" || closeQuote === '"' ? input.length - 1 : input.length;
     return input.substring(start, end);
+}
+
+// params: collection - a collection of dom objects
+//         attrName   - a string of the attribute name you want to filter for
+// return: an array of dom objects which have the particular attribute
+//         identified by attrName
+function filterCollectionForAttr(collection, attrName) {
+    var ret = []
+    $(collection).each(function() {
+        if ($(this).attr(attrName) != undefined) {
+            ret.push(this);
+        }
+    });
+    return ret;
 }
 
 /************************************
@@ -888,7 +933,7 @@ function LineChart(id, start, end, height, segWidth, linesIn, parentNode) {
             console.log("Type found: undefined");
         }
     }
-    this.zeroPos = calculateYPixel(0, this.minValue, this.maxValue, this.pixelHeight);
+    this.zeroPos = calculatePixel(0, this.minValue, this.maxValue, this.pixelHeight);
 }
 
 // params: line - a Line object to be added to a LineChart object
@@ -1058,29 +1103,18 @@ LineChart.prototype.appendChartTo = function(target) {
     $target.append(chartString);
 }
 
-
-
 /************************************
 * Line Chart Static Functions       *
 ************************************/
-// params: parentNodeID - the id name of the parent node to search from
-// return: a jquery array of svg node's rel values, these will be used to
-//         construct automatically generated svg charts
-function getLineChartsFromID(parentNodeID) {
-    return filterCollectionForAttr($('#' + parentNodeID).children('svg'), 'rel');
-}
-
-// params: className - the className that identifies the label type
-// return: an integer that represents the label height
-// this function depends on the fact that the label size will be
-// determined either by the body 'font-size' css property or the
-// <text class="className" ...> 'font-size' properly
-function getLineChartLabelHeight(className) {
-    // get height
-    var $temp = $('<text class="' + className + '" x="0" y="0"></text>');
-    var tempHeight = parseInt($temp.css('font-size')) ? parseInt($temp.css('font-size')) : parseInt($('body').css('font-size')); 
-    delete $temp;
-    return tempHeight;
+function startLineCharts() {
+    if (TESTING && DEBUG) { console.log("<<<< Line Charts Starting >>>>"); }
+    var lineCharts = getLineCharts();
+    
+    for (i in lineCharts) {
+        lineCharts[i].appendChartTo(lineCharts[i].parentNode);    
+    }
+    //$lineCharts = getLineChartsFromID('line-chart-set-01');
+    //console.log($lineCharts);
 }
 
 // params: none
@@ -1241,6 +1275,28 @@ function parseData(data) {
     return dict;
 }
 
+
+
+// params: parentNodeID - the id name of the parent node to search from
+// return: a jquery array of svg node's rel values, these will be used to
+//         construct automatically generated svg charts
+function getLineChartsFromID(parentNodeID) {
+    return filterCollectionForAttr($('#' + parentNodeID).children('svg'), 'rel');
+}
+
+// params: className - the className that identifies the label type
+// return: an integer that represents the label height
+// this function depends on the fact that the label size will be
+// determined either by the body 'font-size' css property or the
+// <text class="className" ...> 'font-size' properly
+function getLineChartLabelHeight(className) {
+    // get height
+    var $temp = $('<text class="' + className + '" x="0" y="0"></text>');
+    var tempHeight = parseInt($temp.css('font-size')) ? parseInt($temp.css('font-size')) : parseInt($('body').css('font-size')); 
+    delete $temp;
+    return tempHeight;
+}
+
 // params: chart - the parent chart that the line data belongs to
 //         data  - an array representation of the line data
 // return: the calculated points, based upon the chart dimensions
@@ -1273,7 +1329,7 @@ function formatLineData(chart, data) {
                 console.log("  Found an offset amount: " + offset);
             }
         } else {
-            y = calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight);
+            y = calculatePixel(value, chartMinValue, chartMaxValue, chartHeight);
             points.push((segWidth * i + offset).toString() + "," + y.toString());
         }
     }
@@ -1808,57 +1864,8 @@ function easeOutTween(start, end, numTweenFrames) {
 
 
 
-function filterCollectionForAttr(collection, attrName) {
-    var ret = []
-    $(collection).each(function() {
-        if ($(this).attr(attrName) != undefined) {
-            ret.push(this);
-        }
-    });
-    return ret;
-}
 
-function startLineCharts() {
-    if (TESTING && DEBUG) { console.log("<<<< Line Charts Starting >>>>"); }
-    var lineCharts = getLineCharts();
-    
-    for (i in lineCharts) {
-        lineCharts[i].appendChartTo(lineCharts[i].parentNode);    
-    }
-    //$lineCharts = getLineChartsFromID('line-chart-set-01');
-    //console.log($lineCharts);
-}
 
-// params: value - the value of the datapoint which will coordinate with the y value on the chart
-//         chartMinValue - the minimum value of the current chart
-//         chartMaxValue - the maximum value of the current chart
-//         chartHeight - the height of the chart in pixels
-// return: an integer representing the proper y offset from the top of the chart (for SVG)
-function calculateYPixel(value, chartMinValue, chartMaxValue, chartHeight) {
-    var yPosition = 0;
-    // entire range of the chart
-    var totalRange = chartMaxValue - chartMinValue;
-    // position of the value relative to the bottom of the chart
-    var normalizedPosition = value - chartMinValue;
-    yPosition = chartHeight - getNearestPixel(chartHeight, totalRange, normalizedPosition);
-    if (TESTING && totalRange < 0) {
-        console.log("<<<< In calculateYPixel() >>>>");
-        console.log("chartMaxValue appears to be less than the chartMinValue in calculateYPixel!"); 
-        console.log("chartMinValue: " + chartMinValue);
-        console.log("chartMaxValue: " + chartMaxValue);
-    }
-    if (TESTING && DEBUG) {
-        console.log("<<<< In calculateYPixel() >>>>");
-        console.log("Input value:        " + value);
-        console.log("chartMinValue:      " + chartMinValue);
-        console.log("chartMaxValue:      " + chartMaxValue);
-        console.log("chartHeight:        " + chartHeight);
-        console.log("totalRange:         " + totalRange);
-        console.log("normalizedPosition: " + normalizedPosition);
-        console.log("Calculated Value:   " + yPosition);
-    }
-    return yPosition;
-}
 
 /************************************
 * Main                              *
