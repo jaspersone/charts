@@ -1276,15 +1276,21 @@ function getTweenValuesFromTo(tweenFuncs, fromVal, toVal, frameCount) {
             var tweens;
             // determine if tweens
             // NOTE: tweenFuncs should be of max length 2
-            if (tweenFuncs.length === 1) {
+            if (tweenFuncs instanceof Function || tweenFuncs.length === 1) {
                 // make sure that you have a function
-                if (tweenFuncs[0] instanceof Function) {
+                var tweenFunc;
+                if (tweenFuncs instanceof Array) {
+                    tweenFunc = tweenFuncs[0];
+                else {
+                    tweenFunc = tweenFuncs;
+                }
+                if (tweenFunc instanceof Function) {
                     // NOTE: these tween values will be added below
-                    tweens = tweenFuncs[0](fromVal, toVal, numFramesToCalculatePerHalf * 2 + 1);
+                    tweens = tweenFunc(fromVal, toVal, numFramesToCalculatePerHalf * 2 + 1);
                 } else {
                     if (TESTING) {
-                        console.log("In getTweenValuesFromTo(): tweenFuncs parameter passed is not a Function"
-                        console.log("typeof(tweenFuncs[0]: " + typeof(tweenFuncs[0]));
+                        console.log("In getTweenValuesFromTo(): tweenFuncs parameter passed is not a Function");
+                        console.log("typeof(tweenFunc): " + typeof(tweenFunc));
                     }
                     return null;
                 }
@@ -1307,7 +1313,7 @@ function getTweenValuesFromTo(tweenFuncs, fromVal, toVal, frameCount) {
                 }
             } else { // tweenFuncs is not of length 1 or 2
                 if (TESTING) {
-                    console.log("In getTweenValuesFromTo(): tweenFuncs parameter formatted improperly"
+                    console.log("In getTweenValuesFromTo(): tweenFuncs parameter formatted improperly");
                     console.log("Expecting: <1st tween function> [optional , <2nd tween function>]");
                     console.log("Value passed: " + tweenFuncs);
                 }
