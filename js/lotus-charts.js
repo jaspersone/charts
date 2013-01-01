@@ -1205,14 +1205,22 @@ function animateLineCharts(duration) {
 function animatePolyline(line, points) {
     if (TESTING) {
         console.log("<<<< In animatePolyline >>>>");
+        if (points) {
+            console.log("Points:");
+            for (var i = 0; i < points.length; i++) {
+                console.log(points[i]);
+            }
+        }
+        console.log("----------------------------");
     }
     var timeout = 1000 / LOTUS_FRAMES_PER_SECOND;
     if (points) {
         for(var i = 0; i < points.length; i++) {
+            if (points[i]) {
+                $(line).attr("points", points[i]);
+            }
             setTimeout(function() {
-                if (points[i]) {
-                    $(line).attr("points", points[i]);
-                }
+               // just wait for timeout 
             }, timeout);
         }
     } else {
@@ -1641,6 +1649,7 @@ function getMinMaxFromLine(line) {
 //                chart ends at
 //         duration - the time in milliseconds for the animation to occur
 // return: an array of the tween values
+// TODO: fix this function, currently returning wrong values
 function getTweenValues(from, to, duration) {
     if (TESTING && DEBUG) {
         console.log("<<<< In getTweenValues() >>>>");
@@ -1651,22 +1660,23 @@ function getTweenValues(from, to, duration) {
     }
 
     // sanity check
-    if (from && to) {
+    if (!from || !to) {
+        if (TESTING && DEBUG) {
+            console.log("!!!! ERROR In getTweenValues: must provide values for both from and to !!!!");
+        }
+        return null;
+    } else {
         // type checking
         if (typeof(from) != typeof(to)) {
-            if (TESTING) {
+            if (TESTING && DEBUG) {
                 console.log("!!!! ERROR In getTweenValues: mismatched types, 'from' and 'to' not the same !!!!");
                 console.log("from type: " + typeof(from));
                 console.log("to type:   " + typeof(to));
             }
             return null;
         }
-    } else {
-        if (TESTING) {
-            console.log("!!!! ERROR In getTweenValues: must provide values for from and to !!!!");
-        }
-        return null;
     }
+
     // type of 'from' and 'to' match
     // handle strings by converting to array
     if (typeof(from) === "string") {
@@ -1819,6 +1829,8 @@ function getValuesRecursive(tweenFuncs, from, to, frameCount) {
             valuesArray.push(getValuesRecursive(tweenFuncs, from[i], to[i], frameCount));
         }
         return valuesArray;
+    } else if (typeof(from) === "string" && typeof(to) === "string") {
+        return getTweenValuesFromTo(tweenFuncs, parseInt(from), parseInt(to), frameCount);
     } else {
         if (TESTING) {
             console.log("In getValuesRecursive(): from and to must both be numbers or arrays");
