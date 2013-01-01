@@ -12,7 +12,7 @@ var AJAX_ON = false;
 var MAX_BAR_HEIGHT = 300; // in pixels
 var DEFAULT_MAX_SCALE = 300; // vertical bar default Y access value (before resize)
 var DEFAULT_CHART_SEGMENT_WIDTH = 40;
-
+var LOTUS_FRAMES_PER_SECOND = 24; // for frame count on custom js driven animations
 
 var verticalBarScaleMax; // maximum size of the chart
 var verticalBarIncrement; // the size of the chart increments
@@ -1115,15 +1115,17 @@ function startLineCharts() {
     }
     //$lineCharts = getLineChartsFromID('line-chart-set-01');
     //console.log($lineCharts);
-    animateLineCharts();
+    animateLineCharts(1000);
 }
 
-function animateLineCharts() {
+function animateLineCharts(duration) {
     if (TESTING) {
         console.log("<<<< Line Chart animation starting >>>>");
     }
     var lines = [];
+    var linesTweenStrings = [];
     var circles = [];
+    var circlesTweenStrings = [];
     $("svg").each(function() {
         $(this).find("polyline").each(function() {
             lines.push(this);
@@ -1133,47 +1135,97 @@ function animateLineCharts() {
         });
     });
 
-    if (TESTING) {
+    if (TESTING) { // TODO: ADD && DEBUG to this conditional statement
         console.log("~~~~ Amount of lines found ~~~~");
         console.log(lines.length);
     }
 
-    // reset all lines to zero position
+    // reset all lines to zero position and collect tween data
     $(lines).each(function() {
-        if ($(this).attr("data-from")) {
+        var from = $(this).attr("data-from");
+        var to   = $(this).attr("data-to");
+        if (from && to) {
             if (TESTING && DEBUG) {
-                console.log("Found attr 'data-from'");
+                console.log("Found attr 'data-from':" + from);
+                console.log("Found attr 'data-to':  " + to);
             }
-            $(this).attr("points", $(this).attr("data-from"));
+            $(this).attr("points", from);
         } else {
             if (TESTING) {
-                console.log("Cannot find attr 'data-from'");
+                console.log("Cannot find attr 'data-from' and 'data-to'");
                 console.log(this);
             }
         }
+        // get animation values for lines, if no from or to, will add null
+        linesTweenStrings.push(getTweenValues(from, to, duration));
     });
     
-    if (TESTING) {
+    if (TESTING) { // TODO: ADD && DEBUG to this conditional statement
         console.log("~~~~ Amount of circles found ~~~~");
         console.log(circles.length);
     }
 
-    // reset all circles to zero position
+    // reset all circles to zero position and collect tween data
     $(circles).each(function() {
-        if ($(this).attr("data-from")) {
+        var from = $(this).attr("data-from");
+        var to   = $(this).attr("data-to");
+        if (from && to) {
             if (TESTING && DEBUG) {
-                console.log("Found attr 'data-from'");
+                console.log("Found attr 'data-from':" + from);
+                console.log("Found attr 'data-to':  " + to);
             }
-            $(this).attr("cy", $(this).attr("data-from"));
+            $(this).attr("cy", from);
         } else {
             if (TESTING) {
-                console.log("Cannot find attr 'data-from'");
+                console.log("Cannot find attr 'data-from' and 'data-to'");
                 console.log(this);
             }
         }
+        // get animation values for circles, if no from or to, will add null
+        circlesTweenStrings.push(getTweenValues(from, to, duration));
     });
+
+    // check length of lines and circles
+    if (lines.length != linesTweenStrings.length ||
+        circles.length != circlesTweenStrings.length) {
+        if (TESTING) {
+            console.log("ERROR in animateLineChart(): lines and circles do not match\
+                         length of linesTweenStrings and circlesTweenStrings");
+        }
+    } else { // start animations
+        $(lines).each(function(i) {
+            animatePolyline($(this), linesTweenStrings[i]);
+        });
+        $(circles).each(function(i) {
+            animateCircle($(this), circlesTweenStrings[i]);
+        });
+    }
 }
 
+function animatePolyline(line, points) {
+    if (TESTING) {
+        console.log("<<<< In animatePolyline >>>>");
+    }
+    var timeout = 1000 / LOTUS_FRAMES_PER_SECOND;
+    if (points) {
+        for(var i = 0; i < points.length; i++) {
+            setTimeout(function() {
+                if (points[i]) {
+                    $(line).attr("points", points[i]);
+                }
+            }, timeout);
+        }
+    } else {
+        if (TESTING) {
+            console.log("In animatePolyline: points passed is null");
+        }
+    }
+}
+
+
+function animateCircle(circle, cys) {
+
+}
 // params: none
 // return: an array of LineCharts
 // goes through dom and finds all line charts and creates object
@@ -1498,7 +1550,8 @@ Line.prototype.getLineString = function() {
 
     for (var i = 0; i < rawPoints.length; i++) {
         coords = rawPoints[i].split(",");
-        lineString.push('<circle ' + myClass + 'cx="' + $.trim(coords[0]) + '" ' + 'cy="' + $.trim(coords[1]) + '" ' + 'r="' + this.circleRadius + '" />');
+        zeroCoords = rawZeroPoints[i].split(",");
+        lineString.push('<circle ' + myClass + 'cx="' + $.trim(coords[0]) + '" ' + 'cy="' + $.trim(coords[1]) + '" ' + 'r="' + this.circleRadius + '" data-from="' + $.trim(zeroCoords[1]) + '" data-to="' + $.trim(coords[1]) + '" />');
         // This only works for Mozilla browsers and Opera
         //animateString = '<animate attributeName="cy" \
         //                          attributeType="XML" \
@@ -1582,8 +1635,6 @@ function getMinMaxFromLine(line) {
 /************************************
 * SVG Animation                     *
 ************************************/
-var LOTUS_FRAMES_PER_SECOND = 24;
-
 // params: from - a string representation of the from pixel values that
 //                the chart starts at
 //         to   - a string representation of the to pixel values that the 
@@ -1651,7 +1702,7 @@ function getTweenValues(from, to, duration) {
         }
         
         // make sure that 'from' and 'to' have elements
-        if (from.length > 0 && to.length > 0) {
+        if (from.length < 1 && to.length < 1) {
             if (TESTING) {
                 console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must have values !!!!");
                 console.log("from: " + from);
@@ -1886,6 +1937,9 @@ function getTweenValuesFromTo(tweenFuncs, fromVal, toVal, frameCount) {
 // [ [[<points>],[<points>]], [[<points>],[<points>]], ... ,[[<points>],[<points>]] ]
 // TODO: Perhaps make this more universal
 function convertToTweenStrings(valuesArray) {
+    if (!valuesArray || !valuesArray[0]) {
+        return null;
+    }
     if (valuesArray[0][0] instanceof Array && typeof(valuesArray[0][0][0]) === "number" ) {
         var frameCount = valuesArray[0][0].length;
         var allSame = true;
@@ -1911,8 +1965,10 @@ function convertToTweenStrings(valuesArray) {
             var line = [];
             for (var i = 0; i < valuesArray.length; i++) {
                 var group = [];
-                for (var k = 0; k < valuesArray[i][j].length; k++) {
-                    group.push(valuesArray[i][j][k]);
+                if (valuesArray[i][j]) { // TODO: why are some values coming out undefined?
+                    for (var k = 0; k < valuesArray[i][j].length; k++) {
+                        group.push(valuesArray[i][j][k]);
+                    }
                 }
                 line.push(group.join(","));
             }
