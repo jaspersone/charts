@@ -1113,36 +1113,65 @@ function startLineCharts() {
     for (var i = 0; i < lineCharts.length; i++) {
         lineCharts[i].appendChartTo(lineCharts[i].parentNode);    
     }
-    animateCharts();
     //$lineCharts = getLineChartsFromID('line-chart-set-01');
     //console.log($lineCharts);
+    animateLineCharts();
 }
 
-// TODO: this function is currently firing before dom svg polylines and circles
-//       that are to be dynamically added, are actually present in the DOM
-function animateCharts() {
+function animateLineCharts() {
     if (TESTING) {
         console.log("<<<< Line Chart animation starting >>>>");
     }
-    // get all lines
-    var $lines = $("svg").children("polyline");
-    // get all circles
-    var $circles = $("svg").children("circle");
-
-    console.log("~~~~ Amount of lines found ~~~~");
-    console.log($lines.length);
-
-    // reset all lines to zero position
-    $lines.each(function() {
-        if ($(this).attr("data-from")) {
-            console.log("Found attr 'data-from'");
-        } else {
-            console.log("Cannot find attr 'data-from'");
-            console.log(this);
-        }
-        $(this).attr("points", $(this).attr("data-from"));
+    var lines = [];
+    var circles = [];
+    $("svg").each(function() {
+        $(this).find("polyline").each(function() {
+            lines.push(this);
+        });
+        $(this).find("circle").each(function() {
+            circles.push(this); 
+        });
     });
 
+    if (TESTING) {
+        console.log("~~~~ Amount of lines found ~~~~");
+        console.log(lines.length);
+    }
+
+    // reset all lines to zero position
+    $(lines).each(function() {
+        if ($(this).attr("data-from")) {
+            if (TESTING && DEBUG) {
+                console.log("Found attr 'data-from'");
+            }
+            $(this).attr("points", $(this).attr("data-from"));
+        } else {
+            if (TESTING) {
+                console.log("Cannot find attr 'data-from'");
+                console.log(this);
+            }
+        }
+    });
+    
+    if (TESTING) {
+        console.log("~~~~ Amount of circles found ~~~~");
+        console.log(circles.length);
+    }
+
+    // reset all circles to zero position
+    $(circles).each(function() {
+        if ($(this).attr("data-from")) {
+            if (TESTING && DEBUG) {
+                console.log("Found attr 'data-from'");
+            }
+            $(this).attr("cy", $(this).attr("data-from"));
+        } else {
+            if (TESTING) {
+                console.log("Cannot find attr 'data-from'");
+                console.log(this);
+            }
+        }
+    });
 }
 
 // params: none
@@ -2000,12 +2029,13 @@ $(document).ready(function() {
     
     // start up vertical bar charts
     startVerticalBarCharts();
+
+    // start up line charts
+    startLineCharts();
 });
 
 $(window).load(function() {
     // start up horizontal bar charts
     startHorizontalBarCharts();
  
-    // start up line charts
-    startLineCharts();
 });
