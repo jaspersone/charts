@@ -1110,11 +1110,39 @@ function startLineCharts() {
     if (TESTING && DEBUG) { console.log("<<<< Line Charts Starting >>>>"); }
     var lineCharts = getLineCharts();
     
-    for (i in lineCharts) {
+    for (var i = 0; i < lineCharts.length; i++) {
         lineCharts[i].appendChartTo(lineCharts[i].parentNode);    
     }
+    animateCharts();
     //$lineCharts = getLineChartsFromID('line-chart-set-01');
     //console.log($lineCharts);
+}
+
+// TODO: this function is currently firing before dom svg polylines and circles
+//       that are to be dynamically added, are actually present in the DOM
+function animateCharts() {
+    if (TESTING) {
+        console.log("<<<< Line Chart animation starting >>>>");
+    }
+    // get all lines
+    var $lines = $("svg").children("polyline");
+    // get all circles
+    var $circles = $("svg").children("circle");
+
+    console.log("~~~~ Amount of lines found ~~~~");
+    console.log($lines.length);
+
+    // reset all lines to zero position
+    $lines.each(function() {
+        if ($(this).attr("data-from")) {
+            console.log("Found attr 'data-from'");
+        } else {
+            console.log("Cannot find attr 'data-from'");
+            console.log(this);
+        }
+        $(this).attr("points", $(this).attr("data-from"));
+    });
+
 }
 
 // params: none
@@ -1410,7 +1438,7 @@ Line.prototype.getLineString = function() {
     var zeroPoints  = rawZeroPoints.join(' ');
 
     // TODO: FIX THIS SECTION TO HAVE POINTS START OUT AT zeroPoints and then move to points
-    var lineString  = ['<polyline fill="none" ' + myId + myClass + 'points="' + points + '" from="' + zeroPoints + '" to="' + points  + '" />']
+    var lineString  = ['<polyline fill="none" ' + myId + myClass + 'points="' + points + '" data-from="' + zeroPoints + '" data-to="' + points  + '" />']
 
     // This only works for Mozilla browsers and Opera
     //var animateString = '<animate attributeName="points" \
@@ -1685,7 +1713,14 @@ function getTweenValues(from, to, duration) {
     var valuesArray = getValuesRecursive(tweenFuncs, from, to, frameCount); 
     
     // convert arrays to strings
-    return convertToTweenString(valuesArray); 
+    if (typeof(valuesArray[0]) === "number") {
+        for (var i = 0; i < valuesArray.length; i++) {
+            valuesArray[i] = valuesArray[i].toString();
+        }
+        return valuesArray;
+    } else {
+        return convertToTweenStrings(valuesArray); 
+    }
 }
 
 // params: tweenFuncs - an array of length 1 or 2 containing tween functions
@@ -1814,11 +1849,54 @@ function getTweenValuesFromTo(tweenFuncs, fromVal, toVal, frameCount) {
     return frames;
 }
 
-// params: valuesArray - an array of numbers or an array of arrays of numbers
+// params: valuesArray - an array of arrays of numbers, either in pairs
 // return: an array of tween strings properly formatted for svg animations of
 //         either points or x y values
-function convertToTweenString(valuesArray) {
-    // TODO: write this
+//
+// CURRENT FORMAT EXPECTED:
+// [ [[<points>],[<points>]], [[<points>],[<points>]], ... ,[[<points>],[<points>]] ]
+// TODO: Perhaps make this more universal
+function convertToTweenStrings(valuesArray) {
+    if (valuesArray[0][0] instanceof Array && typeof(valuesArray[0][0][0]) === "number" ) {
+        var frameCount = valuesArray[0][0].length;
+        var allSame = true;
+        // sanity check make sure all frame counts are the same
+        for (var i = 0; i < valuesArray.length; i++) {
+            for (var j = 0; j < valuesArray[i].length; j++) {
+                if (valuesArray[i][j].length != frameCount) {
+                    allSame = false;
+                    break;
+                }
+            }
+            if (!allSame) break;
+        }
+        if (!allSame) {
+            if (TESTING) {
+                console.log("ERROR in convertToTweenStrings(): not all tween arrays are of the same length");
+            }
+            return null;
+        }
+        
+        var output = [];
+        for (var j = 0; j < frameCount; j++) {
+            var line = [];
+            for (var i = 0; i < valuesArray.length; i++) {
+                var group = [];
+                for (var k = 0; k < valuesArray[i][j].length; k++) {
+                    group.push(valuesArray[i][j][k]);
+                }
+                line.push(group.join(","));
+            }
+            output.push(line.join(" "));
+        }
+        return output;
+    } 
+    if (TESTING) {
+        console.log("ERROR in convertToTweenStrings(): unrecognized valuesArray format");
+        console.log("valuesArray:");
+        console.log(valuesArray);
+    }
+    return null;
 }
 
 /************************************
