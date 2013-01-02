@@ -1115,7 +1115,7 @@ function startLineCharts() {
     }
     //$lineCharts = getLineChartsFromID('line-chart-set-01');
     //console.log($lineCharts);
-    animateLineCharts(1000);
+    animateLineCharts(1800);
 }
 
 function animateLineCharts(duration) {
@@ -1728,7 +1728,7 @@ function getTweenValues(from, to, duration) {
     // the first half and apply the second tween to the
     // second half.
     // options (linearTween, easeInTween, easeOutTween)
-    var tweenFuncs = [linearTween]
+    var tweenFuncs = [easeInTween, easeOutTween]
 
     // make sure there is no white space
     from = $.trim(from);
@@ -2019,12 +2019,17 @@ function linearTween(start, end, numTweenFrames) {
 // behavior: start out slow, then move faster to end point
 // TODO: write this and unit tests
 function easeInTween(start, end, numTweenFrames) {
+    var frames = [];
     var MULTIPLIER = 2; // this is the base in which growth function changes by,
                         // can be adjusted later, but must find a new pattern
                         // pattern: (n + 1)^2
-    var intervals  = Math.pow((numTweenFrames + 1), MULTIPLIER);
+    var intervals  = Math.pow(MULTIPLIER, (numTweenFrames + 1));
     var unit       = (end - start) / intervals; 
-    return null;
+    for (var i = 1; i <= numTweenFrames; i++) {
+        frames.push(start + unit);
+        unit = unit * MULTIPLIER;
+    }
+    return frames;
 }
 
 // params: start          - the starting pixel location (int)
@@ -2034,12 +2039,18 @@ function easeInTween(start, end, numTweenFrames) {
 // behavior: start out fast, then slow down as you reach the end point
 // TODO: write this and unit tests
 function easeOutTween(start, end, numTweenFrames) {
+    var frames = [];
     var MULTIPLIER = 2; // this is the base in which growth function changes by,
                         // can be adjusted later, but must find a new pattern
                         // pattern: (n + 1)^2
-    var intervals  = Math.pow((numTweenFrames + 1), MULTIPLIER);
-    var unit       = (end - start) / intervals; 
-    return null;
+    var intervals  = Math.pow(MULTIPLIER, (numTweenFrames + 1));
+    var unit       = (start - end) / intervals; 
+    for (var i = 1; i <= numTweenFrames; i++) {
+        frames.push(end + unit);
+        unit = unit * MULTIPLIER;
+    }
+    frames.reverse();
+    return frames;
 }
 
 
