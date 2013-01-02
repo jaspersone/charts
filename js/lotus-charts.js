@@ -1651,7 +1651,7 @@ function getMinMaxFromLine(line) {
 // return: an array of the tween values
 // TODO: fix this function, currently returning wrong values
 function getTweenValues(from, to, duration) {
-    if (TESTING && DEBUG) {
+    if (TESTING) {
         console.log("<<<< In getTweenValues() >>>>");
         console.log("Frames per sec: " + LOTUS_FRAMES_PER_SECOND);
         console.log("From values:    " + from);
@@ -1677,105 +1677,6 @@ function getTweenValues(from, to, duration) {
         }
     }
 
-    // type of 'from' and 'to' match
-    // handle strings by converting to array
-    if (typeof(from) === "string") {
-        // split on spaces
-        var _from = $.trim(from).split(new RegExp("\\s+"));
-        var _to   = $.trim(to).split(new RegExp("\\s+"));
-        
-        // strip out blank array elements
-        from = [];
-        var elem;
-        for (var i = 0; i < _from.length; i++) {
-            elem = $.trim(_from[i]);
-            if (elem != "") {
-                from.push(elem);
-            }
-        }
-        
-        to = [];
-        for (var i = 0; i < _to.length; i++) {
-            elem = $.trim(_to[i]);
-            if (elem != "") {
-                to.push(elem);
-            }
-        }
-        // make sure that 'from' and 'to' are same length
-        if (from.length != to.length) {
-            if (TESTING) {
-                console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must be of same length !!!!");
-                console.log("from: " + from);
-                console.log("to:   " + to);
-            }
-            return null;
-        }
-        
-        // make sure that 'from' and 'to' have elements
-        if (from.length < 1 && to.length < 1) {
-            if (TESTING) {
-                console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must have values !!!!");
-                console.log("from: " + from);
-                console.log("to:   " + to);
-            }
-            return null;
-        }
-
-        // from and to are of same length and have elements, now in array form
-        // check for commas
-        var hasCommas = from[0].split(",").length > 1;
-
-        // extract numbers from pairs
-        if (hasCommas) {
-            var fromCount = 0;
-            var toCount = 0;
-            // replace in place elements and convert to number values
-            for (var i = 0; i < from.length; i++) {
-                // TODO: finish writing this!
-                from[i] = from[i].split(",")
-                // loop through each and strip each element of outside
-                // white spaces and convert from string to number
-                for (var j = 0; j < from[i].length; j++) {
-                    from[i][j] = parseInt($.trim(from[i][j]))
-                    fromCount++;
-                }
-                fromCount++;
-            }
-            for (var i = 0; i < to.length; i++) {
-                to[i] = to[i].split(",")
-                // loop through each and strip each element of outside
-                // white spaces and convert from string to number
-                for (var j = 0; j < to[i].length; j++) {
-                    to[i][j] = parseInt($.trim(to[i][j]))
-                    toCount++;
-                }
-                toCount++;
-            }
-            // double check to make sure from and to are still the same length
-            if (fromCount != toCount) {
-                if (TESTING) {
-                    console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must have same number of values !!!!");
-                    console.log("from: " + from);
-                    console.log("to:   " + to);
-                }
-                return null;
-            }
-        }
-    } else { // was not a string, check if it is an array
-        if (from instanceof Array && to instanceof Array) {
-            // if both arrays, make sure that values are ints
-            convertToInts(from);
-            convertToInts(to);
-        } else {
-            if (TESTING) {
-                console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must either be a string or instance of array !!!!");
-                console.log("from: " + from);
-                console.log("to:   " + to);
-            }
-            return null;
-        }
-    }
-
     // calculate total animation frames to make for duration
     // NOTE: duration should be given in milliseconds
     var frameCount = Math.round((LOTUS_FRAMES_PER_SECOND / 1000) * duration);
@@ -1792,25 +1693,137 @@ function getTweenValues(from, to, duration) {
     // options (linearTween, easeInTween, easeOutTween)
     var tweenFuncs = [linearTween]
 
-
-    // expect from here on out arrays
-    // note the different types of forms expected:
-    //   [1,5,3,2,4,...]
-    //   [[0,101],[50,43],[100,23],...]
-    //   32
+    // make sure there is no white space
+    from = $.trim(from);
+    to   = $.trim(to);
     
-    // recursively get values for array
-    var valuesArray = getValuesRecursive(tweenFuncs, from, to, frameCount); 
-    
-    // convert arrays to strings
-    if (typeof(valuesArray[0]) === "number") {
-        for (var i = 0; i < valuesArray.length; i++) {
-            valuesArray[i] = valuesArray[i].toString();
+    // split on spaces
+    var _from = $.trim(from).split(new RegExp("\\s+"));
+    var _to   = $.trim(to).split(new RegExp("\\s+"));
+ 
+    // dealing with simple single number values
+    if (_from.length === 1 && _to.length === 1) {
+        // this is the simple case for a single value, istead of pairs
+        return getTweenValuesFromTo(tweenFuncs, parseInt(from), parseInt(to), frameCount);
+    } else { // dealing with values that are multiple numbers or pairs
+        // Prepare arrays
+        // strip out blank array elements
+        from = [];
+        var elem;
+        for (var i = 0; i < _from.length; i++) {
+            elem = $.trim(_from[i]);
+            if (elem != "") {
+                from.push(elem);
+            }
         }
-        return valuesArray;
-    } else {
-        return convertToTweenStrings(valuesArray); 
+        to = [];
+        for (var i = 0; i < _to.length; i++) {
+            elem = $.trim(_to[i]);
+            if (elem != "") {
+                to.push(elem);
+            }
+        }
+        // make sure that 'from' and 'to' are same length
+        if (from.length != to.length) {
+            if (TESTING) {
+                console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must be of same length !!!!");
+                console.log("from: " + from);
+                console.log("to:   " + to);
+            }
+            return null;
+        }
+        // make sure that 'from' and 'to' have elements
+        if (from.length < 1 && to.length < 1) {
+            if (TESTING) {
+                console.log("!!!! ERROR In getTweenValues: 'from' and 'to' must have values !!!!");
+                console.log("from: " + from);
+                console.log("to:   " + to);
+            }
+            return null;
+        }
+        // from and to are of same length and have elements, now in array form
+        // check for commas, which represent x,y pairs
+        var hasCommas = from[0].split(",").length > 1;
+        if (!hasCommas) {
+            return getValuesRecursive(tweenFuncs, from, to, frameCount);
+        } else { // looking for pairs
+            var columns = [];
+            // 0,332 50,332 100,332 150,332 200,332 250,332 300,332 350,332 400,332 450,332
+            // 0,89  50,170 100,190 150,231 200,120 250,231 300,372 350,281 400,302 450,271
+            // loop through each pair and get tween values
+            for (var i = 0; i < from.length; i++) {
+                var frXY = from[i].split(",");
+                var toXY = to[i].split(",");
+                
+                var frX = parseInt($.trim(frXY[0]));
+                var toX = parseInt($.trim(toXY[0]));
+                var frY = parseInt($.trim(frXY[1]));
+                var toY = parseInt($.trim(toXY[1]));
+                
+                var xTweenVals = getTweenValuesFromTo(tweenFuncs, frX, toX, frameCount);
+                var yTweenVals = getTweenValuesFromTo(tweenFuncs, frY, toY, frameCount);
+
+                // TODO: FINISH WRITING THIS
+                columns.push(zipPoints(xTweenVals, yTweenVals));
+            }
+
+            // get rows
+            var rowCount;
+            if (columns[0]) {
+                var allSame = true;
+                rowCount = columns[0].length;
+                // check to make sure all columns are of same length
+                for (var i = 0; i < columns.length; i++) {
+                    if (columns[i].length != rowCount) {
+                        allSame = false;
+                        break;
+                    }
+                }
+                if (!allSame) {
+                    if (TESTING) {
+                        console.log("!!!! ERROR In getTweenValues: columns must be of same length !!!!");
+                    }
+                    return null;
+                }
+            }
+            
+            var valuesArray = []; 
+            // make rows of pairs from column of pairs
+            for (var row = 0; row < rowCount; row++) {
+                var rowString = [];
+                for (var col = 0; col < columns.length; col++) {
+                    // START HERE!!!
+                    // TODO: FIND OUT WHAT IS GOING ON HERE
+                    if (columns[row]) {
+                        rowString.push(columns[row][col]);
+                    }
+                }
+                if ($.trim(rowString.join(" ")) != "") {
+                    valuesArray.push(rowString.join(" "));
+                }
+            }
+            return valuesArray;
+        }
     }
+}
+
+// params: xPoints - an array of numbers
+//         yPoints - an array of numbers
+// return: an array of strings, where x,y are comma seperated and trimmed
+function zipPoints(xPoints, yPoints) {
+    if (xPoints.length != yPoints.length) {
+        if (TESTING) {
+            console.log("!!!! ERROR in zipPoints(): length of x and y points does not match !!!!");
+        }
+        return null;
+    }
+    
+    var pairsArray = [];
+
+    for (var i = 0; i < xPoints.length; i++) {
+        pairsArray.push($.trim(xPoints[i]) + "," + $.trim(yPoints[i]));
+    }
+    return pairsArray; 
 }
 
 // params: tweenFuncs - an array of length 1 or 2 containing tween functions
