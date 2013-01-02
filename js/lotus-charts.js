@@ -12,7 +12,7 @@ var AJAX_ON = false;
 var MAX_BAR_HEIGHT = 300; // in pixels
 var DEFAULT_MAX_SCALE = 300; // vertical bar default Y access value (before resize)
 var DEFAULT_CHART_SEGMENT_WIDTH = 40;
-var LOTUS_FRAMES_PER_SECOND = 24; // for frame count on custom js driven animations
+var LOTUS_FRAMES_PER_SECOND = 20; // for frame count on custom js driven animations
 
 var verticalBarScaleMax; // maximum size of the chart
 var verticalBarIncrement; // the size of the chart increments
@@ -1115,7 +1115,7 @@ function startLineCharts() {
     }
     //$lineCharts = getLineChartsFromID('line-chart-set-01');
     //console.log($lineCharts);
-    animateLineCharts(10000);
+    animateLineCharts(1000);
 }
 
 function animateLineCharts(duration) {
@@ -1221,14 +1221,8 @@ function animatePolyline(line, points) {
             var point = this;
             if (this) {
                 window.setTimeout(function() {
-                    console.log("----------------------------");
                     $(line).attr("points", point);
-                    console.log("Time:   " + $.now());
-                    console.log("Points: " + point);
-                    console.log("----------------------------");
-                }, timeout, point);
-            } else {
-                console.log("Could not add at index: " + i);
+                }, timeout * i, point);
             }
         });
     } else {
