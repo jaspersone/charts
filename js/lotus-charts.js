@@ -1115,7 +1115,7 @@ function startLineCharts() {
     }
     //$lineCharts = getLineChartsFromID('line-chart-set-01');
     //console.log($lineCharts);
-    animateLineCharts(1000);
+    animateLineCharts(10000);
 }
 
 function animateLineCharts(duration) {
@@ -1203,6 +1203,7 @@ function animateLineCharts(duration) {
 }
 
 function animatePolyline(line, points) {
+    var timeout = 1000 / LOTUS_FRAMES_PER_SECOND;
     if (TESTING) {
         console.log("<<<< In animatePolyline >>>>");
         if (points) {
@@ -1211,18 +1212,25 @@ function animatePolyline(line, points) {
                 console.log(points[i]);
             }
         }
+        console.log("Timeout: " + timeout);
         console.log("----------------------------");
     }
-    var timeout = 1000 / LOTUS_FRAMES_PER_SECOND;
+
     if (points) {
-        for(var i = 0; i < points.length; i++) {
-            if (points[i]) {
-                $(line).attr("points", points[i]);
+        $(points).each(function(i) {
+            var point = this;
+            if (this) {
+                window.setTimeout(function() {
+                    console.log("----------------------------");
+                    $(line).attr("points", point);
+                    console.log("Time:   " + $.now());
+                    console.log("Points: " + point);
+                    console.log("----------------------------");
+                }, timeout, point);
+            } else {
+                console.log("Could not add at index: " + i);
             }
-            setTimeout(function() {
-               // just wait for timeout 
-            }, timeout);
-        }
+        });
     } else {
         if (TESTING) {
             console.log("In animatePolyline: points passed is null");
@@ -1651,7 +1659,7 @@ function getMinMaxFromLine(line) {
 // return: an array of the tween values
 // TODO: fix this function, currently returning wrong values
 function getTweenValues(from, to, duration) {
-    if (TESTING) {
+    if (TESTING && DEBUG) {
         console.log("<<<< In getTweenValues() >>>>");
         console.log("Frames per sec: " + LOTUS_FRAMES_PER_SECOND);
         console.log("From values:    " + from);
@@ -1679,7 +1687,7 @@ function getTweenValues(from, to, duration) {
 
     // calculate total animation frames to make for duration
     // NOTE: duration should be given in milliseconds
-    var frameCount = Math.round((LOTUS_FRAMES_PER_SECOND / 1000) * duration);
+    var frameCount = Math.round((LOTUS_FRAMES_PER_SECOND) * duration / 1000);
     // make sure it is an odd number
     if (frameCount % 2 === 0) {
         frameCount++;
@@ -2059,13 +2067,11 @@ $(document).ready(function() {
     
     // start up vertical bar charts
     startVerticalBarCharts();
-
-    // start up line charts
-    startLineCharts();
 });
 
 $(window).load(function() {
     // start up horizontal bar charts
     startHorizontalBarCharts();
- 
+    // start up line charts
+    startLineCharts();
 });
