@@ -12,7 +12,7 @@ var AJAX_ON = false;
 var MAX_BAR_HEIGHT = 300; // in pixels
 var DEFAULT_MAX_SCALE = 300; // vertical bar default Y access value (before resize)
 var DEFAULT_CHART_SEGMENT_WIDTH = 40;
-var LOTUS_FRAMES_PER_SECOND = 20; // for frame count on custom js driven animations
+var LOTUS_FRAMES_PER_SECOND = 30; // for frame count on custom js driven animations
 
 var verticalBarScaleMax; // maximum size of the chart
 var verticalBarIncrement; // the size of the chart increments
@@ -1969,7 +1969,7 @@ function getTweenValuesFromTo(tweenFuncs, fromVal, toVal, frameCount) {
 // return: an array with the pixel values for the tween locations
 // behavior: even distribute points between start and end
 function linearTween(start, end, numTweenFrames) {
-    var unit = Math.floor((end - start) / (numTweenFrames + 1));
+    var unit = (end - start) / (numTweenFrames + 1);
     var frames = [];
     for (var i = 1; i <= numTweenFrames; i++) {
         frames.push(start + (i * unit));
