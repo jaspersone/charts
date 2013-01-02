@@ -1762,9 +1762,17 @@ function getTweenValues(from, to, duration) {
                 
                 var xTweenVals = getTweenValuesFromTo(tweenFuncs, frX, toX, frameCount);
                 var yTweenVals = getTweenValuesFromTo(tweenFuncs, frY, toY, frameCount);
-
-                // TODO: FINISH WRITING THIS
-                columns.push(zipPoints(xTweenVals, yTweenVals));
+                
+                var column = zipPoints(xTweenVals, yTweenVals);
+                if (TESTING && DEBUG) {
+                    console.log("***********************************************************");
+                    console.log("xTweenVals: " + xTweenVals);
+                    console.log("yTweenVals: " + yTweenVals);
+                    console.log("column string:");
+                    console.log(column);
+                    console.log("***********************************************************");
+                }
+                columns.push(column);
             }
 
             // get rows
@@ -1792,11 +1800,7 @@ function getTweenValues(from, to, duration) {
             for (var row = 0; row < rowCount; row++) {
                 var rowString = [];
                 for (var col = 0; col < columns.length; col++) {
-                    // START HERE!!!
-                    // TODO: FIND OUT WHAT IS GOING ON HERE
-                    if (columns[row]) {
-                        rowString.push(columns[row][col]);
-                    }
+                    rowString.push(columns[col][row]);
                 }
                 if ($.trim(rowString.join(" ")) != "") {
                     valuesArray.push(rowString.join(" "));
@@ -1952,61 +1956,6 @@ function getTweenValuesFromTo(tweenFuncs, fromVal, toVal, frameCount) {
         }
     }
     return frames;
-}
-
-// params: valuesArray - an array of arrays of numbers, either in pairs
-// return: an array of tween strings properly formatted for svg animations of
-//         either points or x y values
-//
-// CURRENT FORMAT EXPECTED:
-// [ [[<points>],[<points>]], [[<points>],[<points>]], ... ,[[<points>],[<points>]] ]
-// TODO: Perhaps make this more universal
-function convertToTweenStrings(valuesArray) {
-    if (!valuesArray || !valuesArray[0]) {
-        return null;
-    }
-    if (valuesArray[0][0] instanceof Array && typeof(valuesArray[0][0][0]) === "number" ) {
-        var frameCount = valuesArray[0][0].length;
-        var allSame = true;
-        // sanity check make sure all frame counts are the same
-        for (var i = 0; i < valuesArray.length; i++) {
-            for (var j = 0; j < valuesArray[i].length; j++) {
-                if (valuesArray[i][j].length != frameCount) {
-                    allSame = false;
-                    break;
-                }
-            }
-            if (!allSame) break;
-        }
-        if (!allSame) {
-            if (TESTING) {
-                console.log("ERROR in convertToTweenStrings(): not all tween arrays are of the same length");
-            }
-            return null;
-        }
-        
-        var output = [];
-        for (var j = 0; j < frameCount; j++) {
-            var line = [];
-            for (var i = 0; i < valuesArray.length; i++) {
-                var group = [];
-                if (valuesArray[i][j]) { // TODO: why are some values coming out undefined?
-                    for (var k = 0; k < valuesArray[i][j].length; k++) {
-                        group.push(valuesArray[i][j][k]);
-                    }
-                }
-                line.push(group.join(","));
-            }
-            output.push(line.join(" "));
-        }
-        return output;
-    } 
-    if (TESTING) {
-        console.log("ERROR in convertToTweenStrings(): unrecognized valuesArray format");
-        console.log("valuesArray:");
-        console.log(valuesArray);
-    }
-    return null;
 }
 
 /************************************
