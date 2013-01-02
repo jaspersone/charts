@@ -1193,11 +1193,19 @@ function animateLineCharts(duration) {
                          length of linesTweenStrings and circlesTweenStrings");
         }
     } else { // start animations
+        var sTime = Date.now();
         $(lines).each(function(i) {
             animatePolyline($(this), linesTweenStrings[i]);
         });
+        var eTime = Date.now();
+        var lagtime = (eTime - sTime) * 2;
+        if (TESTING && DEBUG) {
+            console.log(":::::::::::::::::::::::::::::::::::::");
+            console.log("Lagtime to add: " + lagtime);
+            console.log(":::::::::::::::::::::::::::::::::::::");
+        }
         $(circles).each(function(i) {
-            animateCircle($(this), circlesTweenStrings[i]);
+            animateCircle($(this), circlesTweenStrings[i], lagtime);
         });
     }
 }
@@ -1222,7 +1230,7 @@ function animatePolyline(line, points) {
             if (this) {
                 window.setTimeout(function() {
                     $(line).attr("points", point);
-                }, timeout * i, point);
+                }, timeout * (i + 1), point);
             }
         });
     } else {
@@ -1233,7 +1241,7 @@ function animatePolyline(line, points) {
 }
 
 
-function animateCircle(circle, cys) {
+function animateCircle(circle, cys, lagtime) {
     var timeout = 1000 / LOTUS_FRAMES_PER_SECOND;
     if (TESTING) {
         console.log("<<<< In animateCircle >>>>");
@@ -1253,7 +1261,7 @@ function animateCircle(circle, cys) {
             if (this) {
                 window.setTimeout(function() {
                     $(circle).attr("cy", cy);
-                }, timeout * i, cy);
+                }, timeout * (i + 1) - lagtime , cy);
             }
         });
     } else {
