@@ -1261,7 +1261,7 @@ function animateCircle(circle, cys, lagtime) {
             if (this) {
                 window.setTimeout(function() {
                     $(circle).attr("cy", cy);
-                }, timeout * (i + 1) - lagtime , cy);
+                }, (timeout * (i + 1) - lagtime) >= 0 ? (timeout * (i + 1) - lagtime) : (timeout * (i + 1)), cy);
             }
         });
     } else {
