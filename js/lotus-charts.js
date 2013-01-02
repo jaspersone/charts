@@ -1234,6 +1234,33 @@ function animatePolyline(line, points) {
 
 
 function animateCircle(circle, cys) {
+    var timeout = 1000 / LOTUS_FRAMES_PER_SECOND;
+    if (TESTING) {
+        console.log("<<<< In animateCircle >>>>");
+        if (cys) {
+            console.log("cys:");
+            for (var i = 0; i < cys.length; i++) {
+                console.log(cys[i]);
+            }
+        }
+        console.log("Timeout: " + timeout);
+        console.log("----------------------------");
+    }
+
+    if (cys) {
+        $(cys).each(function(i) {
+            var cy = this;
+            if (this) {
+                window.setTimeout(function() {
+                    $(circle).attr("cy", cy);
+                }, timeout * i, cy);
+            }
+        });
+    } else {
+        if (TESTING) {
+            console.log("In animateCircle: points passed is null");
+        }
+    }
 
 }
 // params: none
