@@ -477,7 +477,7 @@ function resizeBars($chart, chartMax) {
         $(this).animate({height: newHeight,}, animationTime, "swing").css("overflow", "visible");
     });
 
-    if (TESTING) {
+    if (TESTING && DEBUG) {
         console.log("In resizeBars()");
     }
 }
@@ -578,7 +578,7 @@ function clearAllMax($listToClear) {
 // return: none
 // behavior: kick off all vertical bar charts functions needed to activate this portion of charts
 function startVerticalBarCharts() {
-    if (TESTING) console.log("Vertical Bar Charts Starting");
+    if (TESTING && DEBUG) console.log("Vertical Bar Charts Starting");
     var $chart = $(".lotus-charts.vertical-bar-chart"); 
     verticalBarScaleMax = getChartScaleMax($chart);
     var chartHeight = $(".vertical-bar-chart .chart-slice-window").height()
@@ -780,7 +780,7 @@ function changeBarValue($bar, initialCoords, currCoords) {
     var maxChartValue = verticalBarScaleMax;
     var increment = verticalBarIncrement; // this value must be dynamically set later by user
 
-    if (TESTING) {
+    if (TESTING && DEBUG) {
         console.log("<<<< In changeBarValue >>>>");
         console.log("     initialHeight : " + initialHeight);
         console.log("     adjustedY     : " + adjustedY);
@@ -791,7 +791,7 @@ function changeBarValue($bar, initialCoords, currCoords) {
     }
 
     if (diffY !=0 && adjustedY <= MAX_BAR_HEIGHT && adjustedY >= 0) { 
-        if (TESTING) { console.log("Inside changing bar height"); }
+        if (TESTING && DEBUG) { console.log("Inside changing bar height"); }
         var newHeight = adjustedY + "px";
         ($bar).css("height", newHeight);
         if (!($bar).hasClass('saved')) { ($bar).addClass('saved'); }
@@ -829,7 +829,7 @@ function changeBarValue($bar, initialCoords, currCoords) {
             findAndAssignMax($(".lotus-charts.vertical-bar-chart").find(".bar"));
         }
 
-        if (TESTING) {
+        if (TESTING && DEBUG) {
             console.log("Value to send to server: " + updatedValue);
         }
     }
@@ -918,7 +918,7 @@ function LineChart(id, start, end, height, segWidth, linesIn, parentNode) {
             if (linesIn[n] instanceof Line) {
                 this.addLine(linesIn[n]);
             } else {
-                if (TESTING) {
+                if (TESTING && DEBUG) {
                     console.log("In LineChart constructor: passed array of linesIn, where not all elements are lines, failed at index: " + n);
                 }
             }
@@ -944,7 +944,7 @@ LineChart.prototype.addLine = function(line) {
         
         // if data is not an array, fix it
         if (!(line.data instanceof Array)) {
-            if (TESTING) {
+            if (TESTING && DEBUG) {
                 console.log("Line data should have been an array");
             }
             // change line data from string to array of values
@@ -1025,7 +1025,7 @@ LineChart.prototype.appendChartTo = function(target) {
 
     // if we have min, max, and pixel height,calculate and draw negative area
     if (this.minValue && this.minValue < 0 && this.maxValue & this.pixelHeight) {
-        if (TESTING) {
+        if (TESTING && DEBUG) {
             console.log("<<<< Drawing negative rectangle >>>>");
             console.log("minValue:    " + this.minValue);
             console.log("maxValue:    " + this.maxValue);
@@ -1122,7 +1122,7 @@ function startLineCharts() {
 // return: none
 // behavior: finds LineCharts, and animates them from zero position to chart values
 function animateLineCharts(duration) {
-    if (TESTING) {
+    if (TESTING && DEBUG) {
         console.log("<<<< Line Chart animation starting >>>>");
     }
     var lines = [];
@@ -1138,7 +1138,7 @@ function animateLineCharts(duration) {
         });
     });
 
-    if (TESTING) { // TODO: ADD && DEBUG to this conditional statement
+    if (TESTING && DEBUG) { 
         console.log("~~~~ Amount of lines found ~~~~");
         console.log(lines.length);
     }
@@ -1163,7 +1163,7 @@ function animateLineCharts(duration) {
         linesTweenStrings.push(getTweenValues(from, to, duration));
     });
     
-    if (TESTING) { // TODO: ADD && DEBUG to this conditional statement
+    if (TESTING && DEBUG) { 
         console.log("~~~~ Amount of circles found ~~~~");
         console.log(circles.length);
     }
@@ -1215,7 +1215,7 @@ function animateLineCharts(duration) {
 
 function animatePolyline(line, points) {
     var timeout = 1000 / LOTUS_FRAMES_PER_SECOND;
-    if (TESTING) {
+    if (TESTING && DEBUG) {
         console.log("<<<< In animatePolyline >>>>");
         if (points) {
             console.log("Points:");
@@ -1246,7 +1246,7 @@ function animatePolyline(line, points) {
 
 function animateCircle(circle, cys, lagtime) {
     var timeout = 1000 / LOTUS_FRAMES_PER_SECOND;
-    if (TESTING) {
+    if (TESTING && DEBUG) {
         console.log("<<<< In animateCircle >>>>");
         if (cys) {
             console.log("cys:");
