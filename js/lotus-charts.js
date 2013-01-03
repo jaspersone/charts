@@ -1115,7 +1115,7 @@ function startLineCharts() {
     }
     //$lineCharts = getLineChartsFromID('line-chart-set-01');
     //console.log($lineCharts);
-    animateLineCharts(1800);
+    animateLineCharts(1500);
 }
 
 function animateLineCharts(duration) {
@@ -2020,14 +2020,9 @@ function linearTween(start, end, numTweenFrames) {
 // TODO: write this and unit tests
 function easeInTween(start, end, numTweenFrames) {
     var frames = [];
-    var MULTIPLIER = 2; // this is the base in which growth function changes by,
-                        // can be adjusted later, but must find a new pattern
-                        // pattern: (n + 1)^2
-    var intervals  = Math.pow(MULTIPLIER, (numTweenFrames + 1));
-    var unit       = (end - start) / intervals; 
-    for (var i = 1; i <= numTweenFrames; i++) {
-        frames.push(start + unit);
-        unit = unit * MULTIPLIER;
+    var offset     = getEaseValues(start, end, numTweenFrames);
+    for (var i = 0; i < numTweenFrames; i++) {
+        frames.push(start + offset[i]);
     }
     return frames;
 }
@@ -2040,24 +2035,30 @@ function easeInTween(start, end, numTweenFrames) {
 // TODO: write this and unit tests
 function easeOutTween(start, end, numTweenFrames) {
     var frames = [];
-    var MULTIPLIER = 2; // this is the base in which growth function changes by,
-                        // can be adjusted later, but must find a new pattern
-                        // pattern: (n + 1)^2
-    var intervals  = Math.pow(MULTIPLIER, (numTweenFrames + 1));
-    var unit       = (start - end) / intervals; 
-    for (var i = 1; i <= numTweenFrames; i++) {
-        frames.push(end + unit);
-        unit = unit * MULTIPLIER;
+    var offset     = getEaseValues(end, start, numTweenFrames);
+    for (var i = 0; i < numTweenFrames; i++) {
+        frames.push(end + offset[i]);
     }
     frames.reverse();
     return frames;
 }
 
+function getEaseValues(start, end, numTweenFrames) {
+    // get exponent function
+    var seg = 1 / numTweenFrames;
+    var exp = 2;
+    var vals = [];
 
-
-
-
-
+    for (var i = 0; i < numTweenFrames; i++) {
+        vals.push(Math.pow(seg * i, exp));
+    }
+    // scale values to match interval
+    var scale = end - start;
+    for (var i = 0; i < vals.length; i++) {
+        vals[i] = vals[i] * scale;
+    }
+    return vals;
+}
 
 /************************************
 * Main                              *
