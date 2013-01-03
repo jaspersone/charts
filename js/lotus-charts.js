@@ -1118,6 +1118,9 @@ function startLineCharts() {
     animateLineCharts(1500);
 }
 
+// params: duration - the total animation time in milliseconds
+// return: none
+// behavior: finds LineCharts, and animates them from zero position to chart values
 function animateLineCharts(duration) {
     if (TESTING) {
         console.log("<<<< Line Chart animation starting >>>>");
@@ -2017,7 +2020,6 @@ function linearTween(start, end, numTweenFrames) {
 //         numTweenFrames - the number of frames between the start and end
 // return: an array with the pixel values for the tween locations
 // behavior: start out slow, then move faster to end point
-// TODO: write this and unit tests
 function easeInTween(start, end, numTweenFrames) {
     var frames = [];
     var offset     = getEaseValues(start, end, numTweenFrames);
@@ -2032,7 +2034,6 @@ function easeInTween(start, end, numTweenFrames) {
 //         numTweenFrames - the number of frames between the start and end
 // return: an array with the pixel values for the tween locations
 // behavior: start out fast, then slow down as you reach the end point
-// TODO: write this and unit tests
 function easeOutTween(start, end, numTweenFrames) {
     var frames = [];
     var offset     = getEaseValues(end, start, numTweenFrames);
@@ -2043,16 +2044,23 @@ function easeOutTween(start, end, numTweenFrames) {
     return frames;
 }
 
+// params: start          - the starting pixel location (int)
+//         end            - the ending pixel location (int)
+//         numTweenFrames - the number of frames between the start and end
+// return: an array of offset values from the start position going to the
+//         ending value using a simple exponential function specified by
+//         the exp var defined within the body of this function
 function getEaseValues(start, end, numTweenFrames) {
     // get exponent function
     var seg = 1 / numTweenFrames;
-    var exp = 2;
+    var exp = 2; // will be used to define the power of the exponential function
     var vals = [];
 
+    // find values for offsets from 0 - 1, without scaling
     for (var i = 0; i < numTweenFrames; i++) {
         vals.push(Math.pow(seg * i, exp));
     }
-    // scale values to match interval
+    // scale values to match segment
     var scale = end - start;
     for (var i = 0; i < vals.length; i++) {
         vals[i] = vals[i] * scale;
