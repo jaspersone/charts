@@ -1564,7 +1564,7 @@ function Line(parentChart, idName, className, data, radius) {
 
 Line.prototype.getLineString = function() {
     var myId        = getIdString(this.idName);
-    var myClass     = getClassString(this.className);
+    var myClass     = getClassString("line-chart-data " + this.className);
     var rawPoints   = formatLineData(this.parentChart, this.data);
     var rawZeroPoints = formatZeroLineData(this.parentChart, this.data);
     var points      = rawPoints.join(' ');
@@ -1572,19 +1572,7 @@ Line.prototype.getLineString = function() {
 
     // TODO: FIX THIS SECTION TO HAVE POINTS START OUT AT zeroPoints and then move to points
     var lineString  = ['<polyline fill="none" ' + myId + myClass + 'points="' + points + '" data-from="' + zeroPoints + '" data-to="' + points  + '" />']
-
-    // This only works for Mozilla browsers and Opera
-    //var animateString = '<animate attributeName="points" \
-    //                              attributeType="XML" \
-    //                              calcMode="linear" \
-    //                              begin="0s" dur="1.5s" \
-    //                              fill="freeze" \
-    //                              repeatCount="1" \
-    //                              from="' + zeroPoints + '" \
-    //                              to="' + points + '" />';
-    //lineString.push(animateString);
-    //lineString.push('</polyline>');
-    
+   
     if (TESTING && DEBUG) {
         console.log("<<<< Getting raw points >>>>");
         console.log("passing data:");
@@ -1606,18 +1594,10 @@ Line.prototype.getLineString = function() {
         value       = this.values[i];
         coords      = rawPoints[i].split(",");
         zeroCoords  = rawZeroPoints[i].split(",");
+        lineString.push('<g>');
+        lineString.push('<title>' + value + '</title>');
         lineString.push('<circle ' + myClass + 'cx="' + $.trim(coords[0]) + '" ' + 'cy="' + $.trim(coords[1]) + '" ' + 'r="' + this.circleRadius + '" data-from="' + $.trim(zeroCoords[1]) + '" data-to="' + $.trim(coords[1]) + '" data-value="' + value + '" />');
-        // This only works for Mozilla browsers and Opera
-        //animateString = '<animate attributeName="cy" \
-        //                          attributeType="XML" \
-        //                          calcMode="linear" \
-        //                          begin="0s" dur="1.5s" \
-        //                          fill="freeze" \
-        //                          repeatCount="1" \
-        //                          from="' + this.parentChart.zeroPos + '" \
-        //                          to="' + $.trim(coords[1]) + '" />';
-        //lineString.push(animateString);
-        //lineString.push('</circle>');
+        lineString.push('</g>');
     }
     
     return lineString.join("\n");
