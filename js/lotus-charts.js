@@ -1075,6 +1075,7 @@ LineChart.prototype.appendChartTo = function(target) {
                         lineHeight + '">' + this.minValue + '</text>';
     }
     // TODO: see if there is a better way to do this
+    //       because LABEL_OFFSET may not match user's desired margin
     // label max if there is enough space to do so
     if (this.zeroPos > MIN_LABEL_SPACE) {
         // get height
@@ -1474,6 +1475,8 @@ function formatLineData(chart, data) {
     var y; 
     for (i = 0; i < data.length; i++) {
         value = data[i];
+        // check for offset values found in parens ex: (4) means to start
+        // the line 4 segments in
         if (value[0] === "(" || value[0] === "[" || value[0] === "{") {
             // note subtract and extra 1 from the length to make up for
             // i offset by his additional piece of information
@@ -1554,8 +1557,9 @@ function Line(parentChart, idName, className, data, radius) {
     this.parentChart= parentChart ? parentChart : null;
     this.idName     = idName      ? idName      : null;
     this.className  = className   ? className   : null;
-    this.data       = data && (this.data instanceof Array) ? data : parseLineData(data);
+    this.data       = data && (data instanceof Array) ? data : parseLineData(data);
     this.circleRadius = radius    ? radius      : lineChart_circleRadius; 
+    this.values     = getLineValues(this.data);
 }
 
 Line.prototype.getLineString = function() {
@@ -1581,8 +1585,6 @@ Line.prototype.getLineString = function() {
     //lineString.push(animateString);
     //lineString.push('</polyline>');
     
-    var circle;
-    var coords;
     if (TESTING && DEBUG) {
         console.log("<<<< Getting raw points >>>>");
         console.log("passing data:");
@@ -1596,10 +1598,15 @@ Line.prototype.getLineString = function() {
         console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
 
+    var circle;
+    var coords;
+    var value;
+
     for (var i = 0; i < rawPoints.length; i++) {
-        coords = rawPoints[i].split(",");
-        zeroCoords = rawZeroPoints[i].split(",");
-        lineString.push('<circle ' + myClass + 'cx="' + $.trim(coords[0]) + '" ' + 'cy="' + $.trim(coords[1]) + '" ' + 'r="' + this.circleRadius + '" data-from="' + $.trim(zeroCoords[1]) + '" data-to="' + $.trim(coords[1]) + '" />');
+        value       = this.values[i];
+        coords      = rawPoints[i].split(",");
+        zeroCoords  = rawZeroPoints[i].split(",");
+        lineString.push('<circle ' + myClass + 'cx="' + $.trim(coords[0]) + '" ' + 'cy="' + $.trim(coords[1]) + '" ' + 'r="' + this.circleRadius + '" data-from="' + $.trim(zeroCoords[1]) + '" data-to="' + $.trim(coords[1]) + '" data-value="' + value + '" />');
         // This only works for Mozilla browsers and Opera
         //animateString = '<animate attributeName="cy" \
         //                          attributeType="XML" \
@@ -1637,6 +1644,8 @@ function parseLineData(dataString) {
     for (i in temp) {
         curr = $.trim(temp[i]); 
         if (curr != "") {
+            // parseInt(curr) handles the case for offset values such as '(4)'
+            // which should be left as strings instead of being converted
             if (parseInt(curr)) {
                 curr = parseInt(curr);
             }
@@ -1644,6 +1653,19 @@ function parseLineData(dataString) {
         }
     }
     return data; 
+}  
+
+// params: data - an array of point raw point data, it may contain offset
+//                values that are wrapped in parens
+// return: array of the values excluding offsets
+function getLineValues(data) {
+    var values = [];
+    for (var i = 0; i < data.length; i++) {
+        if (parseInt(data[i])) {
+            values.push(parseInt(data[i]));
+        }
+    }
+    return values;
 }
 
 // params: line - a Line object that contains data points
