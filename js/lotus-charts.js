@@ -1115,7 +1115,7 @@ function startLineCharts() {
     }
     //$lineCharts = getLineChartsFromID('line-chart-set-01');
     //console.log($lineCharts);
-    animateLineCharts(1500);
+    animateLineCharts(1200);
 }
 
 // params: duration - the total animation time in milliseconds
