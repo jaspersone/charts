@@ -9,10 +9,11 @@
 var TESTING = true;
 var DEBUG   = false;
 var AJAX_ON = false;
-var MAX_BAR_HEIGHT = 300; // in pixels
-var DEFAULT_MAX_SCALE = 300; // vertical bar default Y access value (before resize)
+var MAX_BAR_HEIGHT              = 300; // in pixels
+var DEFAULT_MAX_SCALE           = 300; // vertical bar default Y access value (before resize)
 var DEFAULT_CHART_SEGMENT_WIDTH = 40;
-var LOTUS_FRAMES_PER_SECOND = 30; // for frame count on custom js driven animations
+var LOTUS_FRAMES_PER_SECOND     = 30; // for frame count on custom js driven animations
+var LOTUS_SPARK_CHART_HEIGHT    = 100;
 
 var verticalBarScaleMax; // maximum size of the chart
 var verticalBarIncrement; // the size of the chart increments
@@ -1061,8 +1062,12 @@ LineChart.prototype.appendChartTo = function(target) {
         var labelValue = Math.round(this.maxValue / 2);
         chartGrids += '<line class="chart-grid" x1="0" x2="100%" y1="' +
                        gridY + '" y2="' + gridY + '" />';
-        chartLabels += '<text class="chart-label" x="4" y="' + labelPos + '">' +
-                        labelValue + '</text>';
+
+        // only add label if it is not a spark chart
+        if(this.pixelHeight > LOTUS_SPARK_CHART_HEIGHT) {
+            chartLabels += '<text class="chart-label" x="4" y="' + labelPos + '">' +
+                            labelValue + '</text>';
+        }
     }
 
     // always label the zero line
@@ -1564,7 +1569,7 @@ function Line(parentChart, idName, className, data, radius) {
 
 Line.prototype.getLineString = function() {
     var myId        = getIdString(this.idName);
-    var myClass     = getClassString("line-chart-data " + this.className);
+    var myClass     = getClassString(this.className);
     var rawPoints   = formatLineData(this.parentChart, this.data);
     var rawZeroPoints = formatZeroLineData(this.parentChart, this.data);
     var points      = rawPoints.join(' ');
@@ -1585,21 +1590,25 @@ Line.prototype.getLineString = function() {
         console.log("typeof(rawPoints): " + typeof(rawPoints));
         console.log("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
     }
-
-    var circle;
-    var coords;
-    var value;
-
-    for (var i = 0; i < rawPoints.length; i++) {
-        value       = this.values[i];
-        coords      = rawPoints[i].split(",");
-        zeroCoords  = rawZeroPoints[i].split(",");
-        lineString.push('<g>');
-        lineString.push('<title>' + value + '</title>');
-        lineString.push('<circle ' + myClass + 'cx="' + $.trim(coords[0]) + '" ' + 'cy="' + $.trim(coords[1]) + '" ' + 'r="' + this.circleRadius + '" data-from="' + $.trim(zeroCoords[1]) + '" data-to="' + $.trim(coords[1]) + '" data-value="' + value + '" />');
-        lineString.push('</g>');
-    }
     
+    // if the chart is to small (spark chart size), do not add circles
+    if(this.parentChart.pixelHeight > LOTUS_SPARK_CHART_HEIGHT) {
+        for (var i = 0; i < rawPoints.length; i++) {
+            value       = this.values[i];
+            coords      = rawPoints[i].split(",");
+            zeroCoords  = rawZeroPoints[i].split(",");
+            lineString.push('<g class="line-chart-data">');
+            lineString.push('<title>' + value + '</title>');
+            lineString.push('<circle ' + myClass + 'cx="' + $.trim(coords[0]) + '" ' + 'cy="' + $.trim(coords[1]) + '" ' + 'r="' + this.circleRadius + '" data-from="' + $.trim(zeroCoords[1]) + '" data-to="' + $.trim(coords[1]) + '" data-value="' + value + '" />');
+            lineString.push('</g>');
+        }
+    } else {
+        if (TESTING && DEBUG) {
+            console.log("The current chart is a spark chart");
+            console.log("Will not draw circles");
+        }
+    }
+     
     return lineString.join("\n");
 }
 
