@@ -1562,7 +1562,7 @@ function Line(parentChart, idName, className, data, radius) {
     this.className  = className   ? className   : null;
     this.data       = data && (data instanceof Array) ? data : parseLineData(data);
     this.circleRadius = radius    ? radius      : lineChart_circleRadius; 
-    this.values     = getLineValues(this.data);
+    this.values     = this.data   ? getLineValues(this.data) : null;
 }
 
 Line.prototype.getLineString = function() {
@@ -1647,9 +1647,11 @@ function parseLineData(dataString) {
 // return: array of the values excluding offsets
 function getLineValues(data) {
     var values = [];
-    for (var i = 0; i < data.length; i++) {
-        if (parseInt(data[i])) {
-            values.push(parseInt(data[i]));
+    if (data) {
+        for (var i = 0; i < data.length; i++) {
+            if (parseInt(data[i])) {
+                values.push(parseInt(data[i]));
+            }
         }
     }
     return values;
