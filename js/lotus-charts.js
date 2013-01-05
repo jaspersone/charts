@@ -1037,7 +1037,7 @@ LineChart.prototype.appendChartTo = function(target) {
         // grid lines
         gridY = this.zeroPos / 2;
         // see if there is enough space to worry about a negative splitting line
-        if (this.zeroPos / this.pixelHeight < .7) {
+        if (this.zeroPos / this.pixelHeight < .7 && this.pixelHeight > LOTUS_SPARK_CHART_HEIGHT) {
             var gridYNeg = this.zeroPos + Math.round(((this.pixelHeight - this.zeroPos) / 2));
             var labelNegPos = gridYNeg - LABEL_OFFSET;
             var labelValue = Math.round(this.minValue / 2);
@@ -1057,21 +1057,19 @@ LineChart.prototype.appendChartTo = function(target) {
     
     // only draw positive half line if the positive portion of the chart
     // takes more than 30% of the chart's space
-    if (this.zeroPos / this.pixelHeight > .3) {
+    if (this.zeroPos / this.pixelHeight > .3 && this.pixelHeight > LOTUS_SPARK_CHART_HEIGHT) {
         var labelPos = gridY - LABEL_OFFSET;
         var labelValue = Math.round(this.maxValue / 2);
         chartGrids += '<line class="chart-grid" x1="0" x2="100%" y1="' +
                        gridY + '" y2="' + gridY + '" />';
 
-        // only add label if it is not a spark chart
-        if(this.pixelHeight > LOTUS_SPARK_CHART_HEIGHT) {
-            chartLabels += '<text class="chart-label" x="4" y="' + labelPos + '">' +
-                            labelValue + '</text>';
-        }
+        chartLabels += '<text class="chart-label" x="4" y="' + labelPos + '">' +
+                        labelValue + '</text>';
     }
 
     // always label the zero line
     chartLabels += '<text class="chart-label" x="4" y="' + labelZeroPos + '">0</text>';
+
     
     // label min if there is enough space to do so
     if (this.pixelHeight - this.zeroPos > MIN_LABEL_SPACE) {
