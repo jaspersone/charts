@@ -584,7 +584,7 @@ function startVerticalBarCharts() {
 
     // set Max Height
     var $chartWindow = $chart.find(".chart-slice-window");
-    var MAX_BAR_HEIGHT = $chartWindow.height(); // in pixels
+    MAX_BAR_HEIGHT = $chartWindow.height(); // in pixels
 
     verticalBarScaleMax = getChartScaleMax($chart);
     var chartHeight = $(".vertical-bar-chart .chart-slice-window").height()
