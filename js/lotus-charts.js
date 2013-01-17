@@ -9,7 +9,7 @@
 var TESTING = true;
 var DEBUG   = false;
 var AJAX_ON = false;
-var MAX_BAR_HEIGHT              = 300; // in pixels
+var MAX_BAR_HEIGHT              = 300; // default in pixels (this can be changed)
 var DEFAULT_MAX_SCALE           = 300; // vertical bar default Y access value (before resize)
 var DEFAULT_CHART_SEGMENT_WIDTH = 40;
 var LOTUS_FRAMES_PER_SECOND     = 30; // for frame count on custom js driven animations
@@ -581,6 +581,11 @@ function clearAllMax($listToClear) {
 function startVerticalBarCharts() {
     if (TESTING && DEBUG) console.log("Vertical Bar Charts Starting");
     var $chart = $(".lotus-charts.vertical-bar-chart"); 
+
+    // set Max Height
+    var $chartWindow = $chart.find(".chart-slice-window");
+    var MAX_BAR_HEIGHT = $chartWindow.height(); // in pixels
+
     verticalBarScaleMax = getChartScaleMax($chart);
     var chartHeight = $(".vertical-bar-chart .chart-slice-window").height()
     verticalBarIncrement = getBestIncrement(verticalBarScaleMax, chartHeight);
