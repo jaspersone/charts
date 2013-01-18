@@ -445,8 +445,8 @@ function rescaleAxis($chart, chartMax) {
             var normalizedArray = normalizeValue(value);
 
             // set new values
-            $(this).children(".number").html(normalizedArray[0]);
-            $(this).children(".metric").html(normalizedArray[1]);
+            $(this).children(".lotus-number").html(normalizedArray[0]);
+            $(this).children(".lotus-metric").html(normalizedArray[1]);
 
             if (TESTING && DEBUG) {
                 console.log(index + ": " + $(this).html());
@@ -705,7 +705,7 @@ function setupBubbleLabels() {
     $(".bubble-label").click(function() {
         if (!$(this).hasClass("open")) {
             // add value of the rel into input box
-            var currency = $(this).find(".currency").html();
+            var currency = $(this).find(".lotus-currency").html();
             var $input = $(this).find("input");
             var $bubble = $(this);
             $input.val(currency + $(this).closest(".bar").attr("rel"));
@@ -768,8 +768,8 @@ function setBubbleLabel($bubble) {
 function updateBubbleLabelFromValue($bubble, value) {
     if (value) {
         var normalizedValue = normalizeValue(value);
-        $bubble.children(".number").html(normalizedValue[0]);
-        $bubble.children(".metric").html(normalizedValue[1]);
+        $bubble.children(".lotus-number").html(normalizedValue[0]);
+        $bubble.children(".lotus-metric").html(normalizedValue[1]);
         return true;
     } else {
         return false;
@@ -848,8 +848,8 @@ function changeLabelValue($bar, maxChartValue, currPixel, increment) {
     
     var $label      = ($bar).children(".bubble-label");
     var $input      = ($label).children(".edit-bubble").children("input");
-    var $number     = ($label).children('.number');
-    var $metric     = ($label).children('.metric');
+    var $number     = ($label).children('.lotus-number');
+    var $metric     = ($label).children('.lotus-metric');
     
     var newValues   = normalizeValue(value);
     var normalizedValue = newValues[0];
@@ -1689,7 +1689,7 @@ function getMinMaxFromLine(line) {
         // adjust min/max to have an additional 10% padding above and below 
         var range = localMax - localMin;
         var padding = Math.round(range / 10);
-        result.push(localMin - padding);
+        result.push(localMin >= 0 ? localMin : localMin - padding);
         result.push(localMax + padding);
     }
     return result;
