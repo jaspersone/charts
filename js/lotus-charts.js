@@ -758,6 +758,8 @@ function setBubbleLabel($bubble) {
         findAndAssignMax(($chart).find(".bar"));
         doRescale($chart);
     }
+    // marked bubble as to be saved
+    if (!($bar).hasClass('saved')) { ($bar).addClass('saved'); }
 
     $bubble.fadeOut(100);
     window.setTimeout(function() {
