@@ -1,4 +1,4 @@
 charts
 ======
 
-Pretty JS charts API for Over Lotus
+Pretty JS charts library for Over Lotus
