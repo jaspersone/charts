@@ -768,7 +768,7 @@ function setBubbleLabel($bubble) {
 }
 
 function updateBubbleLabelFromValue($bubble, value) {
-    if (value) {
+    if (value || value === 0) {
         var normalizedValue = normalizeValue(value);
         $bubble.children(".lotus-number").html(normalizedValue[0]);
         $bubble.children(".lotus-metric").html(normalizedValue[1]);
