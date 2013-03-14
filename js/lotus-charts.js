@@ -7,7 +7,7 @@
 * Global Variables  	   	 	    *
 ************************************/
 var TESTING = true;
-var DEBUG   = false;
+var DEBUG   = true;
 var AJAX_ON = false;
 var MAX_BAR_HEIGHT              = 300; // default in pixels (this can be changed)
 var DEFAULT_MAX_SCALE           = 300; // vertical bar default Y access value (before resize)
@@ -117,9 +117,9 @@ function convertToInts(a) {
 function calculatePixel(value, chartMinValue, chartMaxValue, chartHeight) {
     var position = 0;
     // entire range of the chart
-    var totalRange = chartMaxValue - chartMinValue;
+    var totalRange = chartMinValue >= 0 ? chartMaxValue : chartMaxValue - chartMinValue;
     // position of the value relative to the bottom of the chart
-    var normalizedPosition = value - chartMinValue;
+    var normalizedPosition = chartMinValue >= 0 ? value : value - chartMinValue;
     position = chartHeight - getNearestPixel(chartHeight, totalRange, normalizedPosition);
     if (TESTING && totalRange < 0) {
         console.log("<<<< In calculatePixel() >>>>");
@@ -145,7 +145,7 @@ function calculatePixel(value, chartMinValue, chartMaxValue, chartHeight) {
 // return: if value is not empty or null, will return the proper
 //         html formatted string, else returns the empty string.
 function getParameterString(parameter, value) {
-    if (value != null && value != "") {
+    if (value != null && value !== "") {
         return parameter + '="' + value + '"';
     }
     return "";
@@ -154,7 +154,7 @@ function getParameterString(parameter, value) {
 // params: id - a string id name
 // return: a string that is formatted as an html id attribute
 function getIdString(id) {
-    if (id != null && id != "" && typeof(id) === "string") {
+    if (id != null && id !== "" && typeof(id) === "string") {
         return getParameterString("id", id) + " ";
     }
     return "";
@@ -162,7 +162,7 @@ function getIdString(id) {
 // params: class - a string class name, or set of space seperated class names
 // return: a string that is formatted as an html class attribute
 function getClassString(className) {
-    if (className != null && className != "" && typeof(className) === "string") {
+    if (className != null && className !== "" && typeof(className) === "string") {
         return getParameterString("class", className) + " ";
     }
     return "";
@@ -1100,11 +1100,6 @@ LineChart.prototype.appendChartTo = function(target) {
     var chartBody = [chartBG, chartNeg, chartGrids, chartLabels];
     for (var i = 0; i < this.lines.length; i++) {
         var lineString = this.lines[i].getLineString();
-        if (TESTING && DEBUG) {
-            console.log("Trying to add line: " + lineString);
-            console.log("Iteration i: " + i);
-            console.log("Data for " + this.lines[i].className + ": " + this.lines[i].data);
-        }
         chartBody.push('<g class="group-' + i + '">' +lineString + "</g>");
     }
     if (TESTING && DEBUG) console.log("<<<< After lines loop >>>>");
@@ -1226,17 +1221,6 @@ function animateLineCharts(duration) {
 
 function animatePolyline(line, points) {
     var timeout = 1000 / LOTUS_FRAMES_PER_SECOND;
-    if (TESTING && DEBUG) {
-        console.log("<<<< In animatePolyline >>>>");
-        if (points) {
-            console.log("Points:");
-            for (var i = 0; i < points.length; i++) {
-                console.log(points[i]);
-            }
-        }
-        console.log("Timeout: " + timeout);
-        console.log("----------------------------");
-    }
 
     if (points) {
         $(points).each(function(i) {
@@ -1257,18 +1241,6 @@ function animatePolyline(line, points) {
 
 function animateCircle(circle, cys, lagtime) {
     var timeout = 1000 / LOTUS_FRAMES_PER_SECOND;
-    if (TESTING && DEBUG) {
-        console.log("<<<< In animateCircle >>>>");
-        if (cys) {
-            console.log("cys:");
-            for (var i = 0; i < cys.length; i++) {
-                console.log(cys[i]);
-            }
-        }
-        console.log("Timeout: " + timeout);
-        console.log("----------------------------");
-    }
-
     if (cys) {
         $(cys).each(function(i) {
             var cy = this;
@@ -1480,6 +1452,7 @@ function formatLineData(chart, data) {
     var chartHeight   = chart.pixelHeight;
     var segWidth      = chart.segmentPixelWidth;
     var points        = [];
+    var padding       = 50; // number of pixels to pad left most point
     var offset        = 0;
     var value;
     var y; 
@@ -1500,7 +1473,7 @@ function formatLineData(chart, data) {
             }
         } else {
             y = calculatePixel(value, chartMinValue, chartMaxValue, chartHeight);
-            points.push((segWidth * i + offset).toString() + "," + y.toString());
+            points.push((segWidth * i + padding + offset).toString() + "," + y.toString());
         }
     }
     if (TESTING && DEBUG) {
@@ -1527,6 +1500,7 @@ function formatZeroLineData(chart, data) {
     var segWidth      = chart.segmentPixelWidth;
     var zeroP         = chart.zeroPos;
     var points        = [];
+    var padding       = 50; // number of pixels to pad left most point
     var offset        = 0;
     var value;
     for (i = 0; i < data.length; i++) {
@@ -1543,7 +1517,7 @@ function formatZeroLineData(chart, data) {
                 console.log("  Found an offset amount: " + offset);
             }
         } else {
-            points.push((segWidth * i + offset).toString() + "," + zeroP.toString());
+            points.push((segWidth * i + padding + offset).toString() + "," + zeroP.toString());
         }
     }
     if (TESTING && DEBUG) {
@@ -1635,17 +1609,22 @@ function parseLineData(dataString) {
     var temp = dataString.split(new RegExp("\\s+"));
     var data = [];
     var curr;
-    for (i in temp) {
+    console.log("**************************");
+    console.log("In parseLineData");
+    console.log("**************************");
+    for (var i = 0; i < temp.length; i++) {
         curr = $.trim(temp[i]); 
-        if (curr != "") {
+        console.log(curr);
+        if (curr !== "") { // in js "" == 0 -> true
             // parseInt(curr) handles the case for offset values such as '(4)'
             // which should be left as strings instead of being converted
-            if (parseInt(curr)) {
+            if (!isNaN(parseInt(curr))) {
                 curr = parseInt(curr);
             }
             data.push(curr);
         }
     }
+    console.log("**************************");
     return data; 
 }  
 
@@ -1656,7 +1635,7 @@ function getLineValues(data) {
     var values = [];
     if (data) {
         for (var i = 0; i < data.length; i++) {
-            if (parseInt(data[i])) {
+            if (!isNaN((parseInt(data[i])))) {
                 values.push(parseInt(data[i]));
             }
         }
@@ -1770,14 +1749,14 @@ function getTweenValues(from, to, duration) {
         var elem;
         for (var i = 0; i < _from.length; i++) {
             elem = $.trim(_from[i]);
-            if (elem != "") {
+            if (elem !== "") {
                 from.push(elem);
             }
         }
         to = [];
         for (var i = 0; i < _to.length; i++) {
             elem = $.trim(_to[i]);
-            if (elem != "") {
+            if (elem !== "") {
                 to.push(elem);
             }
         }
@@ -1822,14 +1801,6 @@ function getTweenValues(from, to, duration) {
                 var yTweenVals = getTweenValuesFromTo(tweenFuncs, frY, toY, frameCount);
                 
                 var column = zipPoints(xTweenVals, yTweenVals);
-                if (TESTING && DEBUG) {
-                    console.log("***********************************************************");
-                    console.log("xTweenVals: " + xTweenVals);
-                    console.log("yTweenVals: " + yTweenVals);
-                    console.log("column string:");
-                    console.log(column);
-                    console.log("***********************************************************");
-                }
                 columns.push(column);
             }
 
@@ -1860,7 +1831,7 @@ function getTweenValues(from, to, duration) {
                 for (var col = 0; col < columns.length; col++) {
                     rowString.push(columns[col][row]);
                 }
-                if ($.trim(rowString.join(" ")) != "") {
+                if ($.trim(rowString.join(" ")) !== "") {
                     valuesArray.push(rowString.join(" "));
                 }
             }
