@@ -874,6 +874,7 @@ var lineChart_blue  = "#6dafe1";
 var lineChart_green = "#5bbc19";
 var lineChart_circleRadius = "6";
 var lineChart_strokeWidth = "2";
+var lineChart_firstElemOffset = 50;
 
 // params: id       - the dom object id name
 //         start    - the start date, formatted as a date string (YYYY/MM/DD)
@@ -918,7 +919,7 @@ function LineChart(id, start, end, height, segWidth, linesIn, parentNode) {
     this.segmentPixelWidth = segWidth ? segWidth : DEFAULT_CHART_SEGMENT_WIDTH;
     this.minValue;
     this.maxValue;
-
+    this.numDataPoints  = 0;
     this.lines          = new Array();
 
     if (linesIn instanceof Array) {
@@ -964,7 +965,8 @@ LineChart.prototype.addLine = function(line) {
 
         // need to check min and max at this point
         var minMax = getMinMaxFromLine(line);
-        
+        this.numDataPoints = Math.max(this.numDataPoints, getNumberOfPoints(line));
+
         if (minMax.length > 0) {
             this.minValue = this.minValue ? Math.min(this.minValue, minMax[0]) : minMax[0];
             this.maxValue = this.maxValue ? Math.max(this.maxValue, minMax[1]) : minMax[1];
@@ -983,6 +985,24 @@ LineChart.prototype.addLine = function(line) {
         }
         return false;
     }
+}
+
+LineChart.prototype.getLineChartColumns = function() {
+    var width = this.segmentPixelWidth;
+    var padding = this.segmentPixelWidth > 40 ? 20 : this.segmentPixelWidth / 10;
+    var centerOffset = width / 2; // this is used to center align the column to the data
+    var innerWidth = this.segmentPixelWidth - (padding * 2);
+    var count = this.numDataPoints;
+    var result = []
+    var widthHeightString = 'width="' + innerWidth + 'px" height="100%" />'
+    if (count) {
+        for (var i = 0; i < count; i++) {
+            var x = lineChart_firstElemOffset - centerOffset + padding + (i * (width));
+            result.push('<rect class="column-bg" x="' + x + '" y="0" ' +  widthHeightString);
+        }
+    }
+    temp = '<rect class="column-bg" x="0" y="0" width="10px" height="100%" />';
+    return result.join('\n');
 }
 
 // params: target - the DOM object to append the chart to
@@ -1030,6 +1050,8 @@ LineChart.prototype.appendChartTo = function(target) {
     var chartGrids;
     var gridY;
     var labelZeroPos;
+
+    var chartColumns = this.getLineChartColumns();
 
     // if we have min, max, and pixel height,calculate and draw negative area
     if (this.minValue && this.minValue < 0 && this.maxValue & this.pixelHeight) {
@@ -1097,7 +1119,7 @@ LineChart.prototype.appendChartTo = function(target) {
     }
 
     // build chart body
-    var chartBody = [chartBG, chartNeg, chartGrids, chartLabels];
+    var chartBody = [chartBG, chartNeg, chartColumns, chartGrids, chartLabels];
     for (var i = 0; i < this.lines.length; i++) {
         var lineString = this.lines[i].getLineString();
         chartBody.push('<g class="group-' + i + '">' +lineString + "</g>");
@@ -1452,7 +1474,6 @@ function formatLineData(chart, data) {
     var chartHeight   = chart.pixelHeight;
     var segWidth      = chart.segmentPixelWidth;
     var points        = [];
-    var padding       = 50; // number of pixels to pad left most point
     var offset        = 0;
     var value;
     var y; 
@@ -1473,7 +1494,7 @@ function formatLineData(chart, data) {
             }
         } else {
             y = calculatePixel(value, chartMinValue, chartMaxValue, chartHeight);
-            points.push((segWidth * i + padding + offset).toString() + "," + y.toString());
+            points.push((segWidth * i + lineChart_firstElemOffset + offset).toString() + "," + y.toString());
         }
     }
     if (TESTING && DEBUG) {
@@ -1500,7 +1521,6 @@ function formatZeroLineData(chart, data) {
     var segWidth      = chart.segmentPixelWidth;
     var zeroP         = chart.zeroPos;
     var points        = [];
-    var padding       = 50; // number of pixels to pad left most point
     var offset        = 0;
     var value;
     for (i = 0; i < data.length; i++) {
@@ -1517,7 +1537,7 @@ function formatZeroLineData(chart, data) {
                 console.log("  Found an offset amount: " + offset);
             }
         } else {
-            points.push((segWidth * i + padding + offset).toString() + "," + zeroP.toString());
+            points.push((segWidth * i + lineChart_firstElemOffset + offset).toString() + "," + zeroP.toString());
         }
     }
     if (TESTING && DEBUG) {
@@ -1641,6 +1661,12 @@ function getLineValues(data) {
         }
     }
     return values;
+}
+
+// params: line - a Line object that contains data points
+// return: a count of the total number of data points
+function getNumberOfPoints(line) {
+    return line.data.length ? line.data.length : 0;
 }
 
 // params: line - a Line object that contains data points

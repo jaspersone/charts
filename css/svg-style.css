@@ -41,6 +41,9 @@ rect.chart-bg {
 rect.chart-neg-bg {
     fill: #fafafa; /* gray */
 }
+rect.column-bg {
+    fill: #f9f9f9;
+}
 line.chart-grid {
     stroke: #f4f4f4;
     stroke-width: 1px;
