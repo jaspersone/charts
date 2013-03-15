@@ -875,7 +875,7 @@ var lineChart_green = "#5bbc19";
 var lineChart_circleRadius = "6";
 var lineChart_strokeWidth = "2";
 var lineChart_firstElemOffset = 50; // space need for labelling y axis at the left
-var lineChart_bottomLabelHeight = 50; // space needed for labelling x axis at the bottom
+var lineChart_bottomLabelHeight = 60; // space needed for labelling x axis at the bottom
 
 // params: id       - the dom object id name
 //         start    - the start date, formatted as a date string (YYYY/MM/DD)
@@ -917,7 +917,7 @@ function LineChart(id, start, end, height, segWidth, linesIn, parentNode) {
     }
 
     this.outsideChartHeight = height ? height : MAX_BAR_HEIGHT;
-    this.pixelHeight        = this.outsideChartHeight - lineChart_bottomLabelHeight;
+    this.pixelHeight        = this.outsideChartHeight > LOTUS_SPARK_CHART_HEIGHT ? this.outsideChartHeight - lineChart_bottomLabelHeight : this.outsideChartHeight;
     this.segmentPixelWidth  = segWidth ? segWidth : DEFAULT_CHART_SEGMENT_WIDTH;
     this.minValue;
     this.maxValue;
@@ -998,11 +998,35 @@ LineChart.prototype.getLineChartColumns = function() {
     var innerWidth = this.segmentPixelWidth - (padding * 2);
     var count = this.numDataPoints;
     var result = []
-    var widthHeightString = 'width="' + innerWidth + 'px" height="' + this.pixelHeight + 'px" />'
+    var widthHeightString = 'width="' + innerWidth + '" height="' + this.pixelHeight + '" />';
+    var underscoreString  = 'width="' + innerWidth + '" height="5" />';
+    var startLabel = this.pixelHeight + 10;
+    var startLabelText = startLabel + 24;
+    var startLabelDate = startLabelText + 16;
+    
+    var dateLabel;
+    var labelIncrement = 1; // need to make this dynamic later
+    var ldate = this.startDate;
+    var month;
+    var days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    var day;
+
     if (count) {
         for (var i = 0; i < count; i++) {
+            // draw tall column for each point
             var x = lineChart_firstElemOffset - centerOffset + padding + (i * (width));
             result.push('<rect class="column-bg" x="' + x + '" y="0" ' +  widthHeightString);
+
+            // draw label if height is larger than 
+            if (this.outsideChartHeight > LOTUS_SPARK_CHART_HEIGHT) {
+                // the label line
+                month = ldate.getMonth() + 1;
+                day   = days[ldate.getDay()];
+                dateLabel = day + '<tspan style="font-size:75%;" x="' + x + '" y="' + startLabelDate + '">' + month + "/" + ldate.getDate() + '</tspan>';
+                result.push('<rect class="x-label-underscore" x="' + x + '" y="' + startLabel + '"' + underscoreString);
+                result.push('<text class="chart-label" x="' + x + '" y="' + startLabelText + '" >' + dateLabel + '</text>');
+                ldate.setDate(ldate.getDate() + labelIncrement);
+            }
         }
     }
     return result.join('\n');
@@ -1099,8 +1123,11 @@ LineChart.prototype.appendChartTo = function(target) {
         chartLabels += '<text class="chart-label" x="4" y="' + labelPos + '">' +
                         labelValue + '</text>';
     }
-
-    // always label the zero line
+    // always draw the top line
+     chartGrids += '<line class="chart-grid" x1="0" x2="100%" y1="0" y2="0" />';
+    // always draw/label the zero line
+    chartGrids += '<line class="chart-grid" x1="0" x2="100%" y1="' +
+                    this.pixelHeight + '" y2="' + this.pixelHeight + '" />';
     chartLabels += '<text class="chart-label" x="4" y="' + labelZeroPos + '">0</text>';
 
     

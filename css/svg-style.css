@@ -35,14 +35,17 @@ polyline.projected-cost, polyline.projected-revenue {
 }
 rect.chart-bg {
     fill: #fefefe; /* off-white color */
-    stroke: #f4f4f4;
-    stroke-width: 1px;
 }
 rect.chart-neg-bg {
     fill: #fafafa; /* gray */
 }
 rect.column-bg {
-    fill: #f9f9f9;
+    fill: #e4e4e4;
+    fill-opacity: .2;
+}
+rect.x-label-underscore {
+    fill: #e5e5e5;
+    fill-opacity: .8;
 }
 line.chart-grid {
     stroke: #f4f4f4;
