@@ -1,6 +1,6 @@
 /************************************
-* Lotus Charts Functions JS v0.01   *
-* July 28, 2012                     *
+* Lotus Charts Functions JS v0.02   *
+* Mar 15, 2013                      *
 ************************************/
 
 /************************************
@@ -967,9 +967,7 @@ LineChart.prototype.addLine = function(line) {
 
         // need to check min and max at this point
         var minMax = getMinMaxFromLine(line);
-        console.log("Before calling getNumberOfPoints");
         this.numDataPoints = Math.max(this.numDataPoints, getNumberOfPoints(line));
-        console.log("After calling getNumberOfPoints");
 
         if (minMax.length > 0) {
             this.minValue = this.minValue ? Math.min(this.minValue, minMax[0]) : minMax[0];
