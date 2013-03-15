@@ -7,7 +7,7 @@
 * Global Variables  	   	 	    *
 ************************************/
 var TESTING = true;
-var DEBUG   = true;
+var DEBUG   = false;
 var AJAX_ON = false;
 var MAX_BAR_HEIGHT              = 300; // default in pixels (this can be changed)
 var DEFAULT_MAX_SCALE           = 300; // vertical bar default Y access value (before resize)
@@ -965,7 +965,9 @@ LineChart.prototype.addLine = function(line) {
 
         // need to check min and max at this point
         var minMax = getMinMaxFromLine(line);
+        console.log("Before calling getNumberOfPoints");
         this.numDataPoints = Math.max(this.numDataPoints, getNumberOfPoints(line));
+        console.log("After calling getNumberOfPoints");
 
         if (minMax.length > 0) {
             this.minValue = this.minValue ? Math.min(this.minValue, minMax[0]) : minMax[0];
@@ -1279,6 +1281,7 @@ function animateCircle(circle, cys, lagtime) {
     }
 
 }
+
 // params: none
 // return: an array of LineCharts
 // goes through dom and finds all line charts and creates object
@@ -1666,7 +1669,26 @@ function getLineValues(data) {
 // params: line - a Line object that contains data points
 // return: a count of the total number of data points
 function getNumberOfPoints(line) {
-    return line.data.length ? line.data.length : 0;
+    var len = 0;
+    if (line.data instanceof Array) {
+        // check and see if the first value is an offset number
+        for (var i = 0; i < line.data.length; i++) {
+            if (isNaN(parseInt(line.data[i]))) {
+                offset = parseInt(line.data[i].replace(new RegExp(/[^\d]/g), ""));
+                if (!isNaN(offset)) {
+                    len += offset - 1; // for the duplicated value to connect the lines
+                }
+            } else {
+                len++;
+            }
+        }
+    } else {
+        console.log("COULD NOT FIND LINE ARRAY");
+    }
+    console.log("====================================");
+    console.log("This line has " + len + " points.");
+    console.log("====================================");
+    return len;
 }
 
 // params: line - a Line object that contains data points
