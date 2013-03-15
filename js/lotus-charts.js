@@ -874,7 +874,8 @@ var lineChart_blue  = "#6dafe1";
 var lineChart_green = "#5bbc19";
 var lineChart_circleRadius = "6";
 var lineChart_strokeWidth = "2";
-var lineChart_firstElemOffset = 50;
+var lineChart_firstElemOffset = 50; // space need for labelling y axis at the left
+var lineChart_bottomLabelHeight = 50; // space needed for labelling x axis at the bottom
 
 // params: id       - the dom object id name
 //         start    - the start date, formatted as a date string (YYYY/MM/DD)
@@ -915,8 +916,9 @@ function LineChart(id, start, end, height, segWidth, linesIn, parentNode) {
         this.endDate    = end;
     }
 
-    this.pixelHeight    = height ? height : MAX_BAR_HEIGHT;
-    this.segmentPixelWidth = segWidth ? segWidth : DEFAULT_CHART_SEGMENT_WIDTH;
+    this.outsideChartHeight = height ? height : MAX_BAR_HEIGHT;
+    this.pixelHeight        = this.outsideChartHeight - lineChart_bottomLabelHeight;
+    this.segmentPixelWidth  = segWidth ? segWidth : DEFAULT_CHART_SEGMENT_WIDTH;
     this.minValue;
     this.maxValue;
     this.numDataPoints  = 0;
@@ -996,14 +998,13 @@ LineChart.prototype.getLineChartColumns = function() {
     var innerWidth = this.segmentPixelWidth - (padding * 2);
     var count = this.numDataPoints;
     var result = []
-    var widthHeightString = 'width="' + innerWidth + 'px" height="100%" />'
+    var widthHeightString = 'width="' + innerWidth + 'px" height="' + this.pixelHeight + 'px" />'
     if (count) {
         for (var i = 0; i < count; i++) {
             var x = lineChart_firstElemOffset - centerOffset + padding + (i * (width));
             result.push('<rect class="column-bg" x="' + x + '" y="0" ' +  widthHeightString);
         }
     }
-    temp = '<rect class="column-bg" x="0" y="0" width="10px" height="100%" />';
     return result.join('\n');
 }
 
@@ -1031,7 +1032,8 @@ LineChart.prototype.appendChartTo = function(target) {
     // build basic chart components
     var basicSVGSettings    = 'xmlns="http://www.w3.org/2000/svg" version="1.1"';
     var chartWidth          = 'width="100%"'; // TODO: make this dynamic based on seg width
-    var chartHeight         = 'height="' + this.pixelHeight + '"';
+    var chartHeight         = 'height="' + this.outsideChartHeight + '"';
+
 
     // build opening/closing svg strings
     var openSVGTag =  '<svg ' +
