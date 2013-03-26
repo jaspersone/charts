@@ -1006,7 +1006,7 @@ LineChart.prototype.getLineChartColumns = function() {
     var labelIncrement = 1; // need to make this dynamic later
     var ldate = this.startDate;
     var month;
-    var days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     var day;
 
     if (count) {
