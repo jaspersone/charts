@@ -989,7 +989,7 @@ LineChart.prototype.addLine = function(line) {
     }
 }
 
-LineChart.prototype.getLineChartColumns = function() {
+LineChart.prototype.getLineChartColumns = function(periodInDays) {
     var width = this.segmentPixelWidth;
     var padding = this.segmentPixelWidth > 40 ? 20 : this.segmentPixelWidth / 10;
     var centerOffset = width / 2; // this is used to center align the column to the data
@@ -1003,14 +1003,19 @@ LineChart.prototype.getLineChartColumns = function() {
     var startLabelDate = startLabelText + 16;
     
     var dateLabel;
-    var labelIncrement = 1; // need to make this dynamic later
     var ldate = this.startDate;
-    var month;
+    var year, month, date, day;
     var days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    var day;
 
     if (count) {
         for (var i = 0; i < count; i++) {
+            year  = ldate.getFullYear();
+            month = ldate.getMonth() + 1;
+            date  = ldate.getDate();
+            day   = days[ldate.getDay()];
+            // label column with date information
+            
+            result.push('<g class="column-group" rel="' + year + '/' + month + '/' + date + '">');
             // draw tall column for each point
             var x = lineChart_firstElemOffset - centerOffset + padding + (i * (width));
             result.push('<rect class="column-bg" x="' + x + '" y="0" ' +  widthHeightString);
@@ -1018,13 +1023,12 @@ LineChart.prototype.getLineChartColumns = function() {
             // draw label if height is larger than 
             if (this.outsideChartHeight > LOTUS_SPARK_CHART_HEIGHT) {
                 // the label line
-                month = ldate.getMonth() + 1;
-                day   = days[ldate.getDay()];
-                dateLabel = day + '<tspan style="font-size:75%;" x="' + x + '" y="' + startLabelDate + '">' + month + "/" + ldate.getDate() + '</tspan>';
+                dateLabel = day + '<tspan style="font-size:75%;" x="' + x + '" y="' + startLabelDate + '">' + month + "/" + date + '</tspan>';
                 result.push('<rect class="x-label-underscore" x="' + x + '" y="' + startLabel + '"' + underscoreString);
                 result.push('<text class="chart-label" x="' + x + '" y="' + startLabelText + '" >' + dateLabel + '</text>');
-                ldate.setDate(ldate.getDate() + labelIncrement);
             }
+            ldate.setDate(ldate.getDate() + periodInDays);
+            result.push('</g>');
         }
     }
     return result.join('\n');
@@ -1073,11 +1077,11 @@ LineChart.prototype.appendChartTo = function(target) {
     var chartBG = '<rect class="chart-bg" x="0" y="0" width="100%" height="100%" />';
     var chartNeg = '';
     var chartLabels = '';
-    var chartGrids;
+    var chartGrids = '<g class="chart-grids-container">';
     var gridY;
     var labelZeroPos;
 
-    var chartColumns = this.getLineChartColumns();
+    var chartColumns = this.getLineChartColumns(1); // the parameter is the chart's increment in days
 
     // if we have min, max, and pixel height,calculate and draw negative area
     if (this.minValue && this.minValue < 0 && this.maxValue & this.pixelHeight) {
@@ -1126,6 +1130,8 @@ LineChart.prototype.appendChartTo = function(target) {
     // always draw/label the zero line
     chartGrids += '<line class="chart-grid" x1="0" x2="100%" y1="' +
                     this.pixelHeight + '" y2="' + this.pixelHeight + '" />';
+    // close grids group
+    chartGrids += '</g>';
     chartLabels += '<text class="chart-label" x="4" y="' + labelZeroPos + '">0</text>';
 
     
